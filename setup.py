@@ -65,7 +65,7 @@ if os.name == "nt":
             "includes": [
                 "pamp.native", # not required, but used because it generates an error if the module is not found
             ],
-            "excludes": [],
+            "excludes": ["Tkinter", ],
             "bundle_files" : 2, # unreliable
         },
     }
