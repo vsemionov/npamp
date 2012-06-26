@@ -217,7 +217,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         self.actionSave.triggered.connect(self.onSave)
         self.actionSaveAs.triggered.connect(self.onSaveAs)
         self.actionClose.triggered.connect(self.onCloseFile)
-        self.actionRun.triggered.connect(self.onRun)
+        self.actionExecute.triggered.connect(self.onExecute)
         self.actionQuit.triggered.connect(self.onQuit)
         self.actionAbout.triggered.connect(self.onAbout)
     
@@ -307,7 +307,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
                 self.output_path = None
         self.updateUI()
     
-    def onRun(self):
+    def onExecute(self):
         conf = self.gui2conf()
         
         if conf["graphs"]:

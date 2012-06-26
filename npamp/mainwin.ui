@@ -1426,7 +1426,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <property name="title">
      <string>&amp;Model</string>
     </property>
-    <addaction name="actionRun"/>
+    <addaction name="actionExecute"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -1454,7 +1454,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    <addaction name="actionSave"/>
    <addaction name="actionClose"/>
    <addaction name="separator"/>
-   <addaction name="actionRun"/>
+   <addaction name="actionExecute"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -1504,13 +1504,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="actionRun">
+  <action name="actionExecute">
    <property name="icon">
     <iconset resource="res/main.qrc">
-     <normaloff>:/main/run.png</normaloff>:/main/run.png</iconset>
+     <normaloff>:/main/execute.png</normaloff>:/main/execute.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Run</string>
+    <string>&amp;Execute</string>
    </property>
    <property name="shortcut">
     <string>F5</string>

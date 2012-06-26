@@ -5,7 +5,7 @@
     <file>open.png</file>
     <file>save.png</file>
     <file>close.png</file>
-    <file>run.png</file>
+    <file>execute.png</file>
     <file>quit.png</file>
     <file>about.png</file>
   </qresource>
