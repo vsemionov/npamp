@@ -1534,7 +1534,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
      <normaloff>:/main/about.png</normaloff>:/main/about.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;About</string>
+    <string>&amp;About NPAmp</string>
    </property>
   </action>
   <action name="actionSaveAs">
