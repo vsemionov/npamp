@@ -30,7 +30,6 @@ import sys
 import getopt
 import time
 
-import svc
 import multiprocessing
 
 import meta
@@ -39,6 +38,7 @@ import core
 import mp
 import output
 import ext
+import svc
 
 
 

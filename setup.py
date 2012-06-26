@@ -25,18 +25,20 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import sys
+import os
+
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
 
-import os
-
 import numpy
 
+sys.path.append(os.path.join(os.getcwd(), "npamp"))
 import meta
 
 
-ext_modules = [Extension("pamp.native", ["pamp/native.pyx", "pamp/randomkit.c"], include_dirs = ["pamp", numpy.get_include()], extra_compile_args=["-DRK_NO_WINCRYPT"])]
+ext_modules = [Extension("pamp.native", ["npamp/pamp/native.pyx", "npamp/pamp/randomkit.c"], include_dirs = ["npamp/pamp", numpy.get_include()], extra_compile_args=["-DRK_NO_WINCRYPT"])]
 
 setup_args = dict(
     name = meta.app_name,
@@ -69,8 +71,8 @@ if os.name == "nt":
     }
     
     setup_args.update(dict(
-        console = [{"script": meta.app_name + ".py", "copyright": meta.app_copyright, }, ],
-        windows = [{"script": meta.gui_app_name + ".py", "icon_resources": [(1, "res/app.ico"), (2, "res/doc.ico"), ], "copyright": meta.app_copyright, }, ],
+        console = [{"script": "npamp/%s.py" % meta.app_name, "copyright": meta.app_copyright, }, ],
+        windows = [{"script": "npamp/%s.py" % meta.gui_app_name, "icon_resources": [(1, "npamp/res/app.ico"), (2, "npamp/res/doc.ico"), ], "copyright": meta.app_copyright, }, ],
         data_files = data_files,
         options = options,
     ))

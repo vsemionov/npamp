@@ -48,7 +48,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-LicenseFile=..\LICENSE.txt
+LicenseFile=..\..\LICENSE.txt
 OutputDir=.
 OutputBaseFilename={#MyAppName} Setup {#MyAppVersion}
 Compression=lzma
@@ -70,8 +70,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "fileassoc"; Description: "&Register file associations"; GroupDescription: "Other tasks:"
 
 [Files]
-Source: "..\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion
-Source: "..\dist\*.*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion
+Source: "..\..\dist\*.*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyGUIAppName}"; Filename: "{app}\{#MyGUIAppExeName}"

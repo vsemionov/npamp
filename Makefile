@@ -29,22 +29,22 @@
 
 app:
 	python setup.py build_ext
-	find build -type f -and \( -name native.so -or -name native.pyd \) -exec cp \{\} pamp/ \;
-	pyside-rcc -o main_rc.py res/main.qrc
-	pyside-uic -o mainwin.py mainwin.ui
-	pyside-uic -o outwin.py outwin.ui
+	find build -type f -and \( -name native.so -or -name native.pyd \) -exec cp \{\} npamp/pamp/ \;
+	pyside-rcc -o npamp/main_rc.py npamp/res/main.qrc
+	pyside-uic -o npamp/mainwin.py npamp/mainwin.ui
+	pyside-uic -o npamp/outwin.py npamp/outwin.ui
 
 exe: app
 	python setup.py py2exe
 
 installer: exe
-	ISCC installer/installer.iss
+	ISCC npamp/installer/installer.iss
 
 clean:
 	rm -rf output
-	rm -f installer/*.exe
+	rm -f npamp/installer/*.exe
 	rm -rf dist
 	rm -rf build
 	find . -type f -name \*.pyc -exec rm -f \{\} \;
-	rm -f outwin.py mainwin.py main_rc.py
-	rm -f pamp/native.so pamp/native.pyd pamp/native.c
+	rm -f npamp/outwin.py npamp/mainwin.py npamp/main_rc.py
+	rm -f npamp/pamp/native.so npamp/pamp/native.pyd npamp/pamp/native.c
