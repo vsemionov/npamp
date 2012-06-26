@@ -30,7 +30,7 @@
 app:
 	python setup.py build_ext
 	find build -type f -and \( -name native.so -or -name native.pyd \) -exec cp \{\} npamp/pamp/ \;
-	pyside-rcc -o npamp/main_rc.py npamp/res/main.qrc
+	pyside-rcc -o npamp/main_rc.py res/main.qrc
 	pyside-uic -o npamp/mainwin.py npamp/mainwin.ui
 	pyside-uic -o npamp/outwin.py npamp/outwin.ui
 
@@ -38,11 +38,11 @@ exe: app
 	python setup.py py2exe
 
 installer: exe
-	ISCC npamp/installer/installer.iss
+	ISCC installer/installer.iss
 
 clean:
 	rm -rf output
-	rm -f npamp/installer/*.exe
+	rm -f installer/*.exe
 	rm -rf dist
 	rm -rf build
 	find . -type f -name \*.pyc -exec rm -f \{\} \;

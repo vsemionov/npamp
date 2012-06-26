@@ -48,7 +48,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-LicenseFile=..\..\LICENSE
+LicenseFile=..\LICENSE
 OutputDir=.
 OutputBaseFilename={#MyAppName} Setup {#MyAppVersion}
 Compression=lzma
@@ -70,12 +70,12 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "fileassoc"; Description: "&Register file associations"; GroupDescription: "Other tasks:"
 
 [Files]
-Source: "..\..\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion
-Source: "..\..\dist\*.*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\..\README"; DestDir: "{app}"; DestName: "README.txt"; Flags: ignoreversion isreadme
-Source: "..\..\AUTHORS"; DestDir: "{app}"; DestName: "AUTHORS.txt"; Flags: ignoreversion
-Source: "..\..\LICENSE"; DestDir: "{app}"; DestName: "LICENSE.txt"; Flags: ignoreversion
-Source: "..\..\CHANGES"; DestDir: "{app}"; DestName: "CHANGES.txt"; Flags: ignoreversion
+Source: "..\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion
+Source: "..\dist\*.*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\README"; DestDir: "{app}"; DestName: "README.txt"; Flags: ignoreversion isreadme
+Source: "..\AUTHORS"; DestDir: "{app}"; DestName: "AUTHORS.txt"; Flags: ignoreversion
+Source: "..\LICENSE"; DestDir: "{app}"; DestName: "LICENSE.txt"; Flags: ignoreversion
+Source: "..\CHANGES"; DestDir: "{app}"; DestName: "CHANGES.txt"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyGUIAppName}"; Filename: "{app}\{#MyGUIAppExeName}"
