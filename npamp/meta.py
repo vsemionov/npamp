@@ -35,8 +35,8 @@ app_url = "http://www.vsemionov.org/npamp/"
 app_description = "Numerical Pulsed Laser Amplifier Model"
 copyright_period = "2012"
 app_copyright = "Copyright (C) %s %s" % (copyright_period, app_author_name)
-app_author_msg = "Written and maintained by %s." % app_author
-app_coauthors_msg = "Developed under the supervision of Assoc. Prof. Ivan Buchvarov and Assistant Prof. Alexander Gaydardzhiev at Sofia University."
+app_author_msg = "Developed and maintained by %s." % app_author
+app_coauthors_msg = "Studied under the guidance of Assoc. Prof. Ivan Buchvarov and Assistant Prof. Alexander Gaydardzhiev at Sofia University."
 app_website_msg = "Website: %s" % app_url
 
 file_extension = "npc"
