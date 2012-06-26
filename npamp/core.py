@@ -347,6 +347,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     max_output_fluence = pamp.energy.energy(params.lasing_wavelen, np.amax(ref_output_fluence))
     train_output_photon_count = sum(reversed(output_photon_counts))
     train_output_energy = pamp.energy.energy(params.lasing_wavelen, train_output_photon_count)
+    rel_gain_reduction = 1.0 - output_photon_counts[-1] / output_photon_counts[0]
     if not quiet:
         if params.graphs:
             print "generating output"
@@ -356,7 +357,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
             output.plot_beam(ref_pulse_dir, beam_profile, Rho, Phi, ref_output_fluence)
             output.plot_train(dirname, beam_profile, active_medium, output_photon_counts)
     
-    return max_output_fluence, train_output_energy
+    return max_output_fluence, output_photon_counts, train_output_energy, rel_gain_reduction
 
 def validate():
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
@@ -380,7 +381,7 @@ def compute_rel_error(ref_inversion, ref_inversion_rel_error):
     rel_error_energy = params.pulse_rel_energy_trunc + params.amp_rtol + params.energy_rtol
     return rel_error_inversion + rel_error_energy
 
-def report_output_characteristics(ref_inversion, max_output_fluence, output_energy, inversion_rel_error, energy_rel_error):
+def report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_reduction, inversion_rel_error, energy_rel_error):
     print output.div_line
     print "results:"
     
@@ -410,7 +411,12 @@ def report_output_characteristics(ref_inversion, max_output_fluence, output_ener
     
     max_output_fluence_abs_error = max_output_fluence * energy_rel_error # rtol is specified for the energy, not density/fluence, but use it nevertheless
     
+    photon_count_first, photon_count_last = output_photon_counts[0], output_photon_counts[-1]
+    photon_count_first_abs_error, photon_count_last_abs_error = photon_count_first * energy_rel_error, photon_count_last * energy_rel_error
+    rel_gain_reduction_abs_error = (photon_count_last + photon_count_last_abs_error) / (photon_count_first - photon_count_first_abs_error) - photon_count_last / photon_count_first
+    
     unitconv.print_result("maximum output fluence [{}]: {} ~ {}", ("J/cm^2",), (max_output_fluence, max_output_fluence_abs_error))
     unitconv.print_result("total output energy [{}]: {} ~ {}", ("mJ",), (output_energy, output_energy_abs_error))
     unitconv.print_result("extraction efficiency [{}]: {} ~ {}", ("%",), (extraction_eff, extraction_eff_abs_error))
     unitconv.print_result("opt-opt efficiency [{}]: {} ~ {}", ("%",), (total_eff, total_eff_abs_error))
+    unitconv.print_result("rel gain reduction [{}]: {} ~ {}", ("%",), (rel_gain_reduction, rel_gain_reduction_abs_error))

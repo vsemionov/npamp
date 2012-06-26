@@ -115,8 +115,8 @@ def run(conf_path, output_path):
         if params.amplification:
             num_types, counts = core.setup_methods(dirname, (int_types, amp_types), ref_inversion)
             max_rel_error = core.compute_rel_error(ref_inversion, ref_inversion_rel_error)
-            max_output_fluence, output_energy = core.amplify_train(dirname, num_types, counts, ref_inversion)
-            core.report_output_characteristics(ref_inversion, max_output_fluence, output_energy, ref_inversion_rel_error, max_rel_error)
+            max_output_fluence, output_photon_counts, output_energy, rel_gain_reduction = core.amplify_train(dirname, num_types, counts, ref_inversion)
+            core.report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_reduction, ref_inversion_rel_error, max_rel_error)
     
     print output.div_line
     print "done"
