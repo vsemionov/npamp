@@ -1,1 +1,2 @@
-Victor Semionov <vsemionov@gmail.com>
+Written and maintained by Victor Semionov <vsemionov@gmail.com>.
+Developed under the supervision of Assoc. Prof. Ivan Buchvarov and Assistant Prof. Alexander Gaydardzhiev at Sofia University.

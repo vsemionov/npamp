@@ -342,7 +342,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         self.close()
     
     def onAbout(self):
-        text = "%s %s\n%s\n\n%s\n%s" % (meta.app_name, meta.app_version, meta.app_copyright, meta.app_author_msg, meta.app_website_msg)
+        text = "%s %s\n%s\n\n%s\n\n%s\n%s\n\n%s" % (meta.app_name, meta.app_version, meta.app_copyright, meta.app_description, meta.app_author_msg, meta.app_coauthors_msg, meta.app_website_msg)
         QtGui.QMessageBox.about(self, "About %s" % meta.app_name, text)
     
     def closeEvent(self, event):

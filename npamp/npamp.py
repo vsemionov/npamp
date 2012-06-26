@@ -62,7 +62,11 @@ def print_info():
     print meta.app_name, meta.app_version
     print meta.app_copyright
     print
+    print meta.app_description
+    print
     print meta.app_author_msg
+    print meta.app_coauthors_msg
+    print
     print meta.app_website_msg
 
 def run(conf_path, output_path):
