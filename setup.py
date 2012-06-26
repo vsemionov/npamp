@@ -57,7 +57,7 @@ if os.name == "nt":
     py2exe.__name__ #suppress warning for unused import
     
     data_files_mpl = matplotlib.get_py2exe_datafiles()
-    data_files_npamp = [("", ["AUTHORS.txt", "LICENSE.txt", "CHANGES.txt", ]), ]
+    data_files_npamp = [("", []), ]
     data_files = data_files_mpl + data_files_npamp
     
     options = {
