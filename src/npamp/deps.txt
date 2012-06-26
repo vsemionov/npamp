@@ -1,0 +1,14 @@
+win32:
+Visual C++ 2008 Express SP1
+Visual C++ 2008 SP1 Redistributable Package
+Inno Setup 5.4.3
+MinGW 2011-11-18
+python 2.7.2
+setuptools 0.6c11
+Cython 0.15.1
+numpy 1.6.1
+scipy 0.10.1
+matplotlib 1.1.0
+py2exe 0.6.9
+pywin32 build 217
+PySide 1.1.0

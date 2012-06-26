@@ -1,0 +1,16 @@
+syntax: glob
+.project
+.pydevproject
+.settings
+build
+dist
+output
+*.pyc
+pamp/native.c
+pamp/native.html
+pamp/native.pyd
+pamp/native.so
+main_rc.py
+mainwin.py
+outwin.py
+installer/*.exe
