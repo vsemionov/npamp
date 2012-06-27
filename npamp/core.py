@@ -303,6 +303,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     Phi = np.linspace(0.0, 2.0*math.pi, count_phi)
     
     output_fluence = np.empty((count_rho, count_phi))
+    max_fluences = np.empty(params.train_pulse_count)
     output_photon_counts = np.empty(params.train_pulse_count)
     
     empty_mdlist = [[None for n in range(count_phi)] for m in range(count_rho)]
@@ -336,7 +337,9 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
                 output_fluence[m, n] = fluence_out
         
         if pnum == 0:
+            ref_idx = np.unravel_index(output_fluence.argmax(), output_fluence.shape)
             ref_output_fluence = np.copy(output_fluence)
+        max_fluences[pnum] = output_fluence[ref_idx]
         output_photon_counts[pnum] = integrator.integrate_base(Rho, Phi, output_fluence)
     
     if not quiet or params.verbose:
@@ -344,8 +347,9 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     
     if not quiet or params.verbose:
         print "processing results"
-    max_output_fluence = pamp.energy.energy(params.lasing_wavelen, np.amax(ref_output_fluence))
-    train_output_photon_count = sum(reversed(output_photon_counts))
+    max_output_fluence = max_fluences[::-1].sum()
+    max_output_fluence = pamp.energy.energy(params.lasing_wavelen, max_output_fluence)
+    train_output_photon_count = output_photon_counts[::-1].sum()
     train_output_energy = pamp.energy.energy(params.lasing_wavelen, train_output_photon_count)
     rel_gain_reduction = 1.0 - output_photon_counts[-1] / output_photon_counts[0]
     if not quiet:

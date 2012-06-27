@@ -258,12 +258,29 @@ def compute_inversion_geom_dependence(task_pool, dirname):
     
     return inversions1, inversion_rdiffs
 
-def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_medium, (rho, phi), integrator, amp, (count_z, count_t), ref_pulse):
+def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_medium, (rho, phi), integrator, amp, (count_z, count_t), ref_pulse, decay):
     output.show_status((i, j), params.extended_status_strides, False)
+    
     initial_inversion = pamp.inversion.UniformInversion(inversion)
     active_medium.initial_inversion = initial_inversion
-    density_out, _ = amp.amplify(rho, phi, ref_pulse, count_t)
-    fluence_out = integrator.integral(amp.T, density_out) * active_medium.light_speed
+    
+    upper = np.vectorize(initial_inversion.inversion)(rho, phi, amp.Z)
+    lower = np.zeros(count_z)
+    population = (upper, lower)
+    
+    pulse_fluences = np.empty(params.train_pulse_count)
+    
+    for pnum in range(params.train_pulse_count):
+        density_out, population_out = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
+        
+        upper = np.copy(population_out[0])
+        lower = population_out[1] * decay
+        population = (upper, lower)
+        
+        fluence_out = integrator.integral(amp.T, density_out) * active_medium.light_speed
+        pulse_fluences[pnum] = fluence_out
+    
+    fluence_out = pulse_fluences[::-1].sum()
     fluence_out = pamp.energy.energy(params.lasing_wavelen, fluence_out)
     return fluence_out
 
@@ -285,6 +302,8 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     
     ref_pulse = core.create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
     
+    decay = core.get_decay(active_medium, ref_pulse)
+    
     count_rho, count_phi, count_z, count_t = counts
     integrator = pamp.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
     amp = amp_type(active_medium, count_z)
@@ -296,7 +315,7 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     Pwr = np.linspace(params.pumpdep_power_interval[0], params.pumpdep_power_interval[1], count_pwr)
     
     rho, phi = beam_profile.rho_ref, beam_profile.phi_ref
-    fluences = task_pool.parallel_task(compute_fluence_pump_dependence_task, (Tau, Pwr), (inversions,), (active_medium, (rho, phi), integrator, amp, (count_z, count_t), ref_pulse))
+    fluences = task_pool.parallel_task(compute_fluence_pump_dependence_task, (Tau, Pwr), (inversions,), (active_medium, (rho, phi), integrator, amp, (count_z, count_t), ref_pulse, decay))
     
     output.show_status((count_rho, count_phi), params.extended_status_strides, True)
     
@@ -316,25 +335,48 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     
     return fluences
 
-def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, doping_agent, pulse_photon_count, (int_type, amp_type), (count_z, count_t)):
+def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, doping_agent, pulse_photon_count, (int_type, amp_type), (count_z, count_t), decay):
     output.show_status((i, j), params.extended_status_strides, False)
+    
     medium_radius_orig = params.medium_radius
     beam_radius_orig = params.beam_radius
     params.medium_radius = rm
     params.beam_radius = rb
+    
     ref_inversion = inversion
     initial_inversion = pamp.inversion.UniformInversion(ref_inversion)
     active_medium = pamp.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    
     ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
     beam_profile = params.beam_class(params.beam_radius, ref_fluence)
-    ref_pulse = core.create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
+    rho, phi = beam_profile.rho_ref, beam_profile.phi_ref
+    ref_pulse = core.create_pulse(active_medium, beam_profile, rho, phi)
+    
     integrator = pamp.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
     amp = amp_type(active_medium, count_z)
-    density_out, _ = amp.amplify(beam_profile.rho_ref, beam_profile.phi_ref, ref_pulse, count_t)
-    fluence_out = integrator.integral(amp.T, density_out) * active_medium.light_speed
+    
+    upper = np.vectorize(initial_inversion.inversion)(rho, phi, amp.Z)
+    lower = np.zeros(count_z)
+    population = (upper, lower)
+    
+    pulse_fluences = np.empty(params.train_pulse_count)
+    
+    for pnum in range(params.train_pulse_count):
+        density_out, population_out = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
+        
+        upper = np.copy(population_out[0])
+        lower = population_out[1] * decay
+        population = (upper, lower)
+        
+        fluence_out = integrator.integral(amp.T, density_out) * active_medium.light_speed
+        pulse_fluences[pnum] = fluence_out
+    
+    fluence_out = pulse_fluences[::-1].sum()
     fluence_out = pamp.energy.energy(params.lasing_wavelen, fluence_out)
+    
     params.medium_radius = medium_radius_orig
     params.beam_radius = beam_radius_orig
+    
     return fluence_out
 
 def compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions):
@@ -345,6 +387,12 @@ def compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), 
     
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     pulse_photon_count = pamp.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
+    
+    active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
+    beam_profile = params.beam_class(params.beam_radius, ref_fluence)
+    ref_pulse = core.create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
+    decay = core.get_decay(active_medium, ref_pulse)
     
     min_medium_radius = params.geomdep_mediumradius_interval[0]
     min_beam_radius = params.geomdep_beamradius_interval[0]
@@ -367,7 +415,7 @@ def compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), 
     Rb = np.linspace(min_beam_radius, params.geomdep_beamradius_interval[1], count_rb)
     
     inversions2d = np.meshgrid(inversions, Rb)[0].T
-    fluences = task_pool.parallel_task(compute_fluence_geom_dependence_task, (Rm, Rb), (inversions2d,), (doping_agent, pulse_photon_count, (int_type, amp_type), (count_z, count_t)))
+    fluences = task_pool.parallel_task(compute_fluence_geom_dependence_task, (Rm, Rb), (inversions2d,), (doping_agent, pulse_photon_count, (int_type, amp_type), (count_z, count_t), decay))
     
     output.show_status((count_rm, count_rb), params.extended_status_strides, True)
     
