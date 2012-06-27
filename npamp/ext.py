@@ -726,7 +726,7 @@ def compare_lower_lifetimes(dirname, (int_types, amp_types)):
     active_medium_4 = copy.deepcopy(active_medium)
     active_medium_4.doping_agent.lower_lifetime = 0.0
     
-    (_, amp_type), counts = core.setup_methods(dirname, (int_types, amp_types), ref_inversion, quiet=True)
+    (int_type, amp_type), counts = core.setup_methods(dirname, (int_types, amp_types), ref_inversion, quiet=True)
     
     pulse_photon_count = pamp.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
     ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
@@ -734,15 +734,31 @@ def compare_lower_lifetimes(dirname, (int_types, amp_types)):
     
     ref_pulse = core.create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
     
+    integrator = pamp.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
+    
     _, _, count_z, count_t = counts
     amp = amp_type(active_medium, count_z)
     amp_3 = pamp.amplifier.ExactOutputAmplifier(active_medium_3, count_z)
     amp_4 = pamp.amplifier.ExactOutputAmplifier(active_medium_4, count_z)
     amplify_args = (beam_profile.rho_ref, beam_profile.phi_ref, ref_pulse, count_t)
     
-    density_out, _ = amp.amplify(*amplify_args)
-    density_out_3, _ = amp_3.amplify(*amplify_args)
+    print "zero"
     density_out_4, _ = amp_4.amplify(*amplify_args)
+    fluence_out_4 = integrator.integral(amp_4.T, density_out_4) * active_medium_4.light_speed
+    fluence_gain_4 = fluence_out_4 / ref_fluence
+    unitconv.print_result("fluence gain: {}", (), (fluence_gain_4,))
+    
+    print "finite"
+    density_out, _ = amp.amplify(*amplify_args)
+    fluence_out = integrator.integral(amp.T, density_out) * active_medium.light_speed
+    fluence_gain = fluence_out / ref_fluence
+    unitconv.print_result("fluence gain: {}", (), (fluence_gain,))
+    
+    print "infinity"
+    density_out_3, _ = amp_3.amplify(*amplify_args)
+    fluence_out_3 = integrator.integral(amp_3.T, density_out_3) * active_medium_3.light_speed
+    fluence_gain_3 = fluence_out_3 / ref_fluence
+    unitconv.print_result("fluence gain: {}", (), (fluence_gain_3,))
     
     if params.graphs:
         print "generating output"
