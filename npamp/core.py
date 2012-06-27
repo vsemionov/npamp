@@ -418,6 +418,8 @@ def report_output_characteristics(ref_inversion, max_output_fluence, output_phot
     photon_count_first, photon_count_last = output_photon_counts[0], output_photon_counts[-1]
     photon_count_first_abs_error, photon_count_last_abs_error = photon_count_first * energy_rel_error, photon_count_last * energy_rel_error
     rel_gain_reduction_abs_error = (photon_count_last + photon_count_last_abs_error) / (photon_count_first - photon_count_first_abs_error) - photon_count_last / photon_count_first
+    if params.train_pulse_count == 1:
+        rel_gain_reduction_abs_error = 0.0
     
     unitconv.print_result("maximum output fluence [{}]: {} ~ {}", ("J/cm^2",), (max_output_fluence, max_output_fluence_abs_error))
     unitconv.print_result("total output energy [{}]: {} ~ {}", ("mJ",), (output_energy, output_energy_abs_error))
