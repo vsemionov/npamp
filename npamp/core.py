@@ -382,7 +382,7 @@ def validate():
     
     param_min_vals = {
         "train_pulse_count": 1,
-        "loss_min_count": 1,
+        "loss_min_count": 16,
         "out_markers_step_divisor": 1,
         "out_rho_steps_divisor": 1,
         "out_phi_steps_divisor": 1,
