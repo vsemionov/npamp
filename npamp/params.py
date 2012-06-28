@@ -94,7 +94,7 @@ amp_rtol = 1.0e-2
 min_count_z = 0
 min_count_t = 0
 
-integrator_classes = (pamp.integral.TrapezoidIntegrator, pamp.integral.SimpsonIntegrator, pamp.integral.RombergIntegrator, )
+integrator_classes = (pamp.integral.SimpsonIntegrator, )
 amplifier_classes = (pamp.amplifier.HybridAmplifier, pamp.amplifier.NSFDAmplifier, ) # HybridAmplifier is faster and may produce less error in some cases; NSFDAmplifier is unconditionally stable and produces qualitatively correct solutions (with all expected properties)
 compared_loss_models = (pamp.loss.FluorescenceLossModel, pamp.loss.RossApproximateASEModel, pamp.loss.RossNumericalASEModel, )
 
