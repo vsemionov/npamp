@@ -71,16 +71,16 @@ class PhotonCountIntegrator(object):
                 X = np.linspace(a, b, steps)
                 Y = np.vectorize(func)(X)
                 res = self.integral(X, Y)
-                error = None
+                diff = None
                 if last_res is not None:
-                    error = abs(res - last_res)
-                    if error <= rtol * abs(res):
+                    diff = abs(res - last_res)
+                    if diff <= rtol * abs(res):
                         break
                 last_res = res
                 divs += 1
                 if divs > max_divs:
-                    if error is not None:
-                        warnings.warn("max divs (%d) exceeded; latest difference: %f" % (max_divs, error), stacklevel=3)
+                    if diff is not None:
+                        warnings.warn("max divs (%d) exceeded; latest difference: %f" % (max_divs, diff), stacklevel=3)
                         break
                     else:
                         raise ValueError("max divs (%d) exceeded" % max_divs)
@@ -168,8 +168,8 @@ class PhotonCountIntegrator(object):
             T = single_pulse.duration
             exact_amp_3.input_pulse = single_pulse
             exact_amp_4.input_pulse = single_pulse
-            inversion_out_3 = lambda x: population_inversion(exact_amp_3.exact_population(x, T))
-            inversion_out_4 = lambda x: population_inversion(exact_amp_4.exact_population(x, T))
+            inversion_out_3 = lambda z: population_inversion(exact_amp_3.exact_population(z, T))
+            inversion_out_4 = lambda z: population_inversion(exact_amp_4.exact_population(z, T))
             steps_z_3 = converge_steps(inversion_out_3, 0.0, L)
             steps_z_4 = converge_steps(inversion_out_4, 0.0, L)
             steps_z = max(steps_z, steps_z_3, steps_z_4)

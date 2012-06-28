@@ -188,7 +188,7 @@ class RossNumericalASEModel(NumericalLossModel):
             B_abs_error = B_rel_error * B
             loss_coef = 1.0 + B
             loss_rel_error = B_abs_error / loss_coef
-            if loss_rel_error <= self.rtol:
+            if loss_rel_error < self.rtol:
                 break
             nsamples *= self.sample_count_multiplier
             if nsamples > self.max_nsamples:

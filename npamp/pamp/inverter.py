@@ -96,15 +96,15 @@ class PopulationInverter(object):
             divs += 1
             is_last_try = divs > max_divs
             res = self._integrate(rtol, count_t, not is_last_try)
-            error = None
+            diff = None
             if None not in (last_res, res):
-                error = abs(res - last_res)
-                if error <= rtol * abs(res):
+                diff = abs(res - last_res)
+                if diff <= rtol * abs(res):
                     break
             last_res = res
             if is_last_try:
-                if error is not None:
-                    warnings.warn("max divs (%d) exceeded; latest difference: %f" % (max_divs, error), stacklevel=2)
+                if diff is not None:
+                    warnings.warn("max divs (%d) exceeded; latest difference: %f" % (max_divs, diff), stacklevel=2)
                     break
                 else:
                     raise ValueError("max divs (%d) exceeded" % max_divs)

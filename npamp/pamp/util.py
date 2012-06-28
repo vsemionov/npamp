@@ -103,7 +103,7 @@ def min_steps(min_count_x, min_count_y, var_x, var_y, rtol, compute_result, comp
             result, rel_error = result_y, rel_error_y
             rdiff = rdiff_y
         else:
-            warnings.warn("unable to reach rtol (%f); latest counts: (%d, %d); max count: %d; latest rel. error: %f, latest rdiff: %f" % (rtol, count_x, count_y, steps(max_divs), rel_error, rdiff), stacklevel=2)
+            warnings.warn("unable to reach rtol (%f); latest counts: (%d, %d); max count: %d; latest rel. error: %f, latest rel. difference: %f" % (rtol, count_x, count_y, steps(max_divs), rel_error, rdiff), stacklevel=2)
             break
         
         if max(rdiff, last_rel_error) < rtol:
