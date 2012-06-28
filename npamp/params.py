@@ -114,7 +114,7 @@ num_tasks = 0
 lower_process_priority = True
 
 pulse_num_stride = 100
-extended_status_strides = (0, 0)
+extended_status_strides = (4, 0)
 
 out_markers_step_divisor = 5
 out_rho_steps_divisor = 33
