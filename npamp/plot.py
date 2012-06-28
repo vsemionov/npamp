@@ -211,7 +211,7 @@ def plot_color(basename, title, (X, xscale, xlim, xlabel), (Y, yscale, ylim, yla
         cb = plt.colorbar()
         if zlabel:
             cb.set_label(zlabel)
-    if auto_contours is not None:
+    if auto_contours:
         plt.contour(X, Y, Z, auto_contours, colors="gray")
     if contours is not None:
         contours = [c * uzscale for c in contours]

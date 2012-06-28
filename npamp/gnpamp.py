@@ -169,6 +169,9 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             assert len(widgets) == 1, "none or more than one widget matches parameter name \"%s\"" % parameter
             assert len(labels) == 1, "none or more than one label matches parameter name \"%s\"" % parameter
             set_widget_value(labels[0], widgets[0], value)
+        
+        if self.gui2conf() != conf:
+            raise npamp.core.ConfigurationError("invalid parameter value(s)")
     
     def gui2conf(self):
         def get_widget_value(label, widget, defval):

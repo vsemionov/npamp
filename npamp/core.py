@@ -364,6 +364,43 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     return max_output_fluence, output_photon_counts, train_output_energy, rel_gain_reduction
 
 def validate():
+    def validate_param_nonnegative(name, value):
+        if type(value) in (int, float):
+            if value < 0.0:
+                raise ConfigurationError("parameter \"%s\" has (or contains) a negative value" % name)
+        elif type(value) in (tuple, list):
+            for element in value:
+                validate_param_nonnegative(name, element)
+    
+    def validate_param_min_value(name, min_value, value):
+        if type(value) in (int, float):
+            if value < min_value:
+                raise ConfigurationError("parameter \"%s\" has (or contains) a value less than %s" % (name, min_value))
+        elif type(value) in (tuple, list):
+            for element in value:
+                validate_param_min_value(name, min_value, element)
+    
+    param_min_vals = {
+        "train_pulse_count": 1,
+        "loss_min_count": 1,
+        "out_markers_step_divisor": 1,
+        "out_rho_steps_divisor": 1,
+        "out_phi_steps_divisor": 1,
+        "out_z_steps_divisor": 1,
+        "out_t_steps_divisor": 1,
+        "pumpdep_step_counts": 2,
+        "geomdep_step_counts": 2,
+    }
+    
+    conf = copy_conf(params.__dict__)
+    
+    for parameter, min_value in param_min_vals.items():
+        value = conf[parameter]
+        validate_param_min_value(parameter, min_value, value)
+    
+    for parameter, value in conf.items():
+        validate_param_nonnegative(parameter, value)
+    
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     
@@ -377,8 +414,9 @@ def validate():
         raise ConfigurationError("invalid parameters: pulse period is less than (extended) pulse duration")
     
     train_duration = params.train_pulse_period * (params.train_pulse_count - 1) + params.pulse_duration
-    if not train_duration <= min(params.pump_duration, params.dopant_upper_lifetime) / 10.0:
-        warnings.warn("approximation validity condition violated: pulse train duration is not much shorter than than upper level lifetime and pump duration", stacklevel=2)
+    pump_duration = params.pump_duration if params.extended_mode and not params.initial_inversion else min(params.pump_duration, params.pumpdep_duration_interval[0])
+    if not train_duration <= min(pump_duration, params.dopant_upper_lifetime) / 10.0:
+        warnings.warn("approximation validity condition violated: pulse train duration is not much shorter than than upper level lifetime and (min.) pump duration", stacklevel=2)
 
 def compute_energy_rel_error(ref_inversion, ref_inversion_rel_error):
     rel_error_inversion = math.exp(params.dopant_xsection * ref_inversion_rel_error * ref_inversion * params.medium_length) - 1.0
@@ -418,9 +456,9 @@ def report_output_characteristics(ref_inversion, max_output_fluence, output_phot
     
     photon_count_first, photon_count_last = output_photon_counts[0], output_photon_counts[-1]
     photon_count_first_abs_error, photon_count_last_abs_error = photon_count_first * energy_rel_error, photon_count_last * energy_rel_error
-    rel_gain_reduction_abs_error = (photon_count_last + photon_count_last_abs_error) / max(photon_count_first - photon_count_first_abs_error, 0.0) - photon_count_last / photon_count_first
-    if params.train_pulse_count == 1:
-        rel_gain_reduction_abs_error = 0.0
+    rel_gain_reduction_abs_error = 0.0
+    if params.train_pulse_count > 1:
+        rel_gain_reduction_abs_error = (photon_count_last + photon_count_last_abs_error) / max(photon_count_first - photon_count_first_abs_error, 0.0) - photon_count_last / photon_count_first
     
     unitconv.print_result("maximum output fluence [{}]: {} ~ {}", ("J/cm^2",), (max_output_fluence, max_output_fluence_abs_error))
     unitconv.print_result("total output energy [{}]: {} ~ {}", ("mJ",), (output_energy, output_energy_abs_error))
