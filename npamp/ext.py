@@ -284,7 +284,7 @@ def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_m
     fluence_out = pamp.energy.energy(params.lasing_wavelen, fluence_out)
     return fluence_out
 
-def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions):
+def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions, (int_type, amp_type), (count_z, count_t)):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
@@ -297,14 +297,10 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
     beam_profile = params.beam_class(params.beam_radius, ref_fluence)
     
-    max_inversion = inversions[-1, -1]
-    (int_type, amp_type), counts = core.setup_methods(dirname, (int_types, amp_types), max_inversion, quiet=True)
-    
     ref_pulse = core.create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
     
     decay = core.get_decay(active_medium, ref_pulse)
     
-    count_rho, count_phi, count_z, count_t = counts
     integrator = pamp.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
     amp = amp_type(active_medium, count_z)
     
@@ -317,7 +313,7 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     rho, phi = beam_profile.rho_ref, beam_profile.phi_ref
     fluences = task_pool.parallel_task(compute_fluence_pump_dependence_task, (Tau, Pwr), (inversions,), (active_medium, (rho, phi), integrator, amp, (count_z, count_t), ref_pulse, decay))
     
-    output.show_status((count_rho, count_phi), params.extended_status_strides, True)
+    output.show_status((count_tau, count_pwr), params.extended_status_strides, True)
     
     if params.graphs:
         print "generating output"
@@ -379,7 +375,7 @@ def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, doping_age
     
     return fluence_out
 
-def compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions):
+def compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions, (int_type, amp_type), (count_z, count_t)):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
@@ -396,17 +392,6 @@ def compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), 
     
     min_medium_radius = params.geomdep_mediumradius_interval[0]
     min_beam_radius = params.geomdep_beamradius_interval[0]
-    
-    medium_radius_orig = params.medium_radius
-    beam_radius_orig = params.beam_radius
-    params.medium_radius = min_medium_radius
-    params.beam_radius = min_beam_radius
-    max_inversion = inversions[0]
-    num_types, counts = core.setup_methods(dirname, (int_types, amp_types), max_inversion, quiet=True)
-    int_type, amp_type = num_types
-    _, _, count_z, count_t = counts
-    params.medium_radius = medium_radius_orig
-    params.beam_radius = beam_radius_orig
     
     count_rm = params.geomdep_step_counts[0]
     count_rb = params.geomdep_step_counts[1]
@@ -545,7 +530,7 @@ def compute_energy_pump_dependence_task((i, j), (tau, pwr), inversion, num_types
     _, _, output_energy, rel_gain_reduction = core.amplify_train(None, num_types, counts, inversion, quiet=True)
     return output_energy, rel_gain_reduction
 
-def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions, constraints):
+def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions, constraints, num_types, counts):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
@@ -561,9 +546,6 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
     input_photon_count = beam_profile.fluence_integral(active_medium.radius)
     input_energy = pamp.energy.energy(params.lasing_wavelen, input_photon_count)
     input_energy *= params.train_pulse_count
-    
-    max_inversion = inversions[-1, -1]
-    num_types, counts = core.setup_methods(dirname, (int_types, amp_types), max_inversion, quiet=True)
     
     count_tau = params.pumpdep_step_counts[0]
     count_pwr = params.pumpdep_step_counts[1]
@@ -639,7 +621,7 @@ def compute_energy_geom_dependence_task((i, j), (rm, rb), inversion, doping_agen
     params.beam_radius = beam_radius_orig
     return stored_energy, input_energy, output_energy, rel_gain_reduction
 
-def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions, constraints):
+def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions, constraints, num_types, counts):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
@@ -650,15 +632,6 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
     
     min_medium_radius = params.geomdep_mediumradius_interval[0]
     min_beam_radius = params.geomdep_beamradius_interval[0]
-    
-    medium_radius_orig = params.medium_radius
-    beam_radius_orig = params.beam_radius
-    params.medium_radius = min_medium_radius
-    params.beam_radius = min_beam_radius
-    max_inversion = inversions[0]
-    num_types, counts = core.setup_methods(dirname, (int_types, amp_types), max_inversion, quiet=True)
-    params.medium_radius = medium_radius_orig
-    params.beam_radius = beam_radius_orig
     
     count_rm = params.geomdep_step_counts[0]
     count_rb = params.geomdep_step_counts[1]
@@ -785,9 +758,28 @@ def extended_mode(task_pool, dirname, (int_types, amp_types)):
         inversions_pump, inversion_rdiffs_pump = compute_inversion_pump_dependence(task_pool, dirname)
         inversions_geom, inversion_rdiffs_geom = compute_inversion_geom_dependence(task_pool, dirname)
         if params.amplification:
-            max_fluences_pump = compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions_pump)
-            max_fluences_geom = compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions_geom)
+            print output.div_line
+            print "initializing extended mode amplification"
+            
+            max_inversion_pump = inversions_pump[-1, -1]
+            num_types_pump, counts_pump = core.setup_methods(dirname, (int_types, amp_types), max_inversion_pump, quiet=True)
+            _, _, count_z_pump, count_t_pump = counts_pump
+            
+            min_medium_radius = params.geomdep_mediumradius_interval[0]
+            min_beam_radius = params.geomdep_beamradius_interval[0]
+            medium_radius_orig = params.medium_radius
+            beam_radius_orig = params.beam_radius
+            params.medium_radius = min_medium_radius
+            params.beam_radius = min_beam_radius
+            max_inversion_geom = inversions_geom[0]
+            num_types_geom, counts_geom = core.setup_methods(dirname, (int_types, amp_types), max_inversion_geom, quiet=True)
+            _, _, count_z_geom, count_t_geom = counts_geom
+            params.medium_radius = medium_radius_orig
+            params.beam_radius = beam_radius_orig
+            
+            max_fluences_pump = compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions_pump, num_types_pump, (count_z_pump, count_t_pump))
+            max_fluences_geom = compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions_geom, num_types_geom, (count_z_geom, count_t_geom))
             pump_constraints = output_pump_constraints(dirname, inversion_rdiffs_pump, max_fluences_pump)
             geom_constraints = output_geom_constraints(dirname, inversion_rdiffs_geom, max_fluences_geom)
-            compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions_pump, pump_constraints)
-            compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions_geom, geom_constraints)
+            compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions_pump, pump_constraints, num_types_pump, counts_pump)
+            compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions_geom, geom_constraints, num_types_geom, counts_geom)
