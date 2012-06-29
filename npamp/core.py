@@ -26,6 +26,7 @@
 
 
 import os
+import imp
 
 import math
 import copy
@@ -49,7 +50,31 @@ class ComputationError(Exception):
     pass
 
 
+extension_base_path = None
+
+
 copy_conf = lambda conf: {k: v for k, v in conf.items() if not k.startswith('_') and type(v) is not types.ModuleType}
+
+
+def import_extension(pathname):
+    pathname = os.path.join(extension_base_path, pathname)
+    
+    path, name = os.path.split(pathname)
+    name, _ = os.path.splitext(name)
+    
+    f, pathname, descr = imp.find_module(name, [path])
+    try:
+        return imp.load_module(name, f, pathname, descr)
+    finally:
+        if f is not None:
+            f.close()
+
+def load_extensions(extensions):
+    for ext in extensions:
+        _, name = os.path.split(ext)
+        name, _ = os.path.splitext(name)
+        print "loading extension \"%s\"" % name
+        import_extension(ext)
 
 def create_pulse(active_medium, beam, rho, phi):
     fluence = beam.fluence(rho, phi)
