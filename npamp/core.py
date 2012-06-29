@@ -25,8 +25,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import sys
 import os
-import imp
 
 import math
 import copy
@@ -62,12 +62,9 @@ def import_extension(pathname):
     path, name = os.path.split(pathname)
     name, _ = os.path.splitext(name)
     
-    f, pathname, descr = imp.find_module(name, [path])
-    try:
-        return imp.load_module(name, f, pathname, descr)
-    finally:
-        if f is not None:
-            f.close()
+    if path not in sys.path:
+        sys.path.append(path)
+    __import__(name)
 
 def load_extensions(extensions):
     for ext in extensions:
