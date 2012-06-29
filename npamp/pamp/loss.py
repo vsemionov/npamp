@@ -179,7 +179,7 @@ class RossNumericalASEModel(NumericalLossModel):
         
         self.sample_count_multiplier = sample_count_multiplier
         
-        self.max_nsamples = 16*1024*1024
+        self.max_nsamples = 16 * 1024**2
     
     def _loss_coef(self, inversion):
         nsamples = self.min_count
