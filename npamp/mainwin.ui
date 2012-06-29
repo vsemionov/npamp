@@ -277,7 +277,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="1" column="0">
              <widget class="QLabel" name="label_pump_duration">
               <property name="text">
-               <string>pump pulse duration [us]:</string>
+               <string>pump duration [us]:</string>
               </property>
              </widget>
             </item>
