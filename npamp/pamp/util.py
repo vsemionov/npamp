@@ -48,9 +48,9 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, retextr
     min_count_x, min_count_y = min_counts
     var_x, var_y = varspace
     
-    max_divs_pervar = 12
     nvars = sum(varspace)
-    max_divs_sum = max_divs_pervar * nvars
+    max_divs_sums = [0, 15, 24 - 1]
+    max_divs_sum = max_divs_sums[nvars]
     
     if not var_x and min_count_x == 1:
         divs_x = 0
@@ -70,7 +70,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, retextr
     counts = count_x, count_y
     
     if divs_x + divs_y > max_divs_sum:
-        warnings.warn("minimum step count(s) (%d, %d) too large" % counts, stacklevel=2)
+        warnings.warn("min. step counts (%d, %d) and corresponding min. divs (%d, %d) too large; max. divs sum: %d" % (count_x, count_y, divs_x, divs_y, max_divs_sum), stacklevel=2)
         return None
     
     result, rel_error = compute_result(*counts)
@@ -107,7 +107,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, retextr
         if max(rdiff, last_rel_error) < rtol:
             break
         elif divs_x + divs_y > max_divs_sum or math.isinf(rdiff):
-            warnings.warn("unable to reach rtol (%f); latest counts: (%d, %d); latest divs: (%d, %d); max divs sum: %d; latest rel. error: %f, latest rel. difference: %f" % (rtol, count_x, count_y, last_divs_x, last_divs_y, max_divs_sum, rel_error, rdiff), stacklevel=2)
+            warnings.warn("unable to reach rtol (%f); latest counts: (%d, %d); latest divs: (%d, %d); max. divs sum: %d; latest rel. error: %f, latest rel. difference: %f" % (rtol, count_x, count_y, last_divs_x, last_divs_y, max_divs_sum, rel_error, rdiff), stacklevel=2)
             break
     
     if retextra:
