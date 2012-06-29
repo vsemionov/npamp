@@ -130,7 +130,7 @@ class PhotonCountIntegrator(object):
             steps_phi = 1
         else:
             compute_rdiff = lambda last_res, res: max([abs((res[i] - last_res[i]) / res[i]) for i in range(len(res))])
-            steps_rho, steps_phi = util.min_steps(1, 1, beam_rho, beam_phi, rtol, fluence_integrals, compute_rdiff)
+            steps_rho, steps_phi = util.min_steps((1, 1), (beam_rho, beam_phi), rtol, fluence_integrals, compute_rdiff)
         
         active_medium_3 = copy.deepcopy(active_medium)
         active_medium_3.doping_agent.lower_lifetime = float("inf")

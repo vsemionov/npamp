@@ -30,6 +30,7 @@ import os
 import math
 import copy
 import warnings
+import traceback
 
 import types
 
@@ -203,7 +204,7 @@ def test_pulse(amp_type, active_medium, pulse, (min_count_z, min_count_t), integ
     min_count_z = max(min_count_z, 2)
     min_count_t = max(min_count_t, 3)
     compute_rdiff = lambda last_res, res: get_rel_error_amp(last_res[0], res[0])
-    data = pamp.util.min_steps(min_count_z, min_count_t, True, True, params.amp_rtol, amplify_pulse, compute_rdiff, retextra=True)
+    data = pamp.util.min_steps((min_count_z, min_count_t), (True, True), params.amp_rtol, amplify_pulse, compute_rdiff, retextra=True)
     
     return data
 
@@ -213,11 +214,17 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
     if not quiet or params.verbose:
         print "determining most efficient method combination"
     
-    method_results = []
+    size_exc_types = (ValueError, MemoryError)
+    best_method = None
     for int_type in int_types:
         int_name = int_type.__name__
         integrator = pamp.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
-        count_rho, count_phi, min_count_z, min_count_t = integrator.min_steps((ref_pulse, ), params.energy_rtol, params.fluence_rtol)
+        try:
+            count_rho, count_phi, min_count_z, min_count_t = integrator.min_steps((ref_pulse, ), params.energy_rtol, params.fluence_rtol)
+        except size_exc_types:
+            traceback.print_exc()
+            print "attempting to recover"
+            continue
         count_rho = max(count_rho, mangle_count_cyl(params.min_count_rho))
         count_phi = max(count_phi, mangle_count_cyl(params.min_count_phi))
         min_count_z = max(min_count_z, mangle_count_z(params.min_count_z))
@@ -228,19 +235,33 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
                 print "%s, %s" % (int_name, amp_name)
             test_min_count_z = max(min_count_z, amp_type.min_steps_z(active_medium))
             test_min_count_t = max(min_count_t, amp_type(active_medium, test_min_count_z).min_steps_t(ref_pulse))
-            data = test_pulse(amp_type, active_medium, ref_pulse, (test_min_count_z, test_min_count_t), integrator)
+            try:
+                data = test_pulse(amp_type, active_medium, ref_pulse, (test_min_count_z, test_min_count_t), integrator)
+            except size_exc_types:
+                traceback.print_exc()
+                print "attempting to recover"
+                continue
             if data is None:
                 continue
             (count_z, count_t), rel_error, results = data
             count_z, count_t = mangle_count_z(count_z), mangle_count_t(count_t)
             count = count_rho * count_phi * count_z * count_t
-            method_results.append(((int_type, amp_type), (count_rho, count_phi, count_z, count_t), results, count, rel_error))
-    if not method_results:
+            is_best = False
+            if best_method is None:
+                is_best = True
+            else:
+                _, _, _, best_count, best_rel_error = best_method
+                if count < best_count:
+                    is_best = True
+                elif count == best_count:
+                    if rel_error < best_rel_error:
+                        is_best = True
+            if is_best:
+                best_method = ((int_type, amp_type), (count_rho, count_phi, count_z, count_t), results, count, rel_error)
+    
+    if best_method is None:
         raise ComputationError("no suitable method combination found")
-    min_count = min([r[3] for r in method_results])
-    min_rel_error = min([r[4] for r in method_results if r[3] == min_count])
-    ref_result = [r[:3] for r in method_results if r[3] == min_count and r[4] == min_rel_error][0]
-    (int_type, amp_type), (count_rho, count_phi, count_z, count_t), results = ref_result
+    (int_type, amp_type), (count_rho, count_phi, count_z, count_t), results, _, _ = best_method
     amp, exact_density_out, exact_population_out = results
     
     if not quiet:

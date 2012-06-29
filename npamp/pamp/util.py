@@ -44,8 +44,13 @@ def divs(min_steps):
     divs = int(math.ceil(math.log(min_steps - 1, 2.0)))
     return divs
 
-def min_steps(min_count_x, min_count_y, var_x, var_y, rtol, compute_result, compute_rdiff, retextra=False):
-    max_divs = 12
+def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, retextra=False):
+    min_count_x, min_count_y = min_counts
+    var_x, var_y = varspace
+    
+    max_divs_pervar = 12
+    nvars = sum(varspace)
+    max_divs_sum = max_divs_pervar * nvars
     
     if not var_x and min_count_x == 1:
         divs_x = 0
@@ -64,7 +69,7 @@ def min_steps(min_count_x, min_count_y, var_x, var_y, rtol, compute_result, comp
     
     counts = count_x, count_y
     
-    if divs_x > max_divs or divs_y > max_divs:
+    if divs_x + divs_y > max_divs_sum:
         warnings.warn("minimum step count(s) (%d, %d) too large" % counts, stacklevel=2)
         return None
     
@@ -74,39 +79,35 @@ def min_steps(min_count_x, min_count_y, var_x, var_y, rtol, compute_result, comp
     
     while True:
         last_counts, last_result, last_rel_error = counts, result, rel_error
-        
+        last_divs_x, last_divs_y = divs_x, divs_x
         count_x, count_y = counts
-        if var_x and divs_x < max_divs:
+        
+        if var_x:
             counts_x = steps(divs_x+1), count_y
             result_x, rel_error_x = compute_result(*counts_x)
-        else:
-            counts_x = counts
-            result_x, rel_error_x = result, rel_error
-        if var_y and divs_y < max_divs:
+            rdiff_x = compute_rdiff(result, result_x)
+        if var_y:
             counts_y = count_x, steps(divs_y+1)
             result_y, rel_error_y = compute_result(*counts_y)
-        else:
-            counts_y = counts
-            result_y, rel_error_y = result, rel_error
+            rdiff_y = compute_rdiff(result, result_y)
         
-        rdiff_x = compute_rdiff(result, result_x)
-        rdiff_y = compute_rdiff(result, result_y)
-        
-        if result_x is not result and rdiff_x >= rdiff_y:
+        if var_x and (not var_y or rdiff_x >= rdiff_y):
             divs_x += 1
             counts = counts_x
             result, rel_error = result_x, rel_error_x
             rdiff = rdiff_x
-        elif result_y is not result:
+        elif var_y:
             divs_y += 1
             counts = counts_y
             result, rel_error = result_y, rel_error_y
             rdiff = rdiff_y
-        else:
-            warnings.warn("unable to reach rtol (%f); latest counts: (%d, %d); max count: %d; latest rel. error: %f, latest rel. difference: %f" % (rtol, count_x, count_y, steps(max_divs), rel_error, rdiff), stacklevel=2)
-            break
+        
+        rdiff *= 2.0
         
         if max(rdiff, last_rel_error) < rtol:
+            break
+        elif divs_x + divs_y > max_divs_sum or math.isinf(rdiff):
+            warnings.warn("unable to reach rtol (%f); latest counts: (%d, %d); latest divs: (%d, %d); max divs sum: %d; latest rel. error: %f, latest rel. difference: %f" % (rtol, count_x, count_y, last_divs_x, last_divs_y, max_divs_sum, rel_error, rdiff), stacklevel=2)
             break
     
     if retextra:
