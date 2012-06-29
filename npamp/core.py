@@ -124,6 +124,7 @@ def compute_inversion(dirname):
     stored_energy_atol = stored_energy * rel_error
     
     if params.verbose:
+        print "last count_t:", len(inv.T)
         print "last number of depopulation rate evaluations:", rate_evals
     unitconv.print_result("pump energy [{}]: {}", ("mJ",), (pump_energy,))
     unitconv.print_result("initial inversion [{}]: {} ~ {}", ("cm^-3",), (ref_inversion, ref_inversion_atol))
