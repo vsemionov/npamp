@@ -75,7 +75,7 @@ def run(conf_path, output_path):
     
     print "configuring"
     if conf_path is not None:
-        core.extension_base_path, _ = os.path.split(os.path.normpath(os.path.join(os.getcwd(), conf_path)))
+        core.extension_base_path, _ = os.path.split(os.path.join(os.getcwd(), conf_path))
         if params.verbose:
             print "reading configuration from:", conf_path
         execfile(conf_path, params.__dict__)
