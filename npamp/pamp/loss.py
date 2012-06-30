@@ -32,10 +32,10 @@ import energy
 import native
 
 
-# All the ASE models assume a four-level system by considering the inversion equivalent to the upper state population, which is valid only when the lower level population is zero.
+# All the ASE models assume a four-level system by considering the inversion equivalent to the upper state population, which is valid only when the lower state population is zero.
 # A negative inversion is thus equivalent to a negative upper state population, which is not physically sane.
-# A zero inversion is equivalent to a zero upper state population, which naturally yields zero fluorescence and ASE loss rate.
-# Having these in mind, the loss rate functions, as per these ASE models, are only defined in the domain of non-negative inversions.
+# A zero inversion is equivalent to a zero upper state population, which naturally yields zero fluorescence and ASE depopulation rate.
+# Having these in mind, the depopulation rate functions, as per these ASE models, are only defined in the domain of non-negative inversions.
 
 
 def decay_rate(inversion, volume, lifetime):
@@ -128,7 +128,7 @@ class LinfordASEModel(ExactLossModel):
         rate = energy.photon_count(self.wavelen, power)
         # fluorescence in directions outside of the two active solid angles:
         rate += (1.0 - 2.0 * self.active_solid_angle / (4.0 * math.pi)) * decay_rate(inversion, active_medium.volume, self.radiative_lifetime)
-        # fluorescence to other levels:
+        # fluorescence to other states:
         rate += decay_rate(inversion, active_medium.volume, active_medium.doping_agent.upper_lifetime / (1.0 - active_medium.doping_agent.branching_ratio))
         return rate
 

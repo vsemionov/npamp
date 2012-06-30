@@ -135,7 +135,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="4" column="0">
              <widget class="QLabel" name="label_dopant_lower_lifetime">
               <property name="text">
-               <string>lower level lifetime [ns]:</string>
+               <string>lower state lifetime [ns]:</string>
               </property>
              </widget>
             </item>

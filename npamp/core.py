@@ -434,12 +434,12 @@ def validate():
     ref_pulse = create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
     
     if not (params.train_pulse_period >= ref_pulse.duration or params.train_pulse_count == 1):
-        raise ConfigurationError("invalid parameters: pulse period is less than (extended) pulse duration")
+        raise ConfigurationError("invalid parameters: pulse repetition period is less than (extended) pulse duration")
     
     train_duration = params.train_pulse_period * (params.train_pulse_count - 1) + params.pulse_duration
     pump_duration = params.pump_duration if params.extended_mode and not params.initial_inversion else min(params.pump_duration, params.pumpdep_duration_interval[0])
     if not train_duration <= min(pump_duration, params.dopant_upper_lifetime) / 10.0:
-        warnings.warn("approximation validity condition violated: pulse train duration is not much shorter than than upper level lifetime and (min.) pump duration", stacklevel=2)
+        warnings.warn("approximation validity condition violated: pulse train duration is not much shorter than upper state (fluorescence) lifetime and (min.) pump duration", stacklevel=2)
 
 def compute_energy_rel_error(ref_inversion, ref_inversion_rel_error):
     rel_error_inversion = math.exp(params.dopant_xsection * ref_inversion_rel_error * ref_inversion * params.medium_length) - 1.0

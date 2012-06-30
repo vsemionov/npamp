@@ -113,7 +113,7 @@ class ExactAmplifier(PulseAmplifier):
         elif math.isinf(lower_lifetime):
             four_level = False
         else:
-            raise ValueError("exact amplifier only accepts zero or infinite lower level lifetimes")
+            raise ValueError("exact amplifier only accepts zero or infinite lower state lifetimes")
         self.four_level = four_level
     
     @staticmethod
