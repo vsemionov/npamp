@@ -105,7 +105,7 @@ class NullDepopulation(ExactLossModel):
 
 @concrete
 class FluorescenceModel(ExactLossModel):
-    descr = "fluorescence model"
+    descr = "fluorescence"
     
     def calc_rate(self, inversion):
         active_medium = self.active_medium
