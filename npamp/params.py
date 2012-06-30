@@ -66,7 +66,7 @@ train_pulse_period = 1.0e-9
 
 loss_rtol = 5.0e-2
 loss_min_count = 4096
-loss_model_extra_args = dict()
+loss_model_extra_args = {}
 
 inverter_class = pamp.inverter.RungeKuttaInverter # RungeKuttaInverter usually makes fewer derivative evaluations for RossNumericalASEModel; for other loss models EulerInverter seems faster
 initial_inversion_rtol = 1.0e-2
@@ -94,9 +94,9 @@ amp_rtol = 1.0e-2
 min_count_z = 0
 min_count_t = 0
 
-integrator_classes = (pamp.integral.SimpsonIntegrator, )
-amplifier_classes = (pamp.amplifier.HybridAmplifier, pamp.amplifier.NSFDAmplifier, ) # HybridAmplifier is faster and may produce less error in some cases; NSFDAmplifier is unconditionally stable and produces qualitatively correct solutions (with all expected properties)
-compared_loss_models = (pamp.loss.FluorescenceLossModel, pamp.loss.RossApproximateASEModel, pamp.loss.RossNumericalASEModel, )
+integrator_classes = [pamp.integral.SimpsonIntegrator]
+amplifier_classes = [pamp.amplifier.HybridAmplifier, pamp.amplifier.NSFDAmplifier] # HybridAmplifier is faster and may produce less error in some cases; NSFDAmplifier is unconditionally stable and produces qualitatively correct solutions (with all expected properties)
+compared_loss_models = [pamp.loss.FluorescenceLossModel, pamp.loss.RossApproximateASEModel, pamp.loss.RossNumericalASEModel]
 
 
 # output parameters:
