@@ -727,7 +727,7 @@ def compare_lower_lifetimes(dirname, (int_types, amp_types)):
     fluence_gain = fluence_out / ref_fluence
     unitconv.print_result("fluence gain: {}", (), (fluence_gain,))
     
-    print "infinity"
+    print "infinite"
     density_out_3, _ = amp_3.amplify(*amplify_args)
     fluence_out_3 = integrator.integral(amp_3.T, density_out_3) * active_medium_3.light_speed
     fluence_gain_3 = fluence_out_3 / ref_fluence
