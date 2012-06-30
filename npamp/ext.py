@@ -559,6 +559,7 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
     
     pump_energies = np.prod(np.array(np.meshgrid(Tau, Pwr)), axis=0).T
     stored_energies = pamp.energy.energy(params.lasing_wavelen, inversions * active_medium.volume)
+    energy_gains = output_energies / input_energy
     added_energies = output_energies - input_energy
     extraction_effs = added_energies / stored_energies
     total_effs = added_energies / pump_energies
@@ -566,10 +567,17 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
     limits, comparisons = constraints
     price = lambda tau, pwr: tau * pwr
     
+    unitconv.print_result("input energy [{}]: {}", ("mJ",), (input_energy,))
+    
     optimum = optimize_output((Tau, Pwr), output_energies, limits, comparisons, price)
     output_energy_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
     unitconv.print_result("max output energy [{}]: {}", ("mJ",), (output_energies[optimum] if optimum else None,))
     unitconv.print_result("optimum pump parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), output_energy_optimum_params)
+    
+    optimum = optimize_output((Tau, Pwr), energy_gains, limits, comparisons, price)
+    energy_gain_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
+    unitconv.print_result("max energy gain: {}", (), (energy_gains[optimum] if optimum else None,))
+    unitconv.print_result("optimum pump parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), energy_gain_optimum_params)
     
     optimum = optimize_output((Tau, Pwr), extraction_effs, limits, comparisons, price)
     extraction_eff_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
@@ -597,6 +605,7 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
         for dirname, Y, ylabel in graph_types:
             dirname = output.init_dir(dirname)
             plot.plot_color(filename("energy_out"), "Output Energy", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (output_energies.T, None, output.energy_abs_pulse_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+            plot.plot_color(filename("energy_gain"), "Energy Gain", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (energy_gains.T, None, output.energy_rel_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
             plot.plot_color(filename("efficiency_extr"), "Extraction Efficiency", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (extraction_effs.T, None, output.extraction_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
             plot.plot_color(filename("efficiency_opt2"), "Optical to Optical Efficiency", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (total_effs.T, None, output.total_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
             if params.train_pulse_count > 1:
@@ -645,6 +654,7 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
     output.show_status((count_rm, count_rb), params.extended_status_strides, True)
     
     pump_energy = params.pump_duration * params.pump_power
+    energy_gains = output_energies / input_energies
     added_energies = output_energies - input_energies
     extraction_effs = added_energies / stored_energies
     total_effs = added_energies / pump_energy
@@ -656,6 +666,11 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
     output_energy_optimum_params = (Rm[optimum[0]], Rb[optimum[1]]) if optimum else (None, None)
     unitconv.print_result("max output energy [{}]: {}", ("mJ",), (output_energies[optimum] if optimum else None,))
     unitconv.print_result("optimum geometry parameters (medium diameter [{}], beam diameter [{}]): ({}, {})", ("mm", "mm"), output_energy_optimum_params)
+    
+    optimum = optimize_output((Rm, Rb), energy_gains, limits, comparisons, price)
+    energy_gain_optimum_params = (Rm[optimum[0]], Rb[optimum[1]]) if optimum else (None, None)
+    unitconv.print_result("max energy gain: {}", (), (energy_gains[optimum] if optimum else None,))
+    unitconv.print_result("optimum geometry parameters (medium diameter [{}], beam diameter [{}]): ({}, {})", ("mm", "mm"), energy_gain_optimum_params)
     
     optimum = optimize_output((Rm, Rb), extraction_effs, limits, comparisons, price)
     extraction_eff_optimum_params = (Rm[optimum[0]], Rb[optimum[1]]) if optimum else (None, None)
@@ -677,7 +692,9 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
         extra_contours, xvals, yvals = limits
         dirname = os.path.join(dirname, output.geomdep_rel_path)
         dirname = output.init_dir(dirname)
+        plot.plot_color(filename("energy_in"), "Input Energy", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (input_energies.T, None, output.energy_abs_pulse_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
         plot.plot_color(filename("energy_out"), "Output Energy", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (output_energies.T, None, output.energy_abs_pulse_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+        plot.plot_color(filename("energy_gain"), "Energy Gain", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (energy_gains.T, None, output.energy_rel_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
         plot.plot_color(filename("efficiency_extr"), "Extraction Efficiency", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (extraction_effs.T, None, output.extraction_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
         plot.plot_color(filename("efficiency_opt2"), "Optical to Optical Efficiency", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (total_effs.T, None, output.total_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
         if params.train_pulse_count > 1:

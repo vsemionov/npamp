@@ -465,12 +465,14 @@ def report_output_characteristics(ref_inversion, max_output_fluence, output_phot
     input_energy = pamp.energy.energy(params.lasing_wavelen, input_photon_count)
     input_energy *= params.train_pulse_count
     
+    energy_gain = output_energy / input_energy
     added_energy = output_energy - input_energy
     extraction_eff = added_energy / stored_energy
     total_eff = added_energy / pump_energy
     
-    output_energy_abs_error = energy_rel_error * output_energy
     stored_energy_abs_error = inversion_rel_error * stored_energy
+    output_energy_abs_error = energy_rel_error * output_energy
+    energy_gain_abs_error = energy_rel_error * energy_gain
     
     extraction_eff_abs_error = (added_energy + output_energy_abs_error) / max(stored_energy - stored_energy_abs_error, 0.0) - extraction_eff
     total_eff_abs_error = output_energy_abs_error / pump_energy
@@ -483,8 +485,12 @@ def report_output_characteristics(ref_inversion, max_output_fluence, output_phot
     if params.train_pulse_count > 1:
         rel_gain_reduction_abs_error = (photon_count_last + photon_count_last_abs_error) / max(photon_count_first - photon_count_first_abs_error, 0.0) - photon_count_last / photon_count_first
     
-    unitconv.print_result("maximum output fluence [{}]: {} ~ {}", ("J/cm^2",), (max_output_fluence, max_output_fluence_abs_error))
-    unitconv.print_result("total output energy [{}]: {} ~ {}", ("mJ",), (output_energy, output_energy_abs_error))
+    unitconv.print_result("pump energy [{}]: {}", ("mJ",), (pump_energy,))
+    unitconv.print_result("input energy [{}]: {}", ("mJ",), (input_energy,))
+    unitconv.print_result("stored energy [{}]: {} ~ {}", ("mJ",), (stored_energy, stored_energy_abs_error))
+    unitconv.print_result("output energy [{}]: {} ~ {}", ("mJ",), (output_energy, output_energy_abs_error))
+    unitconv.print_result("energy gain: {} ~ {}", (), (energy_gain, energy_gain_abs_error))
     unitconv.print_result("extraction efficiency [{}]: {} ~ {}", ("%",), (extraction_eff, extraction_eff_abs_error))
     unitconv.print_result("opt-opt efficiency [{}]: {} ~ {}", ("%",), (total_eff, total_eff_abs_error))
+    unitconv.print_result("max output fluence [{}]: {} ~ {}", ("J/cm^2",), (max_output_fluence, max_output_fluence_abs_error))
     unitconv.print_result("rel gain reduction [{}]: {} ~ {}", ("%",), (rel_gain_reduction, rel_gain_reduction_abs_error))
