@@ -430,6 +430,7 @@ def worker(out_conn, conf, output_path):
 
 def main():
     multiprocessing.freeze_support()
+    
     app = QtGui.QApplication(sys.argv)
     win = AppWindow()
     win.show()
