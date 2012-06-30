@@ -161,7 +161,7 @@ def plot_train(dirname, beam_profile, active_medium, output_photon_counts):
     nlim = (pulse_nums[0] - 1, pulse_nums[-1] + 1)
     extra_args = dict(style="o", vlines=True, grid="y") if pulse_count <= 32 else {}
     input_photon_count = beam_profile.fluence_integral(active_medium.radius)
-    plot.plot_data(filename("train_energy_gain"), "Pulse Train Energy Gain", (pulse_nums, None, nlim, i_label), (output_photon_counts/input_photon_count, None, None, energy_rel_label), **extra_args)
+    plot.plot_data(filename("pulse_energy_gain"), "Pulse Energy Gain", (pulse_nums, None, nlim, i_label), (output_photon_counts/input_photon_count, None, None, energy_rel_label), **extra_args)
 
 def plot_beam(dirname, beam_profile, Rho, Phi, ref_output_fluence):
     filename = lambda name: os.path.join(dirname, name)
