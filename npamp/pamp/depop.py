@@ -47,8 +47,8 @@ def concrete(cls):
     setattr(cls, "concrete", True)
     return cls
 
-class LossModel(object):
-    descr = "depopulation loss model"
+class DepopulationModel(object):
+    descr = "depopulation model"
     
     def __init__(self, active_medium, wavelen):
         self.active_medium = active_medium
@@ -62,49 +62,49 @@ class LossModel(object):
     def calc_rate(self, inversion):
         raise NotImplementedError()
 
-class ExactLossModel(LossModel):
-    descr = "exact depopulation loss model"
+class ExactDepopulationModel(DepopulationModel):
+    descr = "exact depopulation model"
     
     def __init__(self, active_medium, wavelen):
-        super(ExactLossModel, self).__init__(active_medium, wavelen)
+        super(ExactDepopulationModel, self).__init__(active_medium, wavelen)
         
         self.photon_energy = energy.photon_energy(self.wavelen)
         self.active_solid_angle = self.active_medium.aperture / self.active_medium.length**2.0
         self.radiative_lifetime = active_medium.doping_agent.upper_lifetime / active_medium.doping_agent.branching_ratio
         self.saturation_intensity = self.photon_energy / (self.active_medium.doping_agent.xsection * self.radiative_lifetime)
 
-class NumericalLossModel(LossModel):
-    descr = "numerical depopulation loss model"
+class NumericalDepopulationModel(DepopulationModel):
+    descr = "numerical depopulation model"
     
     def __init__(self, active_medium, wavelen, rtol, min_count):
-        super(NumericalLossModel, self).__init__(active_medium, wavelen)
+        super(NumericalDepopulationModel, self).__init__(active_medium, wavelen)
         
         self.rtol = rtol
         self.min_count = min_count
 
-class PerturbedLossModel(LossModel):
-    descr = "perturbed depopulation loss model"
+class PerturbedDepopulationModel(DepopulationModel):
+    descr = "perturbed depopulation model"
     
-    def __init__(self, numerical_loss_model):
-        super(PerturbedLossModel, self).__init__(numerical_loss_model.active_medium, numerical_loss_model.wavelen)
+    def __init__(self, numerical_depop_model):
+        super(PerturbedDepopulationModel, self).__init__(numerical_depop_model.active_medium, numerical_depop_model.wavelen)
         
-        self.numerical_loss_model = numerical_loss_model
-        self.perturb = numerical_loss_model.rtol
+        self.numerical_depop_model = numerical_depop_model
+        self.perturb = numerical_depop_model.rtol
     
     def calc_rate(self, inversion):
-        rate = self.numerical_loss_model.calc_rate(inversion)
+        rate = self.numerical_depop_model.calc_rate(inversion)
         rate *= (1.0 - self.perturb)
         return rate
 
 @concrete
-class NullDepopulation(ExactLossModel):
+class NullDepopulation(ExactDepopulationModel):
     descr = "null depopulation"
     
     def calc_rate(self, inversion):
         return 0.0
 
 @concrete
-class FluorescenceModel(ExactLossModel):
+class FluorescenceModel(ExactDepopulationModel):
     descr = "fluorescence"
     
     def calc_rate(self, inversion):
@@ -113,11 +113,11 @@ class FluorescenceModel(ExactLossModel):
         return rate
 
 @concrete
-class LinfordASEModel(ExactLossModel):
+class LinfordASEModel(ExactDepopulationModel):
     descr = "Linford ASE model"
     
     def calc_rate(self, inversion):
-        # at zero inversion, loss rate is undefined but approaches zero
+        # at zero inversion, depopulation rate is undefined but approaches zero
         if inversion == 0.0:
             return 0.0
         active_medium = self.active_medium
@@ -133,7 +133,7 @@ class LinfordASEModel(ExactLossModel):
         return rate
 
 @concrete
-class SchulzASEModel(ExactLossModel):
+class SchulzASEModel(ExactDepopulationModel):
     descr = "Schulz ASE model"
     
     def calc_rate(self, inversion):
@@ -146,7 +146,7 @@ class SchulzASEModel(ExactLossModel):
         return rate
 
 @concrete
-class RossApproximateASEModel(ExactLossModel):
+class RossApproximateASEModel(ExactDepopulationModel):
     descr = "Ross ASE model (approximate)"
     
     _Nd_YLF_branching_ratio = 0.56 * 0.525 / 0.500
@@ -163,13 +163,13 @@ class RossApproximateASEModel(ExactLossModel):
     def calc_rate(self, inversion):
         active_medium = self.active_medium
         B = self._B(inversion)
-        loss_coef = 1.0 + B
-        rate = inversion * loss_coef / active_medium.doping_agent.upper_lifetime
+        rate_coef = 1.0 + B
+        rate = inversion * rate_coef / active_medium.doping_agent.upper_lifetime
         rate *= active_medium.volume
         return rate
 
 @concrete
-class RossNumericalASEModel(NumericalLossModel):
+class RossNumericalASEModel(NumericalDepopulationModel):
     descr = "Ross ASE model (numerical)"
     
     _integrate_B = lambda self, *args: native._ross_ase_model_integrate_B(self, *args)
@@ -181,25 +181,25 @@ class RossNumericalASEModel(NumericalLossModel):
         
         self.max_nsamples = 16 * 1024**2
     
-    def _loss_coef(self, inversion):
+    def _rate_coef(self, inversion):
         nsamples = self.min_count
         while True:
             B, B_rel_error = self._integrate_B(inversion, nsamples)
             B_abs_error = B_rel_error * B
-            loss_coef = 1.0 + B
-            loss_rel_error = B_abs_error / loss_coef
-            if loss_rel_error < self.rtol:
+            rate_coef = 1.0 + B
+            rate_rel_error = B_abs_error / rate_coef
+            if rate_rel_error < self.rtol:
                 break
             nsamples *= self.sample_count_multiplier
             if nsamples > self.max_nsamples:
-                warnings.warn("max_nsamples (%d) exceeded; latest rel. error: %f" % (self.max_nsamples, loss_rel_error), stacklevel=2)
+                warnings.warn("max_nsamples (%d) exceeded; latest rel. error: %f" % (self.max_nsamples, rate_rel_error), stacklevel=2)
                 break
-        return loss_coef
+        return rate_coef
     
     def calc_rate(self, inversion):
         active_medium = self.active_medium
-        loss_coef = self._loss_coef(inversion)
-        rate = inversion * loss_coef / active_medium.doping_agent.upper_lifetime
+        rate_coef = self._rate_coef(inversion)
+        rate = inversion * rate_coef / active_medium.doping_agent.upper_lifetime
         rate *= active_medium.volume
         return rate
     
@@ -207,8 +207,8 @@ class RossNumericalASEModel(NumericalLossModel):
         nsamples = nsubsamples = int(math.ceil(math.sqrt(self.max_nsamples)))
         B, _ = self._integrate_B(inversion, self.max_nsamples)
         B_stddev = native._ross_ase_model_B_stddev(self, inversion, nsamples, nsubsamples)
-        loss_coef = 1.0 + B
-        rate_rel_stddev = B_stddev / loss_coef
+        rate_coef = 1.0 + B
+        rate_rel_stddev = B_stddev / rate_coef
         return rate_rel_stddev
 
 @concrete

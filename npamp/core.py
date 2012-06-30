@@ -81,19 +81,19 @@ def compute_inversion(dirname):
     print output.div_line
     print "computing initial inversion"
     
-    is_numerical = issubclass(params.loss_model_class, pamp.loss.NumericalLossModel)
+    is_numerical = issubclass(params.depop_model_class, pamp.depop.NumericalDepopulationModel)
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     pump_system = pamp.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
-    loss_model_kwargs = dict(rtol=params.loss_rate_rtol) if is_numerical else {}
+    depop_model_kwargs = dict(rtol=params.depop_rate_rtol) if is_numerical else {}
     if is_numerical:
-        loss_model_kwargs = dict(rtol=params.loss_rate_rtol, min_count=params.loss_rate_min_count)
+        depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count)
     else:
-        params.loss_rate_rtol = 0.0
-        loss_model_kwargs = {}
-    loss_model_kwargs.update(params.loss_model_extra_args)
-    loss_model = params.loss_model_class(active_medium, params.lasing_wavelen, **loss_model_kwargs)
-    inv = params.inverter_class(active_medium, pump_system, loss_model)
+        params.depop_rate_rtol = 0.0
+        depop_model_kwargs = {}
+    depop_model_kwargs.update(params.depop_model_extra_args)
+    depop_model = params.depop_model_class(active_medium, params.lasing_wavelen, **depop_model_kwargs)
+    inv = params.inverter_class(active_medium, pump_system, depop_model)
     ref_inversion = inv.invert(params.inversion_rtol, params.inversion_min_count_t)
     rate_evals = (len(inv.inversion) - 1) * inv.evals_per_step
     pump_energy = params.pump_duration * params.pump_power
@@ -104,17 +104,17 @@ def compute_inversion(dirname):
         print "number of depopulation rate evaluations:", rate_evals
     
     if params.inversion_validate:
-        print "validating uniform ASE loss approximation"
-        ross_num_model = loss_model if isinstance(loss_model, pamp.loss.RossNumericalASEModel) else pamp.loss.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.loss_rate_rtol, params.loss_rate_min_count)
+        print "validating uniform ASE-induced depopulation rate approximation"
+        ross_num_model = depop_model if isinstance(depop_model, pamp.depop.RossNumericalASEModel) else pamp.depop.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.depop_rate_rtol, params.depop_rate_min_count)
         rate_rel_stddev = ross_num_model.rate_rel_stddev(ref_inversion)
         unitconv.print_result("depopulation rate rel. std. deviation [{}]: {}", ("%",), (rate_rel_stddev,))
         if rate_rel_stddev > 10.0e-2:
-            warnings.warn("uniform ASE loss approximation is invalid", stacklevel=2)
+            warnings.warn("uniform ASE-induced depopulation rate approximation is invalid", stacklevel=2)
     
     if is_numerical:
         print "perturbing initial inversion"
-        perturb_loss_model = pamp.loss.PerturbedLossModel(loss_model)
-        perturb_inv = params.inverter_class(active_medium, pump_system, perturb_loss_model)
+        perturb_depop_model = pamp.depop.PerturbedDepopulationModel(depop_model)
+        perturb_inv = params.inverter_class(active_medium, pump_system, perturb_depop_model)
         perturb_ref_inversion = perturb_inv.invert(params.inversion_rtol, params.inversion_min_count_t)
         abs_error = abs(perturb_ref_inversion - ref_inversion) + (ref_inversion + perturb_ref_inversion) * params.inversion_rtol
         rel_error = abs_error / ref_inversion
@@ -405,7 +405,7 @@ def validate():
     
     param_min_vals = {
         "train_pulse_count": 1,
-        "loss_rate_min_count": 16,
+        "depop_rate_min_count": 16,
         "out_markers_step_divisor": 1,
         "out_rho_steps_divisor": 1,
         "out_phi_steps_divisor": 1,

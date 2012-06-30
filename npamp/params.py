@@ -49,7 +49,7 @@ pump_duration = 250.0e-6
 pump_power = 4000.0
 pump_efficiency = 0.5
 
-loss_model_class = pamp.loss.RossApproximateASEModel
+depop_model_class = pamp.depop.RossApproximateASEModel
 
 beam_class = pamp.beam.GaussianBeam
 beam_radius = 2.0e-3
@@ -64,17 +64,17 @@ train_pulse_period = 1.0e-9
 
 # numerical parameters:
 
-loss_rate_rtol = 5.0e-2
-loss_rate_min_count = 4096
-loss_model_extra_args = {}
+depop_rate_rtol = 5.0e-2
+depop_rate_min_count = 4096
+depop_model_extra_args = {}
 
-inverter_class = pamp.inverter.RungeKuttaInverter # RungeKuttaInverter usually makes fewer derivative evaluations for RossNumericalASEModel; for other loss models EulerInverter seems faster
+inverter_class = pamp.inverter.RungeKuttaInverter # RungeKuttaInverter usually makes fewer derivative evaluations for RossNumericalASEModel; for other depopulation models EulerInverter seems faster
 inversion_rtol = 1.0e-2
 inversion_validate = False
 inversion_min_count_t = 0
 
-ext_loss_models = [pamp.loss.FluorescenceModel, pamp.loss.RossApproximateASEModel, pamp.loss.RossNumericalASEModel]
-ext_alt_loss_model = pamp.loss.FluorescenceModel
+ext_depop_models = [pamp.depop.FluorescenceModel, pamp.depop.RossApproximateASEModel, pamp.depop.RossNumericalASEModel]
+ext_alt_depop_model = pamp.depop.FluorescenceModel
 ext_inversion_rdiff_max = 0.1
 ext_fluence_max = 1.0e4
 pumpdep_duration_interval = (dopant_upper_lifetime / 2.0, dopant_upper_lifetime * 2.0)

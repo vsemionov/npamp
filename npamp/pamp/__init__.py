@@ -30,7 +30,7 @@ from . import inversion
 from . import dopant
 from . import medium
 from . import pump
-from . import loss
+from . import depop
 from . import beam
 from . import pulse
 from . import inverter

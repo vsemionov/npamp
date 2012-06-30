@@ -36,10 +36,10 @@ class PopulationInverter(object):
     
     evals_per_step = None
     
-    def __init__(self, active_medium, pump_system, loss_model):
+    def __init__(self, active_medium, pump_system, depop_model):
         self.active_medium = active_medium
         self.pump_system = pump_system
-        self.loss_model = loss_model
+        self.depop_model = depop_model
         
         self.T = None
         self.inversion = None
@@ -49,8 +49,8 @@ class PopulationInverter(object):
         pump_system = self.pump_system
         volume = active_medium.volume
         pump_rate_eff = pump_system.effective_pump_rate
-        loss_rate_total = self.loss_model.rate(inversion)
-        deriv = (pump_rate_eff - loss_rate_total) / volume
+        depop_rate_total = self.depop_model.rate(inversion)
+        deriv = (pump_rate_eff - depop_rate_total) / volume
         return deriv
     
     @staticmethod
@@ -61,7 +61,7 @@ class PopulationInverter(object):
         # Adaptive step size is not necessary.
         # It would be useful only in cases when the majority of the time is spent in the steady state.
         # However, that is not a practical case -- any pumping, applied after reaching the steady state, is wasted.
-        def is_stable(n, dn): # oscillation detection; initially designed for the Euler method, but also works for Runge-Kutta if the ASE loss rate function is defined for inversion<0
+        def is_stable(n, dn): # oscillation detection
             mid = n + dn/2.0
             return dn >= -2.0*rtol * mid
         f = self._deriv

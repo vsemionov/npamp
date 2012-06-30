@@ -110,15 +110,15 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             if type(obj) is type and issubclass(obj, pamp.pulse.SinglePulse) and obj is not pamp.pulse.SinglePulse:
                 self.comboBox_pulse_class.addItem(name)
         self.widget_module_map[self.comboBox_pulse_class.objectName()] = pamp.pulse
-        for name in dir(pamp.loss):
-            obj = getattr(pamp.loss, name)
-            if type(obj) is type and issubclass(obj, pamp.loss.LossModel) and hasattr(obj, "concrete") and obj.concrete is True:
-                self.comboBox_loss_model_class.addItem(name)
-                self.comboBox_ext_alt_loss_model.addItem(name)
-                self.listWidget_ext_loss_models.addItem(name)
-        self.widget_module_map[self.comboBox_loss_model_class.objectName()] = pamp.loss
-        self.widget_module_map[self.comboBox_ext_alt_loss_model.objectName()] = pamp.loss
-        self.widget_module_map[self.listWidget_ext_loss_models.objectName()] = pamp.loss
+        for name in dir(pamp.depop):
+            obj = getattr(pamp.depop, name)
+            if type(obj) is type and issubclass(obj, pamp.depop.DepopulationModel) and hasattr(obj, "concrete") and obj.concrete is True:
+                self.comboBox_depop_model_class.addItem(name)
+                self.comboBox_ext_alt_depop_model.addItem(name)
+                self.listWidget_ext_depop_models.addItem(name)
+        self.widget_module_map[self.comboBox_depop_model_class.objectName()] = pamp.depop
+        self.widget_module_map[self.comboBox_ext_alt_depop_model.objectName()] = pamp.depop
+        self.widget_module_map[self.listWidget_ext_depop_models.objectName()] = pamp.depop
         for name in dir(pamp.inverter):
             obj = getattr(pamp.inverter, name)
             if type(obj) is type and issubclass(obj, pamp.inverter.PopulationInverter) and obj is not pamp.inverter.PopulationInverter:

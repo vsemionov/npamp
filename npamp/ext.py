@@ -40,62 +40,62 @@ import output
 import unitconv
 
 
-def compare_loss_models(dirname):
+def compare_depop_models(dirname):
     filename = lambda name: os.path.join(dirname, name)
     
-    if not params.ext_loss_models:
+    if not params.ext_depop_models:
         return
     
     print output.div_line
-    print "comparing loss models"
+    print "comparing depopulation models"
     
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     pump_system = pamp.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
     data = []
-    for loss_model_class in params.ext_loss_models:
-        loss_model_label = loss_model_class.descr
-        print loss_model_label
-        loss_model_kwargs = dict(rtol=params.loss_rate_rtol, min_count=params.loss_rate_min_count) if issubclass(loss_model_class, pamp.loss.NumericalLossModel) else {}
-        if loss_model_class is params.loss_model_class:
-            loss_model_kwargs.update(params.loss_model_extra_args)
-        loss_model = loss_model_class(active_medium, params.lasing_wavelen, **loss_model_kwargs)
-        inv = params.inverter_class(active_medium, pump_system, loss_model)
+    for depop_model_class in params.ext_depop_models:
+        depop_model_label = depop_model_class.descr
+        print depop_model_label
+        depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count) if issubclass(depop_model_class, pamp.depop.NumericalDepopulationModel) else {}
+        if depop_model_class is params.depop_model_class:
+            depop_model_kwargs.update(params.depop_model_extra_args)
+        depop_model = depop_model_class(active_medium, params.lasing_wavelen, **depop_model_kwargs)
+        inv = params.inverter_class(active_medium, pump_system, depop_model)
         inv.invert(params.inversion_rtol, params.inversion_min_count_t)
-        loss_rate = np.vectorize(loss_model.rate)(inv.inversion) / active_medium.volume
-        data.append((inv.T, inv.inversion, loss_rate, loss_model_label, loss_model_class))
+        depop_rate = np.vectorize(depop_model.rate)(inv.inversion) / active_medium.volume
+        data.append((inv.T, inv.inversion, depop_rate, depop_model_label, depop_model_class))
         ref_inversion = inv.inversion[-1]
         unitconv.print_result("inversion [{}]: {}", ("cm^-3",), (ref_inversion,))
-        unitconv.print_result("depopulation rate [{}]: {}", ("cm^-3 s^-1",), (loss_rate[-1],))
+        unitconv.print_result("depopulation rate [{}]: {}", ("cm^-3 s^-1",), (depop_rate[-1],))
     
     if params.graphs:
         print "generating output"
         dirname = os.path.join(dirname, output.models_rel_path)
         dirname = output.init_dir(dirname)
         data.sort(key = lambda x: x[1][-1], reverse=True)
-        Ts, inversions, loss_rates, labels, loss_model_classes = zip(*data)
+        Ts, inversions, depop_rates, labels, depop_model_classes = zip(*data)
         plot.plot_data(filename("inversions"), "Population Inversion Evolution", (Ts, None, None, output.t_pump_label), (inversions, None, None, output.inversion_abs_label), labels)
         pump_rate = pump_system.effective_pump_rate / active_medium.volume
         abs_rate_ylim = None #(0.0, pump_rate * 1.25)
         non_zero_Ts = [T[1:] for T in Ts]
         non_zero_inversions = [inversion[1:] for inversion in inversions]
-        non_zero_rates = [loss_rate[1:] for loss_rate in loss_rates]
-        rel_loss_rates = [loss_rate / inversion for loss_rate, inversion in zip(non_zero_rates, non_zero_inversions)]
-        plot.plot_data(filename("depop_rate"), "Depopulation Rate", (inversions, None, None, output.inversion_abs_label), (loss_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
-        plot.plot_data(filename("depop_rate_alt"), "Depopulation Rate to Inversion Ratio", (non_zero_inversions, None, None, output.inversion_abs_label), (rel_loss_rates, None, None, output.rate_rel_label), labels)
-        plot.plot_data(filename("depop_rate_evo"), "Depopulation Rate Evolution", (Ts, None, None, output.t_pump_label), (loss_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
-        plot.plot_data(filename("depop_rate_alt_evo"), "Depopulation Rate to Inversion Ratio Evolution", (non_zero_Ts, None, None, output.t_pump_label), (rel_loss_rates, None, None, output.rate_rel_label), labels)
+        non_zero_rates = [depop_rate[1:] for depop_rate in depop_rates]
+        rel_depop_rates = [depop_rate / inversion for depop_rate, inversion in zip(non_zero_rates, non_zero_inversions)]
+        plot.plot_data(filename("depop_rate"), "Depopulation Rate", (inversions, None, None, output.inversion_abs_label), (depop_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
+        plot.plot_data(filename("depop_rate_alt"), "Depopulation Rate to Inversion Ratio", (non_zero_inversions, None, None, output.inversion_abs_label), (rel_depop_rates, None, None, output.rate_rel_label), labels)
+        plot.plot_data(filename("depop_rate_evo"), "Depopulation Rate Evolution", (Ts, None, None, output.t_pump_label), (depop_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
+        plot.plot_data(filename("depop_rate_alt_evo"), "Depopulation Rate to Inversion Ratio Evolution", (non_zero_Ts, None, None, output.t_pump_label), (rel_depop_rates, None, None, output.rate_rel_label), labels)
         
-        if params.ext_alt_loss_model not in loss_model_classes:
+        if params.ext_alt_depop_model not in depop_model_classes:
             return
-        alt_model_idx = loss_model_classes.index(params.ext_alt_loss_model)
+        alt_model_idx = depop_model_classes.index(params.ext_alt_depop_model)
         alt_T = Ts[alt_model_idx]
         alt_inversion = inversions[alt_model_idx]
         altinvs = []
         aTs = []
         altinv_inversion_rdiffs = []
-        for cls, T, inversion in zip(loss_model_classes, Ts, inversions):
-            if cls is params.ext_alt_loss_model:
+        for cls, T, inversion in zip(depop_model_classes, Ts, inversions):
+            if cls is params.ext_alt_depop_model:
                 continue
             uT = set(list(T) + list(alt_T))
             aT = np.array(sorted(list(uT)))
@@ -109,11 +109,11 @@ def compare_loss_models(dirname):
         plot.plot_data(filename("inversions_rdiff_inv"), "Inversion Relative Difference", (altinvs, None, None, output.inversion_abs_label), (altinv_inversion_rdiffs, None, None, output.inversion_rdiff_label), non_alt_labels)
         plot.plot_data(filename("inversions_rdiff_evo"), "Inversion Relative Difference Evolution", (aTs, None, None, output.t_pump_label), (altinv_inversion_rdiffs, None, None, output.inversion_rdiff_label), non_alt_labels)
 
-def compute_inversion_pump_dependence_task((i, j), (tau, pwr), active_medium, (loss_model1, loss_model2)):
+def compute_inversion_pump_dependence_task((i, j), (tau, pwr), active_medium, (depop_model1, depop_model2)):
     output.show_status((i, j), params.extended_status_strides, False)
     pump_system = pamp.pump.PumpSystem(params.pump_wavelen, tau, pwr, params.pump_efficiency)
-    inv1 = params.inverter_class(active_medium, pump_system, loss_model1)
-    inv2 = params.inverter_class(active_medium, pump_system, loss_model2)
+    inv1 = params.inverter_class(active_medium, pump_system, depop_model1)
+    inv2 = params.inverter_class(active_medium, pump_system, depop_model2)
     inversion1 = inv1.invert(params.inversion_rtol, params.inversion_min_count_t)
     inversion2 = inv2.invert(params.inversion_rtol, params.inversion_min_count_t)
     gain_coef1 = inversion1 * active_medium.doping_agent.xsection
@@ -139,19 +139,19 @@ def compute_inversion_pump_dependence(task_pool, dirname):
     Tau = np.linspace(params.pumpdep_duration_interval[0], params.pumpdep_duration_interval[1], count_tau)
     Pwr = np.linspace(params.pumpdep_power_interval[0], params.pumpdep_power_interval[1], count_pwr)
     
-    num_model_kwargs = dict(rtol=params.loss_rate_rtol, min_count=params.loss_rate_min_count)
-    loss_model_class1 = params.loss_model_class
-    loss_model_class2 = params.ext_alt_loss_model
-    loss_model_kwargs1 = num_model_kwargs if issubclass(loss_model_class1, pamp.loss.NumericalLossModel) else {}
-    loss_model_kwargs2 = num_model_kwargs if issubclass(loss_model_class2, pamp.loss.NumericalLossModel) else {}
-    if loss_model_class1 is params.loss_model_class:
-        loss_model_kwargs1.update(params.loss_model_extra_args)
-    if loss_model_class2 is params.loss_model_class:
-        loss_model_kwargs2.update(params.loss_model_extra_args)
-    loss_model1 = loss_model_class1(active_medium, params.lasing_wavelen, **loss_model_kwargs1)
-    loss_model2 = loss_model_class2(active_medium, params.lasing_wavelen, **loss_model_kwargs2)
+    num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count)
+    depop_model_class1 = params.depop_model_class
+    depop_model_class2 = params.ext_alt_depop_model
+    depop_model_kwargs1 = num_model_kwargs if issubclass(depop_model_class1, pamp.depop.NumericalDepopulationModel) else {}
+    depop_model_kwargs2 = num_model_kwargs if issubclass(depop_model_class2, pamp.depop.NumericalDepopulationModel) else {}
+    if depop_model_class1 is params.depop_model_class:
+        depop_model_kwargs1.update(params.depop_model_extra_args)
+    if depop_model_class2 is params.depop_model_class:
+        depop_model_kwargs2.update(params.depop_model_extra_args)
+    depop_model1 = depop_model_class1(active_medium, params.lasing_wavelen, **depop_model_kwargs1)
+    depop_model2 = depop_model_class2(active_medium, params.lasing_wavelen, **depop_model_kwargs2)
     
-    inversions1, inversions2, gains1, gains2, inversion_rdiffs, gain_rdiffs = task_pool.parallel_task(compute_inversion_pump_dependence_task, (Tau, Pwr), (), (active_medium, (loss_model1, loss_model2)))
+    inversions1, inversions2, gains1, gains2, inversion_rdiffs, gain_rdiffs = task_pool.parallel_task(compute_inversion_pump_dependence_task, (Tau, Pwr), (), (active_medium, (depop_model1, depop_model2)))
     
     output.show_status((count_tau, count_pwr), params.extended_status_strides, True)
     
@@ -164,7 +164,7 @@ def compute_inversion_pump_dependence(task_pool, dirname):
         dirname = os.path.join(dirname, output.pumpdep_rel_path)
         inversion_rdiff_max = params.ext_inversion_rdiff_max
         zlim = None #(0.0, inversion_rdiff_max)
-        loss_contours = [inversion_rdiff_max]
+        depop_contours = [inversion_rdiff_max]
         ref_pump_energy = params.pump_duration * params.pump_power
         ref_pump_contours = [(pump_energies.T, ref_pump_energy, "const. pump energy")]
         graph_types = [
@@ -174,27 +174,27 @@ def compute_inversion_pump_dependence(task_pool, dirname):
         for dirname, Y, ylabel in graph_types:
             dirname = output.init_dir(dirname)
             plot.plot_color(filename("energy_pump"), "Pump Energy", (Tau, None, None, output. pump_duration_label), (Y, None, None, ylabel), (pump_energies.T, None, output.energy_abs_pump_label), params.num_auto_contours)
-            plot.plot_color(filename("inversion"), "Inversion (%s)" % loss_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversions1.T, None, output.inversion_abs_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("inversion_alt"), "Inversion (%s)" % loss_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversions2.T, None, output.inversion_abs_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("ss_gain"), "Small Signal Gain (%s)" % loss_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gains1.T, None, output.gain_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("ss_gain_alt"), "Small Signal Gain (%s)" % loss_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gains2.T, None, output.gain_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("energy_stored"), "Stored Energy (%s)" % loss_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (stored_energies1.T, None, output.energy_abs_stored_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("energy_stored_alt"), "Stored Energy (%s)" % loss_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (stored_energies2.T, None, output.energy_abs_stored_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("inversion_rdiff"), "Inversion Relative Difference", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversion_rdiffs.T, zlim, output.inversion_rdiff_label), params.num_auto_contours, loss_contours)
-            plot.plot_color(filename("ss_gain_rdiff"), "Small Signal Gain Relative Difference", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gain_rdiffs.T, zlim, output.gain_rdiff_label), params.num_auto_contours, loss_contours)
+            plot.plot_color(filename("inversion"), "Inversion (%s)" % depop_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversions1.T, None, output.inversion_abs_label), params.num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("inversion_alt"), "Inversion (%s)" % depop_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversions2.T, None, output.inversion_abs_label), params.num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("ss_gain"), "Small Signal Gain (%s)" % depop_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gains1.T, None, output.gain_label), params.num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("ss_gain_alt"), "Small Signal Gain (%s)" % depop_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gains2.T, None, output.gain_label), params.num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("energy_stored"), "Stored Energy (%s)" % depop_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (stored_energies1.T, None, output.energy_abs_stored_label), params.num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("energy_stored_alt"), "Stored Energy (%s)" % depop_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (stored_energies2.T, None, output.energy_abs_stored_label), params.num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("inversion_rdiff"), "Inversion Relative Difference", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversion_rdiffs.T, zlim, output.inversion_rdiff_label), params.num_auto_contours, depop_contours)
+            plot.plot_color(filename("ss_gain_rdiff"), "Small Signal Gain Relative Difference", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gain_rdiffs.T, zlim, output.gain_rdiff_label), params.num_auto_contours, depop_contours)
     
     return inversions1, inversion_rdiffs
 
-def compute_inversion_geom_dependence_task(i, rm, doping_agent, (loss_model_class1, loss_model_class2), (loss_model_kwargs1, loss_model_kwargs2)):
+def compute_inversion_geom_dependence_task(i, rm, doping_agent, (depop_model_class1, depop_model_class2), (depop_model_kwargs1, depop_model_kwargs2)):
     output.show_status((i, None), params.extended_status_strides, False)
     medium_radius_orig = params.medium_radius
     params.medium_radius = rm
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
-    loss_model1 = loss_model_class1(active_medium, params.lasing_wavelen, **loss_model_kwargs1)
-    loss_model2 = loss_model_class2(active_medium, params.lasing_wavelen, **loss_model_kwargs2)
+    depop_model1 = depop_model_class1(active_medium, params.lasing_wavelen, **depop_model_kwargs1)
+    depop_model2 = depop_model_class2(active_medium, params.lasing_wavelen, **depop_model_kwargs2)
     pump_system = pamp.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
-    inv1 = params.inverter_class(active_medium, pump_system, loss_model1)
-    inv2 = params.inverter_class(active_medium, pump_system, loss_model2)
+    inv1 = params.inverter_class(active_medium, pump_system, depop_model1)
+    inv2 = params.inverter_class(active_medium, pump_system, depop_model2)
     inversion1 = inv1.invert(params.inversion_rtol, params.inversion_min_count_t)
     inversion2 = inv2.invert(params.inversion_rtol, params.inversion_min_count_t)
     gain_coef1 = inversion1 * active_medium.doping_agent.xsection
@@ -222,17 +222,17 @@ def compute_inversion_geom_dependence(task_pool, dirname):
     
     Rm = np.linspace(min_medium_radius, params.geomdep_mediumradius_interval[1], count_rm)
     
-    num_model_kwargs = dict(rtol=params.loss_rate_rtol, min_count=params.loss_rate_min_count)
-    loss_model_class1 = params.loss_model_class
-    loss_model_class2 = params.ext_alt_loss_model
-    loss_model_kwargs1 = num_model_kwargs if issubclass(loss_model_class1, pamp.loss.NumericalLossModel) else {}
-    loss_model_kwargs2 = num_model_kwargs if issubclass(loss_model_class2, pamp.loss.NumericalLossModel) else {}
-    if loss_model_class1 is params.loss_model_class:
-        loss_model_kwargs1.update(params.loss_model_extra_args)
-    if loss_model_class2 is params.loss_model_class:
-        loss_model_kwargs2.update(params.loss_model_extra_args)
+    num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count)
+    depop_model_class1 = params.depop_model_class
+    depop_model_class2 = params.ext_alt_depop_model
+    depop_model_kwargs1 = num_model_kwargs if issubclass(depop_model_class1, pamp.depop.NumericalDepopulationModel) else {}
+    depop_model_kwargs2 = num_model_kwargs if issubclass(depop_model_class2, pamp.depop.NumericalDepopulationModel) else {}
+    if depop_model_class1 is params.depop_model_class:
+        depop_model_kwargs1.update(params.depop_model_extra_args)
+    if depop_model_class2 is params.depop_model_class:
+        depop_model_kwargs2.update(params.depop_model_extra_args)
     
-    inversions1, inversions2, gains1, gains2, stored_energies1, stored_energies2, inversion_rdiffs, gain_rdiffs = task_pool.parallel_task(compute_inversion_geom_dependence_task, (Rm,), (), (doping_agent, (loss_model_class1, loss_model_class2), (loss_model_kwargs1, loss_model_kwargs2)))
+    inversions1, inversions2, gains1, gains2, stored_energies1, stored_energies2, inversion_rdiffs, gain_rdiffs = task_pool.parallel_task(compute_inversion_geom_dependence_task, (Rm,), (), (doping_agent, (depop_model_class1, depop_model_class2), (depop_model_kwargs1, depop_model_kwargs2)))
     
     output.show_status((count_rm, None), params.extended_status_strides, True)
     
@@ -243,15 +243,15 @@ def compute_inversion_geom_dependence(task_pool, dirname):
         inversion_rdiff_max = params.ext_inversion_rdiff_max
         pump_energy = params.pump_duration * params.pump_power
         energy_ylim = (0.0, pump_energy * 1.25)
-        labels = [cls.descr for cls in [loss_model_class1, loss_model_class2]]
-        plot.plot_data(filename("inversion"), "Inversion (%s)" % loss_model_class1.descr, (Rm, None, None, output.medium_radius_label), (inversions1, None, None, output.inversion_abs_label))
-        plot.plot_data(filename("inversion_alt"), "Inversion (%s)" % loss_model_class2.descr, (Rm, None, None, output.medium_radius_label), (inversions2, None, None, output.inversion_abs_label))
+        labels = [cls.descr for cls in [depop_model_class1, depop_model_class2]]
+        plot.plot_data(filename("inversion"), "Inversion (%s)" % depop_model_class1.descr, (Rm, None, None, output.medium_radius_label), (inversions1, None, None, output.inversion_abs_label))
+        plot.plot_data(filename("inversion_alt"), "Inversion (%s)" % depop_model_class2.descr, (Rm, None, None, output.medium_radius_label), (inversions2, None, None, output.inversion_abs_label))
         plot.plot_data(filename("inversions"), "Population Inversion", ([Rm]*2, None, None, output.medium_radius_label), ([inversions1, inversions2], None, None, output.inversion_abs_label), legend=labels)
-        plot.plot_data(filename("ss_gain"), "Small Signal Gain (%s)" % loss_model_class1.descr, (Rm, None, None, output.medium_radius_label), (gains1, None, None, output.gain_label))
-        plot.plot_data(filename("ss_gain_alt"), "Small Signal Gain (%s)" % loss_model_class2.descr, (Rm, None, None, output.medium_radius_label), (gains2, None, None, output.gain_label))
+        plot.plot_data(filename("ss_gain"), "Small Signal Gain (%s)" % depop_model_class1.descr, (Rm, None, None, output.medium_radius_label), (gains1, None, None, output.gain_label))
+        plot.plot_data(filename("ss_gain_alt"), "Small Signal Gain (%s)" % depop_model_class2.descr, (Rm, None, None, output.medium_radius_label), (gains2, None, None, output.gain_label))
         plot.plot_data(filename("ss_gains"), "Small Signal Gain", ([Rm]*2, None, None, output.medium_radius_label), ([gains1, gains2], None, None, output.gain_label), legend=labels)
-        plot.plot_data(filename("energy_stored"), "Stored Energy (%s)" % loss_model_class1.descr, (Rm, None, None, output.medium_radius_label), (stored_energies1, None, energy_ylim, output.energy_abs_stored_label), yvals=[(pump_energy, "pump energy")])
-        plot.plot_data(filename("energy_stored_alt"), "Stored Energy (%s)" % loss_model_class2.descr, (Rm, None, None, output.medium_radius_label), (stored_energies2, None, energy_ylim, output.energy_abs_stored_label), yvals=[(pump_energy, "pump energy")])
+        plot.plot_data(filename("energy_stored"), "Stored Energy (%s)" % depop_model_class1.descr, (Rm, None, None, output.medium_radius_label), (stored_energies1, None, energy_ylim, output.energy_abs_stored_label), yvals=[(pump_energy, "pump energy")])
+        plot.plot_data(filename("energy_stored_alt"), "Stored Energy (%s)" % depop_model_class2.descr, (Rm, None, None, output.medium_radius_label), (stored_energies2, None, energy_ylim, output.energy_abs_stored_label), yvals=[(pump_energy, "pump energy")])
         plot.plot_data(filename("energies_stored"), "Stored Energy", ([Rm]*2, None, None, output.medium_radius_label), ([stored_energies1, stored_energies2], None, energy_ylim, output.energy_abs_stored_label), legend=labels, yvals=[(pump_energy, "pump energy")])
         plot.plot_data(filename("inversion_rdiff"), "Inversion Relative Difference", (Rm, None, None, output.medium_radius_label), (inversion_rdiffs, None, None, output.inversion_rdiff_label), yvals=[(inversion_rdiff_max, None)])
         plot.plot_data(filename("ss_gain_rdiff"), "Small Signal Gain Relative Difference", (Rm, None, None, output.medium_radius_label), (gain_rdiffs, None, None, output.gain_rdiff_label), yvals=[(inversion_rdiff_max, None)])
@@ -470,8 +470,8 @@ def output_geom_constraints(dirname, inversion_rdiffs, max_fluences):
     ]
     contour_comps = [1.0]
     
-    rm_losses_max = np.interp(inversion_rdiff_max, inversion_rdiffs[::-1], Rm[::-1])
-    xvals = [(rm_losses_max, "depopulation")]
+    rm_depop = np.interp(inversion_rdiff_max, inversion_rdiffs[::-1], Rm[::-1])
+    xvals = [(rm_depop, "depopulation")]
     xval_comps = [-1.0]
     
     if params.graphs:
@@ -754,7 +754,7 @@ def extended_mode(task_pool, dirname, (int_types, amp_types)):
         compare_lower_lifetimes(dirname, (int_types, amp_types))
     
     if not params.initial_inversion:
-        compare_loss_models(dirname)
+        compare_depop_models(dirname)
         inversions_pump, inversion_rdiffs_pump = compute_inversion_pump_dependence(task_pool, dirname)
         inversions_geom, inversion_rdiffs_geom = compute_inversion_geom_dependence(task_pool, dirname)
         if params.amplification:

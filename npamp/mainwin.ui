@@ -317,14 +317,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="4" column="0">
-             <widget class="QLabel" name="label_loss_model_class">
+             <widget class="QLabel" name="label_depop_model_class">
               <property name="text">
                <string>depopulation model:</string>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QComboBox" name="comboBox_loss_model_class"/>
+             <widget class="QComboBox" name="comboBox_depop_model_class"/>
             </item>
            </layout>
           </widget>
@@ -495,24 +495,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="label_ext_alt_loss_model">
+             <widget class="QLabel" name="label_ext_alt_depop_model">
               <property name="text">
                <string>alternative depopulation model:</string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QComboBox" name="comboBox_ext_alt_loss_model"/>
+             <widget class="QComboBox" name="comboBox_ext_alt_depop_model"/>
             </item>
             <item row="2" column="0">
-             <widget class="QLabel" name="label_ext_loss_models">
+             <widget class="QLabel" name="label_ext_depop_models">
               <property name="text">
                <string>compared depopulation models:</string>
               </property>
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QListWidget" name="listWidget_ext_loss_models">
+             <widget class="QListWidget" name="listWidget_ext_depop_models">
               <property name="selectionMode">
                <enum>QAbstractItemView::MultiSelection</enum>
               </property>
@@ -850,28 +850,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
            </property>
            <layout class="QFormLayout" name="formLayout_7">
             <item row="0" column="0">
-             <widget class="QLabel" name="label_loss_rate_rtol">
+             <widget class="QLabel" name="label_depop_rate_rtol">
               <property name="text">
                <string>depop. rate relative tolerance:</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEdit_loss_rate_rtol">
+             <widget class="QLineEdit" name="lineEdit_depop_rate_rtol">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="label_loss_rate_min_count">
+             <widget class="QLabel" name="label_depop_rate_min_count">
               <property name="text">
                <string>depop. rate minimum evaluation count:</string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSpinBox" name="spinBox_loss_rate_min_count">
+             <widget class="QSpinBox" name="spinBox_depop_rate_min_count">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -884,14 +884,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="2" column="0">
-             <widget class="QLabel" name="label_loss_model_extra_args">
+             <widget class="QLabel" name="label_depop_model_extra_args">
               <property name="text">
                <string>depop. model extra arguments:</string>
               </property>
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLineEdit" name="lineEdit_loss_model_extra_args"/>
+             <widget class="QLineEdit" name="lineEdit_depop_model_extra_args"/>
             </item>
             <item row="3" column="0">
              <widget class="QLabel" name="label_inverter_class">
