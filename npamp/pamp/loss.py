@@ -48,7 +48,7 @@ def concrete(cls):
     return cls
 
 class LossModel(object):
-    descr = "loss model"
+    descr = "depopulation loss model"
     
     def __init__(self, active_medium, wavelen):
         self.active_medium = active_medium
@@ -63,7 +63,7 @@ class LossModel(object):
         raise NotImplementedError()
 
 class ExactLossModel(LossModel):
-    descr = "exact loss model"
+    descr = "exact depopulation loss model"
     
     def __init__(self, active_medium, wavelen):
         super(ExactLossModel, self).__init__(active_medium, wavelen)
@@ -74,7 +74,7 @@ class ExactLossModel(LossModel):
         self.saturation_intensity = self.photon_energy / (self.active_medium.doping_agent.xsection * self.radiative_lifetime)
 
 class NumericalLossModel(LossModel):
-    descr = "numerical loss model"
+    descr = "numerical depopulation loss model"
     
     def __init__(self, active_medium, wavelen, rtol, min_count):
         super(NumericalLossModel, self).__init__(active_medium, wavelen)
@@ -83,7 +83,7 @@ class NumericalLossModel(LossModel):
         self.min_count = min_count
 
 class PerturbedLossModel(LossModel):
-    descr = "perturbed loss model"
+    descr = "perturbed depopulation loss model"
     
     def __init__(self, numerical_loss_model):
         super(PerturbedLossModel, self).__init__(numerical_loss_model.active_medium, numerical_loss_model.wavelen)
