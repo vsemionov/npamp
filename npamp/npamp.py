@@ -27,6 +27,8 @@
 
 
 import sys
+import os
+import glob
 import getopt
 import time
 
@@ -57,6 +59,20 @@ help_hint = "Try \"{app_name} -h\" for more information.".format(app_name=meta.a
 class InvocationError(Exception):
     pass
 
+
+def load_extensions():
+    extension_path = os.path.normpath(os.path.expanduser("~/.%s/extensions" % meta.app_name.lower()))
+    sys.path.append(extension_path)
+    extension_pathnames = glob.glob(os.path.join(extension_path, "*.py"))
+    for pathname in extension_pathnames:
+        _, name = os.path.split(pathname)
+        name, _ = os.path.splitext(name)
+        print "loading extension \"%s\"" % name
+        __import__(name)
+
+
+def print_help():
+    print usage_help
 
 def print_info():
     print meta.app_name, meta.app_version
@@ -127,12 +143,7 @@ def run(conf_path, output_path):
     if params.verbose:
         print "finished in %.3f seconds" % elapsed_time
 
-def print_help():
-    print usage_help
-
-def main():
-    multiprocessing.freeze_support()
-    
+def process():
     try:
         conf_path = None
         output_path = None
@@ -164,6 +175,12 @@ def main():
     except InvocationError as ie:
         print >>sys.stderr, "%s: %s" % (meta.app_name, ie.message)
         print >>sys.stderr, help_hint
+
+def main():
+    multiprocessing.freeze_support()
+    
+    load_extensions()
+    process()
 
 
 if __name__ == "__main__":

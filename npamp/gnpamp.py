@@ -43,7 +43,15 @@ import mainwin
 import outwin
 
 
+old_excepthook = None
+
 defaults = npamp.core.copy_conf(npamp.params.__dict__)
+
+
+def boot_excepthook(exc_type, value, traceback):
+    if old_excepthook:
+        old_excepthook(exc_type, value, traceback)
+    QtGui.QMessageBox.critical(None, "%s Error" % meta.app_name, str(value))
 
 
 def repr_classless(v):
@@ -432,8 +440,15 @@ def main():
     multiprocessing.freeze_support()
     
     app = QtGui.QApplication(sys.argv)
+    
+    old_except_hook = sys.excepthook
+    sys.excepthook = boot_excepthook
+    
+    npamp.load_extensions()
+    
     win = AppWindow()
     win.show()
+    sys.excepthook = old_except_hook
     win.add_excepthook()
     
     args = sys.argv[1:]
