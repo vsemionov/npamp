@@ -1,9 +1,4 @@
-import core
 import pamp
-
-extensions = ['extension.py']
-core.load_extensions(extensions)
-
 graphs = True
 beam_class = pamp.beam.TopHatBeam
 pulse_class = pamp.pulse.SawtoothPulse

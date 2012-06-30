@@ -1,9 +1,4 @@
-import core
 import pamp
-
-extensions = []
-core.load_extensions(extensions)
-
 amp_rtol = 0.01
 amplification = False
 amplifier_classes = [pamp.amplifier.HybridAmplifier, pamp.amplifier.NSFDAmplifier]
