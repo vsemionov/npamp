@@ -27,7 +27,6 @@
 
 
 import sys
-import os
 import getopt
 import time
 
@@ -75,11 +74,9 @@ def run(conf_path, output_path):
     
     print "configuring"
     if conf_path is not None:
-        core.extension_base_path, _ = os.path.split(os.path.join(os.getcwd(), conf_path))
         if params.verbose:
             print "reading configuration from:", conf_path
         execfile(conf_path, params.__dict__)
-    
     output.output_dir = output_path
     if params.graphs:
         if not output.output_dir:

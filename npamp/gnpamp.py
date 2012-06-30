@@ -195,7 +195,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             elif type(widget) is QtGui.QListWidget:
                 clsnames = map(lambda item: item.text(), widget.selectedItems())
                 classes = map(lambda clsname: item2class(widget, clsname), clsnames)
-                return list(classes)
+                return tuple(classes)
             elif type(widget) is QtGui.QWidget:
                 children = [w for w in widget.findChildren(QtGui.QWidget) if w.parent() is widget]
                 assert len(children) == len(defval), "wrong data length"
