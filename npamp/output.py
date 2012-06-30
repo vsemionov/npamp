@@ -181,7 +181,7 @@ def plot_beam(dirname, beam_profile, Rho, Phi, ref_output_fluence):
     
     n_ref = -1
     for n, phi in enumerate(Phi):
-        if n_ref < 0 or abs(phi - beam_profile.ref_phi) < (Phi[n_ref] - beam_profile.ref_phi):
+        if n_ref < 0 or abs(phi - beam_profile.phi_ref) < abs(Phi[n_ref] - beam_profile.phi_ref):
             n_ref = n
     rholim = (Rho[0], Rho[-1])
     plot.plot_data(filename("fluences"), "Input and Output Pulse Fluences", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref]), None, None, fluence_rel_label), ("input beam", "output beam"))
