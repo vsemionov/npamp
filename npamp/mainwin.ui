@@ -319,7 +319,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="4" column="0">
              <widget class="QLabel" name="label_loss_model_class">
               <property name="text">
-               <string>loss model:</string>
+               <string>depopulation model:</string>
               </property>
              </widget>
             </item>
@@ -420,7 +420,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="5" column="0">
              <widget class="QLabel" name="label_train_pulse_period">
               <property name="text">
-               <string>pulse period [ns]:</string>
+               <string>pulse repetition period [ns]:</string>
               </property>
              </widget>
             </item>
@@ -497,7 +497,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="1" column="0">
              <widget class="QLabel" name="label_loss_dependence_alt_model">
               <property name="text">
-               <string>loss alternative model:</string>
+               <string>alternative depopulation model:</string>
               </property>
              </widget>
             </item>
@@ -507,7 +507,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="2" column="0">
              <widget class="QLabel" name="label_compared_loss_models">
               <property name="text">
-               <string>compared loss models:</string>
+               <string>compared depopulation models:</string>
               </property>
              </widget>
             </item>
@@ -629,7 +629,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="7" column="0">
              <widget class="QLabel" name="label_loss_dependence_inversion_rdiff_max">
               <property name="text">
-               <string>inversion maximum relative difference:</string>
+               <string>maximum inversion relative difference:</string>
               </property>
              </widget>
             </item>
@@ -657,7 +657,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="9" column="0">
              <widget class="QLabel" name="label_pumpdep_step_counts">
               <property name="text">
-               <string>pump parameters resolution:</string>
+               <string>pump parameter domain resolution:</string>
               </property>
              </widget>
             </item>
@@ -696,7 +696,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="10" column="0">
              <widget class="QLabel" name="label_geomdep_step_counts">
               <property name="text">
-               <string>geometry parameters resolution:</string>
+               <string>geometry parameter domain resolution:</string>
               </property>
              </widget>
             </item>
@@ -764,7 +764,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="0" column="0">
              <widget class="QLabel" name="label_initial_inversion">
               <property name="text">
-               <string>predefined inversion [cm^-3]:</string>
+               <string>initial inversion [cm^-3]:</string>
               </property>
              </widget>
             </item>
@@ -792,7 +792,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="2" column="0">
              <widget class="QLabel" name="label_num_tasks">
               <property name="text">
-               <string>ext. mode parallel tasks:</string>
+               <string>ext. mode num. parallel tasks:</string>
               </property>
              </widget>
             </item>
@@ -812,7 +812,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="3" column="0">
              <widget class="QLabel" name="label_lower_process_priority">
               <property name="text">
-               <string>lower process priority:</string>
+               <string>reduce process priority:</string>
               </property>
              </widget>
             </item>
@@ -852,7 +852,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="0" column="0">
              <widget class="QLabel" name="label_loss_rtol">
               <property name="text">
-               <string>loss rate relative tolerance:</string>
+               <string>depop. rate relative tolerance:</string>
               </property>
              </widget>
             </item>
@@ -866,7 +866,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="1" column="0">
              <widget class="QLabel" name="label_loss_min_count">
               <property name="text">
-               <string>loss minimum evaluation count:</string>
+               <string>depop. rate minimum evaluation count:</string>
               </property>
              </widget>
             </item>
@@ -886,7 +886,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="2" column="0">
              <widget class="QLabel" name="label_loss_model_extra_args">
               <property name="text">
-               <string>loss model extra arguments:</string>
+               <string>depop. model extra arguments:</string>
               </property>
              </widget>
             </item>
@@ -896,7 +896,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="3" column="0">
              <widget class="QLabel" name="label_inverter_class">
               <property name="text">
-               <string>inverter method:</string>
+               <string>inversion method:</string>
               </property>
              </widget>
             </item>
@@ -918,27 +918,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="5" column="0">
-             <widget class="QLabel" name="label_initial_inversion_validate">
-              <property name="text">
-               <string>perform inversion validation:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QCheckBox" name="checkBox_initial_inversion_validate">
-              <property name="text">
-               <string>yes</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
              <widget class="QLabel" name="label_initial_inversion_min_count_t">
               <property name="text">
                <string>inversion minimum time step count:</string>
               </property>
              </widget>
             </item>
-            <item row="6" column="1">
+            <item row="5" column="1">
              <widget class="QSpinBox" name="spinBox_initial_inversion_min_count_t">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -951,10 +937,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
               </property>
              </widget>
             </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="label_initial_inversion_validate">
+              <property name="text">
+               <string>validate inversion:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QCheckBox" name="checkBox_initial_inversion_validate">
+              <property name="text">
+               <string>yes</string>
+              </property>
+             </widget>
+            </item>
             <item row="7" column="0">
              <widget class="QLabel" name="label_pulse_rel_energy_trunc">
               <property name="text">
-               <string>pulse relative energy truncation:</string>
+               <string>time truncation relative tolerance:</string>
               </property>
              </widget>
             </item>
@@ -966,41 +966,55 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="8" column="0">
-             <widget class="QLabel" name="label_energy_rtol">
-              <property name="text">
-               <string>energy (integration) relative tolerance:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="1">
-             <widget class="QLineEdit" name="lineEdit_energy_rtol">
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="0">
              <widget class="QLabel" name="label_fluence_rtol">
               <property name="text">
                <string>fluence (integration) relative tolerance:</string>
               </property>
              </widget>
             </item>
-            <item row="9" column="1">
+            <item row="8" column="1">
              <widget class="QLineEdit" name="lineEdit_fluence_rtol">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
+            <item row="9" column="0">
+             <widget class="QLabel" name="label_energy_rtol">
+              <property name="text">
+               <string>energy (integration) relative tolerance:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="1">
+             <widget class="QLineEdit" name="lineEdit_energy_rtol">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
             <item row="10" column="0">
+             <widget class="QLabel" name="label_amp_rtol">
+              <property name="text">
+               <string>amplification relative tolerance:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="1">
+             <widget class="QLineEdit" name="lineEdit_amp_rtol">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="0">
              <widget class="QLabel" name="label_min_count_rho">
               <property name="text">
                <string>minimum rho step count:</string>
               </property>
              </widget>
             </item>
-            <item row="10" column="1">
+            <item row="11" column="1">
              <widget class="QSpinBox" name="spinBox_min_count_rho">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1013,14 +1027,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
               </property>
              </widget>
             </item>
-            <item row="11" column="0">
+            <item row="12" column="0">
              <widget class="QLabel" name="label_min_count_phi">
               <property name="text">
                <string>minimum phi step count:</string>
               </property>
              </widget>
             </item>
-            <item row="11" column="1">
+            <item row="12" column="1">
              <widget class="QSpinBox" name="spinBox_min_count_phi">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1030,20 +1044,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
               </property>
               <property name="maximum">
                <number>1073741824</number>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="0">
-             <widget class="QLabel" name="label_amp_rtol">
-              <property name="text">
-               <string>amplification relative tolerance:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="1">
-             <widget class="QLineEdit" name="lineEdit_amp_rtol">
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -1186,7 +1186,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="3" column="0">
              <widget class="QLabel" name="label_output_styled_lines">
               <property name="text">
-               <string>plot styled lines:</string>
+               <string>styled lines:</string>
               </property>
              </widget>
             </item>
