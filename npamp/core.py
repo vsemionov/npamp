@@ -99,6 +99,10 @@ def compute_inversion(dirname):
     pump_energy = params.pump_duration * params.pump_power
     stored_energy = pamp.energy.energy(params.lasing_wavelen, ref_inversion * active_medium.volume)
     
+    if params.verbose:
+        print "count_t:", len(inv.T)
+        print "number of depopulation rate evaluations:", rate_evals
+    
     if params.initial_inversion_validate:
         print "validating uniform ASE loss approximation"
         ross_num_model = loss_model if isinstance(loss_model, pamp.loss.RossNumericalASEModel) else pamp.loss.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.loss_rtol, params.loss_min_count)
@@ -124,9 +128,6 @@ def compute_inversion(dirname):
     gain_atol = gain * (math.exp(ref_inversion_atol * active_medium.doping_agent.xsection * active_medium.length) - 1.0)
     stored_energy_atol = stored_energy * rel_error
     
-    if params.verbose:
-        print "count_t:", len(inv.T)
-        print "last number of depopulation rate evaluations:", rate_evals
     unitconv.print_result("pump energy [{}]: {}", ("mJ",), (pump_energy,))
     unitconv.print_result("initial inversion [{}]: {} ~ {}", ("cm^-3",), (ref_inversion, ref_inversion_atol))
     unitconv.print_result("small signal gain: {} ~ {}", (), (gain, gain_atol))
