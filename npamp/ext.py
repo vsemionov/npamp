@@ -81,10 +81,10 @@ def compare_loss_models(dirname):
         non_zero_inversions = [inversion[1:] for inversion in inversions]
         non_zero_rates = [loss_rate[1:] for loss_rate in loss_rates]
         rel_loss_rates = [loss_rate / inversion for loss_rate, inversion in zip(non_zero_rates, non_zero_inversions)]
-        plot.plot_data(filename("losses"), "Depopulation Rate", (inversions, None, None, output.inversion_abs_label), (loss_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
-        plot.plot_data(filename("losses_rel"), "Depopulation Rate to Inversion Ratio", (non_zero_inversions, None, None, output.inversion_abs_label), (rel_loss_rates, None, None, output.rate_rel_label), labels)
-        plot.plot_data(filename("losses_evo"), "Depopulation Rate Evolution", (Ts, None, None, output.t_pump_label), (loss_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
-        plot.plot_data(filename("losses_rel_evo"), "Depopulation Rate to Inversion Ratio Evolution", (non_zero_Ts, None, None, output.t_pump_label), (rel_loss_rates, None, None, output.rate_rel_label), labels)
+        plot.plot_data(filename("depop_rate"), "Depopulation Rate", (inversions, None, None, output.inversion_abs_label), (loss_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
+        plot.plot_data(filename("depop_rate_rel"), "Depopulation Rate to Inversion Ratio", (non_zero_inversions, None, None, output.inversion_abs_label), (rel_loss_rates, None, None, output.rate_rel_label), labels)
+        plot.plot_data(filename("depop_rate_evo"), "Depopulation Rate Evolution", (Ts, None, None, output.t_pump_label), (loss_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
+        plot.plot_data(filename("depop_rate_rel_evo"), "Depopulation Rate to Inversion Ratio Evolution", (non_zero_Ts, None, None, output.t_pump_label), (rel_loss_rates, None, None, output.rate_rel_label), labels)
         
         if params.ext_alt_loss_model not in loss_model_classes:
             return

@@ -36,10 +36,11 @@ import plot
 div_line = "=" * 32
 
 output_dir = None
-models_rel_path = "losses"
+models_rel_path = "pumping"
 ref_pulse_rel_path = "ref_pulse"
-pumpdep_rel_path = "pumpdep"
-geomdep_rel_path = "geomdep"
+optimization_rel_path = "optimization"
+pumpdep_rel_path = os.path.join(optimization_rel_path, "pump")
+geomdep_rel_path = os.path.join(optimization_rel_path, "geom")
 alt_plot_rel_path = "alt"
 
 x_label = "x [mm]"
