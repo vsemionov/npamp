@@ -79,7 +79,7 @@ def mangle_count_cyl(count_cyl):
 
 def compute_inversion(dirname):
     print output.div_line
-    print "computing initial inversion"
+    print "computing population inversion"
     
     is_numerical = issubclass(params.depop_model_class, pamp.depop.NumericalDepopulationModel)
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
@@ -112,7 +112,7 @@ def compute_inversion(dirname):
             warnings.warn("uniform ASE-induced depopulation rate approximation is invalid", stacklevel=2)
     
     if is_numerical:
-        print "perturbing initial inversion"
+        print "perturbing population inversion"
         perturb_depop_model = pamp.depop.PerturbedDepopulationModel(depop_model)
         perturb_inv = params.inverter_class(active_medium, pump_system, perturb_depop_model)
         perturb_ref_inversion = perturb_inv.invert(params.inversion_rtol, params.inversion_min_count_t)
@@ -129,7 +129,7 @@ def compute_inversion(dirname):
     stored_energy_atol = stored_energy * rel_error
     
     unitconv.print_result("pump energy [{}]: {}", ("mJ",), (pump_energy,))
-    unitconv.print_result("initial inversion [{}]: {} ~ {}", ("cm^-3",), (ref_inversion, ref_inversion_atol))
+    unitconv.print_result("population inversion [{}]: {} ~ {}", ("cm^-3",), (ref_inversion, ref_inversion_atol))
     unitconv.print_result("small signal gain: {} ~ {}", (), (gain, gain_atol))
     unitconv.print_result("stored energy [{}]: {} ~ {}", ("mJ",), (stored_energy, stored_energy_atol))
     if params.graphs:

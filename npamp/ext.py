@@ -65,7 +65,7 @@ def compare_depop_models(dirname):
         depop_rate = np.vectorize(depop_model.rate)(inv.inversion) / active_medium.volume
         data.append((inv.T, inv.inversion, depop_rate, depop_model_label, depop_model_class))
         ref_inversion = inv.inversion[-1]
-        unitconv.print_result("inversion [{}]: {}", ("cm^-3",), (ref_inversion,))
+        unitconv.print_result("population inversion [{}]: {}", ("cm^-3",), (ref_inversion,))
         unitconv.print_result("depopulation rate [{}]: {}", ("cm^-3 s^-1",), (depop_rate[-1],))
     
     if params.graphs:
@@ -74,17 +74,17 @@ def compare_depop_models(dirname):
         dirname = output.init_dir(dirname)
         data.sort(key = lambda x: x[1][-1], reverse=True)
         Ts, inversions, depop_rates, labels, depop_model_classes = zip(*data)
-        plot.plot_data(filename("inversions"), "Population Inversion Evolution", (Ts, None, None, output.t_pump_label), (inversions, None, None, output.inversion_abs_label), labels)
+        plot.plot_data(filename("inversions_evo"), "Population Inversion Evolution", (Ts, None, None, output.t_pump_label), (inversions, None, None, output.inversion_abs_label), labels)
         pump_rate = pump_system.effective_pump_rate / active_medium.volume
         abs_rate_ylim = None #(0.0, pump_rate * 1.25)
         non_zero_Ts = [T[1:] for T in Ts]
         non_zero_inversions = [inversion[1:] for inversion in inversions]
         non_zero_rates = [depop_rate[1:] for depop_rate in depop_rates]
         rel_depop_rates = [depop_rate / inversion for depop_rate, inversion in zip(non_zero_rates, non_zero_inversions)]
-        plot.plot_data(filename("depop_rate"), "Depopulation Rate", (inversions, None, None, output.inversion_abs_label), (depop_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
-        plot.plot_data(filename("depop_rate_alt"), "Depopulation Rate to Inversion Ratio", (non_zero_inversions, None, None, output.inversion_abs_label), (rel_depop_rates, None, None, output.rate_rel_label), labels)
-        plot.plot_data(filename("depop_rate_evo"), "Depopulation Rate Evolution", (Ts, None, None, output.t_pump_label), (depop_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
-        plot.plot_data(filename("depop_rate_alt_evo"), "Depopulation Rate to Inversion Ratio Evolution", (non_zero_Ts, None, None, output.t_pump_label), (rel_depop_rates, None, None, output.rate_rel_label), labels)
+        plot.plot_data(filename("depop_rates"), "Depopulation Rate", (inversions, None, None, output.inversion_abs_label), (depop_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
+        plot.plot_data(filename("depop_rates_alt"), "Depopulation Rate to Inversion Ratio", (non_zero_inversions, None, None, output.inversion_abs_label), (rel_depop_rates, None, None, output.rate_rel_label), labels)
+        plot.plot_data(filename("depop_rates_evo"), "Depopulation Rate Evolution", (Ts, None, None, output.t_pump_label), (depop_rates, None, abs_rate_ylim, output.rate_label), labels, yvals=[(pump_rate, "pump rate")])
+        plot.plot_data(filename("depop_rates_alt_evo"), "Depopulation Rate to Inversion Ratio Evolution", (non_zero_Ts, None, None, output.t_pump_label), (rel_depop_rates, None, None, output.rate_rel_label), labels)
         
         if params.ext_alt_depop_model not in depop_model_classes:
             return

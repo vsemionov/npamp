@@ -131,12 +131,12 @@ def plot_output(dirname, beam_profile, input_pulse, fwhm, amp, fluences, exact_d
     plot.plot_data(filename("densities"), "Input and Output Photon Densities", ((T, ) * 2, None, tlim, out_t_label), ((density[0]/ref_density, density[-1]/ref_density), None, None, density_rel_label), ("input pulse", "output pulse"))
     plot.plot_data(filename("densities_norm"), "Normalized Input and Output Photon Densities", ((T, ) * 2, None, tlim, out_t_label), ((density[0]/ref_density, density[-1]/np.amax(density[-1])), None, None, density_norm_rel_label), ("input pulse", "output pulse"))
     
-    plot.plot_data(filename("upper_in"), "Initial Upper State Population", (Z, None, zlim, z_label), (upper.T[0]/ref_inversion, None, None, upper_rel_label))
-    plot.plot_data(filename("upper_out"), "Final Upper State Population", (Z, None, zlim, z_label), (upper.T[-1]/ref_inversion, None, None, upper_rel_label))
-    plot.plot_data(filename("lower_in"), "Initial Lower State Population", (Z, None, zlim, z_label), (lower.T[0]/ref_inversion, None, None, lower_rel_label))
-    plot.plot_data(filename("lower_out"), "Final Lower State Population", (Z, None, zlim, z_label), (lower.T[-1]/ref_inversion, None, None, lower_rel_label))
-    plot.plot_data(filename("inversion_in"), "Initial Population Inversion", (Z, None, zlim, z_label), (inversion.T[0]/ref_inversion, None, None, inversion_rel_label))
-    plot.plot_data(filename("inversion_out"), "Final Population Inversion", (Z, None, zlim, z_label), (inversion.T[-1]/ref_inversion, None, None, inversion_rel_label))
+    plot.plot_data(filename("upper_init"), "Initial Upper State Population", (Z, None, zlim, z_label), (upper.T[0]/ref_inversion, None, None, upper_rel_label))
+    plot.plot_data(filename("upper_final"), "Final Upper State Population", (Z, None, zlim, z_label), (upper.T[-1]/ref_inversion, None, None, upper_rel_label))
+    plot.plot_data(filename("lower_init"), "Initial Lower State Population", (Z, None, zlim, z_label), (lower.T[0]/ref_inversion, None, None, lower_rel_label))
+    plot.plot_data(filename("lower_final"), "Final Lower State Population", (Z, None, zlim, z_label), (lower.T[-1]/ref_inversion, None, None, lower_rel_label))
+    plot.plot_data(filename("inversion_init"), "Initial Population Inversion", (Z, None, zlim, z_label), (inversion.T[0]/ref_inversion, None, None, inversion_rel_label))
+    plot.plot_data(filename("inversion_final"), "Final Population Inversion", (Z, None, zlim, z_label), (inversion.T[-1]/ref_inversion, None, None, inversion_rel_label))
     
     plot.plot_projection(filename("density_evo"), "Photon Density Evolution", (ZT, None, z_label), (TZ, None, out_t_label), (density/ref_density, None, density_rel_label), (30, -30), (stride_z, stride_t))
     plot.plot_projection(filename("upper_evo"), "Upper State Population Evolution", (ZT, None, z_label), (TZ, None, out_t_label), (upper/ref_inversion, None, upper_rel_label), (30, 30), (stride_z, stride_t))
@@ -161,7 +161,7 @@ def plot_train(dirname, beam_profile, active_medium, output_photon_counts):
     nlim = (pulse_nums[0] - 1, pulse_nums[-1] + 1)
     extra_args = dict(style="o", vlines=True, grid="y") if pulse_count <= 32 else {}
     input_photon_count = beam_profile.fluence_integral(active_medium.radius)
-    plot.plot_data(filename("pulse_energy_gain"), "Pulse Energy Gain", (pulse_nums, None, nlim, i_label), (output_photon_counts/input_photon_count, None, None, energy_rel_label), **extra_args)
+    plot.plot_data(filename("train_energy_gain"), "Pulse Train Energy Gain", (pulse_nums, None, nlim, i_label), (output_photon_counts/input_photon_count, None, None, energy_rel_label), **extra_args)
 
 def plot_beam(dirname, beam_profile, Rho, Phi, ref_output_fluence):
     filename = lambda name: os.path.join(dirname, name)
