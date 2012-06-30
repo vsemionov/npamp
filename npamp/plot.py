@@ -95,7 +95,7 @@ def plot_data(basename, title, (X, xscale, xlim, xlabel), (Y, yscale, ylim, ylab
     if ylim is not None:
         ylim = [t * uyscale for t in ylim]
         plt.ylim(ylim)
-    if params.output_graph_titles:
+    if params.output_plot_titles:
         plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -140,7 +140,7 @@ def plot_projection(basename, title, (XY, xlim, xlabel), (YX, ylim, ylabel), (Z,
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
     ax.view_init(elev, azim)
-    if params.output_graph_titles:
+    if params.output_plot_titles:
         ax.set_title(title)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
@@ -195,7 +195,7 @@ def plot_color(basename, title, (X, xscale, xlim, xlabel), (Y, yscale, ylim, yla
     if ylim is not None:
         ylim = [t * uyscale for t in ylim]
         plt.ylim(ylim)
-    if params.output_graph_titles:
+    if params.output_plot_titles:
         plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -253,7 +253,7 @@ def plot_contour(basename, title, (X, xscale, xlim, xlabel), (Y, yscale, ylim, y
     if ylim is not None:
         ylim = [t * uyscale for t in ylim]
         plt.ylim(ylim)
-    if params.output_graph_titles:
+    if params.output_plot_titles:
         plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)

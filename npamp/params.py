@@ -126,6 +126,6 @@ num_auto_contours = 5
 output_rel_time = False
 output_color = True
 output_styled_lines = False
-output_graph_titles = True
+output_plot_titles = True
 
 output_file_format = "png"

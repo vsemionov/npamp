@@ -1170,14 +1170,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="2" column="0">
-             <widget class="QLabel" name="label_output_graph_titles">
+             <widget class="QLabel" name="label_output_plot_titles">
               <property name="text">
-               <string>graph titles:</string>
+               <string>plot titles:</string>
               </property>
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QCheckBox" name="checkBox_output_graph_titles">
+             <widget class="QCheckBox" name="checkBox_output_plot_titles">
               <property name="text">
                <string>yes</string>
               </property>
