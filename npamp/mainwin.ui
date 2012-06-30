@@ -1158,7 +1158,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="1" column="0">
              <widget class="QLabel" name="label_output_data">
               <property name="text">
-               <string>output graph data:</string>
+               <string>write graph data:</string>
               </property>
              </widget>
             </item>
