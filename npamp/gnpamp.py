@@ -56,17 +56,8 @@ def file2conf(path):
     return conf
 
 def conf2file(conf, path):
-    conf = npamp.core.copy_conf(conf)
-    extensions_param = "extensions"
-    extensions_value = conf[extensions_param]
-    del conf[extensions_param]
     with open(path, "w") as fp:
-        fp.write("import core\n")
         fp.write("import pamp\n")
-        fp.write("\n")
-        fp.write("%s = %s\n" % (extensions_param, repr_classless(extensions_value)))
-        fp.write("core.load_extensions(extensions)\n")
-        fp.write("\n")
         for param, value in sorted(conf.items()):
             fp.write("%s = %s\n" % (param, repr_classless(value)))
 
@@ -439,7 +430,6 @@ def worker(out_conn, conf, output_path):
 
 def main():
     multiprocessing.freeze_support()
-    npamp.core.load_extensions = lambda extensions: None
     app = QtGui.QApplication(sys.argv)
     win = AppWindow()
     win.show()
