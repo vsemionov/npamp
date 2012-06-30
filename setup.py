@@ -33,6 +33,7 @@ from distutils.extension import Extension
 from Cython.Distutils import build_ext
 
 import numpy
+import matplotlib
 
 sys.path.append(os.path.join(os.getcwd(), "npamp"))
 import meta
@@ -52,12 +53,11 @@ setup_args = dict(
 )
 
 if os.name == "nt":
-    import matplotlib
     import py2exe
     py2exe.__name__ #suppress warning for unused import
     
     data_files_mpl = matplotlib.get_py2exe_datafiles()
-    data_files_npamp = [("", []), ]
+    data_files_npamp = [("examples", [os.path.join("examples", name) for name in os.listdir("examples")]), ]
     data_files = data_files_mpl + data_files_npamp
     
     options = {
