@@ -1,0 +1,11 @@
+import core
+import pamp
+
+extensions = ['extension.py']
+core.load_extensions(extensions)
+
+graphs = True
+beam_class = pamp.beam.TopHatBeam
+pulse_class = pamp.pulse.SawtoothPulse
+min_count_z = 17
+min_count_t = 17
