@@ -64,18 +64,19 @@ train_pulse_period = 1.0e-9
 
 # numerical parameters:
 
-loss_rtol = 5.0e-2
-loss_min_count = 4096
+loss_rate_rtol = 5.0e-2
+loss_rate_min_count = 4096
 loss_model_extra_args = {}
 
 inverter_class = pamp.inverter.RungeKuttaInverter # RungeKuttaInverter usually makes fewer derivative evaluations for RossNumericalASEModel; for other loss models EulerInverter seems faster
-initial_inversion_rtol = 1.0e-2
-initial_inversion_validate = False
-initial_inversion_min_count_t = 0
+inversion_rtol = 1.0e-2
+inversion_validate = False
+inversion_min_count_t = 0
 
-loss_dependence_alt_model = pamp.loss.FluorescenceLossModel
-loss_dependence_inversion_rdiff_max = 0.1
-fluence_dependence_fluence_max = 1.0e4
+ext_loss_models = [pamp.loss.FluorescenceModel, pamp.loss.RossApproximateASEModel, pamp.loss.RossNumericalASEModel]
+ext_alt_loss_model = pamp.loss.FluorescenceModel
+ext_inversion_rdiff_max = 0.1
+ext_fluence_max = 1.0e4
 pumpdep_duration_interval = (dopant_upper_lifetime / 2.0, dopant_upper_lifetime * 2.0)
 pumpdep_power_interval = (2.0e3, 8.0e3)
 pumpdep_step_counts = (24, 24)
@@ -83,20 +84,18 @@ geomdep_mediumradius_interval = (medium_radius / 2.0, medium_radius * 2.0)
 geomdep_beamradius_interval = (beam_radius / 2.0, beam_radius * 2.0)
 geomdep_step_counts = (24, 24)
 
-pulse_rel_energy_trunc = 1.0e-3
-
+time_trunc_rtol = 1.0e-3
 energy_rtol = 1.0e-6
 fluence_rtol = 1.0e-6
+amp_rtol = 1.0e-2
+
 min_count_rho = 0
 min_count_phi = 0
-
-amp_rtol = 1.0e-2
 min_count_z = 0
 min_count_t = 0
 
 integrator_classes = [pamp.integral.SimpsonIntegrator]
 amplifier_classes = [pamp.amplifier.HybridAmplifier, pamp.amplifier.NSFDAmplifier] # HybridAmplifier is faster and may produce less error in some cases; NSFDAmplifier is unconditionally stable and produces qualitatively correct solutions (with all expected properties)
-compared_loss_models = [pamp.loss.FluorescenceLossModel, pamp.loss.RossApproximateASEModel, pamp.loss.RossNumericalASEModel]
 
 
 # output parameters:
@@ -122,7 +121,7 @@ out_phi_steps_divisor = 65
 out_z_steps_divisor = 33
 out_t_steps_divisor = 33
 
-num_contours = 5
+num_auto_contours = 5
 
 output_rel_time = False
 output_color = True

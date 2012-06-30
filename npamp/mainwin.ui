@@ -495,24 +495,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="label_loss_dependence_alt_model">
+             <widget class="QLabel" name="label_ext_alt_loss_model">
               <property name="text">
                <string>alternative depopulation model:</string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QComboBox" name="comboBox_loss_dependence_alt_model"/>
+             <widget class="QComboBox" name="comboBox_ext_alt_loss_model"/>
             </item>
             <item row="2" column="0">
-             <widget class="QLabel" name="label_compared_loss_models">
+             <widget class="QLabel" name="label_ext_loss_models">
               <property name="text">
                <string>compared depopulation models:</string>
               </property>
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QListWidget" name="listWidget_compared_loss_models">
+             <widget class="QListWidget" name="listWidget_ext_loss_models">
               <property name="selectionMode">
                <enum>QAbstractItemView::MultiSelection</enum>
               </property>
@@ -627,28 +627,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="7" column="0">
-             <widget class="QLabel" name="label_loss_dependence_inversion_rdiff_max">
+             <widget class="QLabel" name="label_ext_inversion_rdiff_max">
               <property name="text">
                <string>maximum inversion relative difference:</string>
               </property>
              </widget>
             </item>
             <item row="7" column="1">
-             <widget class="QLineEdit" name="lineEdit_loss_dependence_inversion_rdiff_max">
+             <widget class="QLineEdit" name="lineEdit_ext_inversion_rdiff_max">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
             <item row="8" column="0">
-             <widget class="QLabel" name="label_fluence_dependence_fluence_max">
+             <widget class="QLabel" name="label_ext_fluence_max">
               <property name="text">
                <string>maximum output fluence [J/cm^2]:</string>
               </property>
              </widget>
             </item>
             <item row="8" column="1">
-             <widget class="QLineEdit" name="lineEdit_fluence_dependence_fluence_max">
+             <widget class="QLineEdit" name="lineEdit_ext_fluence_max">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -850,28 +850,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
            </property>
            <layout class="QFormLayout" name="formLayout_7">
             <item row="0" column="0">
-             <widget class="QLabel" name="label_loss_rtol">
+             <widget class="QLabel" name="label_loss_rate_rtol">
               <property name="text">
                <string>depop. rate relative tolerance:</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEdit_loss_rtol">
+             <widget class="QLineEdit" name="lineEdit_loss_rate_rtol">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="label_loss_min_count">
+             <widget class="QLabel" name="label_loss_rate_min_count">
               <property name="text">
                <string>depop. rate minimum evaluation count:</string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSpinBox" name="spinBox_loss_min_count">
+             <widget class="QSpinBox" name="spinBox_loss_rate_min_count">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -904,28 +904,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              <widget class="QComboBox" name="comboBox_inverter_class"/>
             </item>
             <item row="4" column="0">
-             <widget class="QLabel" name="label_initial_inversion_rtol">
+             <widget class="QLabel" name="label_inversion_rtol">
               <property name="text">
                <string>inversion relative tolerance:</string>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QLineEdit" name="lineEdit_initial_inversion_rtol">
+             <widget class="QLineEdit" name="lineEdit_inversion_rtol">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
             <item row="5" column="0">
-             <widget class="QLabel" name="label_initial_inversion_min_count_t">
+             <widget class="QLabel" name="label_inversion_min_count_t">
               <property name="text">
                <string>inversion minimum time step count:</string>
               </property>
              </widget>
             </item>
             <item row="5" column="1">
-             <widget class="QSpinBox" name="spinBox_initial_inversion_min_count_t">
+             <widget class="QSpinBox" name="spinBox_inversion_min_count_t">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -938,28 +938,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="6" column="0">
-             <widget class="QLabel" name="label_initial_inversion_validate">
+             <widget class="QLabel" name="label_inversion_validate">
               <property name="text">
                <string>validate inversion:</string>
               </property>
              </widget>
             </item>
             <item row="6" column="1">
-             <widget class="QCheckBox" name="checkBox_initial_inversion_validate">
+             <widget class="QCheckBox" name="checkBox_inversion_validate">
               <property name="text">
                <string>yes</string>
               </property>
              </widget>
             </item>
             <item row="7" column="0">
-             <widget class="QLabel" name="label_pulse_rel_energy_trunc">
+             <widget class="QLabel" name="label_time_trunc_rtol">
               <property name="text">
                <string>time truncation relative tolerance:</string>
               </property>
              </widget>
             </item>
             <item row="7" column="1">
-             <widget class="QLineEdit" name="lineEdit_pulse_rel_energy_trunc">
+             <widget class="QLineEdit" name="lineEdit_time_trunc_rtol">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -1326,14 +1326,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="11" column="0">
-             <widget class="QLabel" name="label_num_contours">
+             <widget class="QLabel" name="label_num_auto_contours">
               <property name="text">
                <string>color graphs number of contours:</string>
               </property>
              </widget>
             </item>
             <item row="11" column="1">
-             <widget class="QSpinBox" name="spinBox_num_contours">
+             <widget class="QSpinBox" name="spinBox_num_auto_contours">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>

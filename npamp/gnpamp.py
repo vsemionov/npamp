@@ -114,11 +114,11 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             obj = getattr(pamp.loss, name)
             if type(obj) is type and issubclass(obj, pamp.loss.LossModel) and hasattr(obj, "concrete") and obj.concrete is True:
                 self.comboBox_loss_model_class.addItem(name)
-                self.comboBox_loss_dependence_alt_model.addItem(name)
-                self.listWidget_compared_loss_models.addItem(name)
+                self.comboBox_ext_alt_loss_model.addItem(name)
+                self.listWidget_ext_loss_models.addItem(name)
         self.widget_module_map[self.comboBox_loss_model_class.objectName()] = pamp.loss
-        self.widget_module_map[self.comboBox_loss_dependence_alt_model.objectName()] = pamp.loss
-        self.widget_module_map[self.listWidget_compared_loss_models.objectName()] = pamp.loss
+        self.widget_module_map[self.comboBox_ext_alt_loss_model.objectName()] = pamp.loss
+        self.widget_module_map[self.listWidget_ext_loss_models.objectName()] = pamp.loss
         for name in dir(pamp.inverter):
             obj = getattr(pamp.inverter, name)
             if type(obj) is type and issubclass(obj, pamp.inverter.PopulationInverter) and obj is not pamp.inverter.PopulationInverter:

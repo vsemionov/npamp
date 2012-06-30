@@ -55,7 +55,7 @@ def create_pulse(active_medium, beam, rho, phi):
     fluence = beam.fluence(rho, phi)
     ref_density = params.pulse_class.ref_density(active_medium.light_speed, params.pulse_duration, fluence)
     pulse = params.pulse_class(-params.pulse_duration/2.0, params.pulse_duration, ref_density)
-    scale = pamp.util.pulse_scale(pulse, params.pulse_rel_energy_trunc)
+    scale = pamp.util.pulse_scale(pulse, params.time_trunc_rtol)
     pulse = pamp.pulse.ExtendedPulse(pulse, scale)
     pulse = pamp.pulse.TruncatedPulse(pulse)
     return pulse
@@ -85,16 +85,16 @@ def compute_inversion(dirname):
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     pump_system = pamp.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
-    loss_model_kwargs = dict(rtol=params.loss_rtol) if is_numerical else {}
+    loss_model_kwargs = dict(rtol=params.loss_rate_rtol) if is_numerical else {}
     if is_numerical:
-        loss_model_kwargs = dict(rtol=params.loss_rtol, min_count=params.loss_min_count)
+        loss_model_kwargs = dict(rtol=params.loss_rate_rtol, min_count=params.loss_rate_min_count)
     else:
-        params.loss_rtol = 0.0
+        params.loss_rate_rtol = 0.0
         loss_model_kwargs = {}
     loss_model_kwargs.update(params.loss_model_extra_args)
     loss_model = params.loss_model_class(active_medium, params.lasing_wavelen, **loss_model_kwargs)
     inv = params.inverter_class(active_medium, pump_system, loss_model)
-    ref_inversion = inv.invert(params.initial_inversion_rtol, params.initial_inversion_min_count_t)
+    ref_inversion = inv.invert(params.inversion_rtol, params.inversion_min_count_t)
     rate_evals = (len(inv.inversion) - 1) * inv.evals_per_step
     pump_energy = params.pump_duration * params.pump_power
     stored_energy = pamp.energy.energy(params.lasing_wavelen, ref_inversion * active_medium.volume)
@@ -103,9 +103,9 @@ def compute_inversion(dirname):
         print "count_t:", len(inv.T)
         print "number of depopulation rate evaluations:", rate_evals
     
-    if params.initial_inversion_validate:
+    if params.inversion_validate:
         print "validating uniform ASE loss approximation"
-        ross_num_model = loss_model if isinstance(loss_model, pamp.loss.RossNumericalASEModel) else pamp.loss.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.loss_rtol, params.loss_min_count)
+        ross_num_model = loss_model if isinstance(loss_model, pamp.loss.RossNumericalASEModel) else pamp.loss.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.loss_rate_rtol, params.loss_rate_min_count)
         rate_rel_stddev = ross_num_model.rate_rel_stddev(ref_inversion)
         unitconv.print_result("depopulation rate rel. std. deviation [{}]: {}", ("%",), (rate_rel_stddev,))
         if rate_rel_stddev > 10.0e-2:
@@ -115,11 +115,11 @@ def compute_inversion(dirname):
         print "perturbing initial inversion"
         perturb_loss_model = pamp.loss.PerturbedLossModel(loss_model)
         perturb_inv = params.inverter_class(active_medium, pump_system, perturb_loss_model)
-        perturb_ref_inversion = perturb_inv.invert(params.initial_inversion_rtol, params.initial_inversion_min_count_t)
-        abs_error = abs(perturb_ref_inversion - ref_inversion) + (ref_inversion + perturb_ref_inversion) * params.initial_inversion_rtol
+        perturb_ref_inversion = perturb_inv.invert(params.inversion_rtol, params.inversion_min_count_t)
+        abs_error = abs(perturb_ref_inversion - ref_inversion) + (ref_inversion + perturb_ref_inversion) * params.inversion_rtol
         rel_error = abs_error / ref_inversion
     else:
-        rel_error = params.initial_inversion_rtol
+        rel_error = params.inversion_rtol
     
     gain_coef = ref_inversion * active_medium.doping_agent.xsection
     gain = math.exp(gain_coef * active_medium.length)
@@ -405,7 +405,7 @@ def validate():
     
     param_min_vals = {
         "train_pulse_count": 1,
-        "loss_min_count": 16,
+        "loss_rate_min_count": 16,
         "out_markers_step_divisor": 1,
         "out_rho_steps_divisor": 1,
         "out_phi_steps_divisor": 1,
@@ -443,7 +443,7 @@ def validate():
 
 def compute_energy_rel_error(ref_inversion, ref_inversion_rel_error):
     rel_error_inversion = math.exp(params.dopant_xsection * ref_inversion_rel_error * ref_inversion * params.medium_length) - 1.0
-    rel_error_energy = params.pulse_rel_energy_trunc + params.amp_rtol + params.energy_rtol
+    rel_error_energy = params.time_trunc_rtol + params.amp_rtol + params.energy_rtol
     energy_rel_error = rel_error_inversion + rel_error_energy
     return energy_rel_error
 

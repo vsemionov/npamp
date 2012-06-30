@@ -97,15 +97,15 @@ class PerturbedLossModel(LossModel):
         return rate
 
 @concrete
-class NullLossModel(ExactLossModel):
-    descr = "null loss model"
+class NullDepopulation(ExactLossModel):
+    descr = "null depopulation"
     
     def calc_rate(self, inversion):
         return 0.0
 
 @concrete
-class FluorescenceLossModel(ExactLossModel):
-    descr = "fluorescence"
+class FluorescenceModel(ExactLossModel):
+    descr = "fluorescence model"
     
     def calc_rate(self, inversion):
         active_medium = self.active_medium
