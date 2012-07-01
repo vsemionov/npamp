@@ -215,4 +215,11 @@ class RossNumericalASEModel(NumericalDepopulationModel):
 class RossHybridASEModel(RossNumericalASEModel):
     descr = "Ross ASE model (hybrid)"
     
-    _integrate_B = lambda self, *args: native._ross_ase_model_integrate_BP(self, 0.0, 0.0, 0.0, *args)
+    _integrate_B = lambda self, *args: native._ross_ase_model_integrate_BP(self, 0.0, 0.0, self.z_rel * self.active_medium.length, *args)
+    
+    def __init__(self, active_medium, wavelen, rtol, min_count, sample_count_multiplier=16, z_rel=0.0):
+        assert 0.0 <= z_rel <= 1.0, "z_rel is not in the interval [0.0, 1.0]"
+        
+        super(RossHybridASEModel, self).__init__(active_medium, wavelen, rtol, min_count, sample_count_multiplier)
+        
+        self.z_rel = z_rel
