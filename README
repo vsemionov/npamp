@@ -6,65 +6,51 @@ Numerical model of a laser amplifier for pulse trains, accounting for amplified 
 ------------------------------------------------------------------------------------------------------------------------------------
 
 
-
-
 Overview
 ========
+NPAmp is an implementation of a numerical model of a laser amplifier.
+It is designed for practical and educational purposes.
 
-NPAmp overview.
+Mathematical Model Features
+---------------------------
+* Describes the propagation of pulse trains in a laser amplifier.
+* Accounts for the amplified spontaneous emission during pumping.
+* Accounts for the finite lower state lifetime during amplification.
 
-
-Model Features
---------------
-
-* Feature 1
-* Feature 2
-* ...
-
+Numerical Model Features
+------------------------
+* Produces physically consistent and, where possible, numerically stable results.
+* Automatic error control
+* Automatic selection of the most efficient combination of numerical methods
 
 Implementation Features
 -----------------------
-
 * Feature 1
 * Feature 2
 * ...
 
-
 Modeled Amplifier and Input Signal Characteristics
 --------------------------------------------------
-
 * Characteristic 1
 * Characteristic 2
 * ...
 
 
-
-
 Installation
 ============
-
 Installation instructions for Windows and Unix.
-
-
 
 
 Operation
 =========
-
 Operation specification and instructions.
-
-
 
 
 Extensions
 ==========
-
 Brief description of extensions support.
-
-
 
 
 Support and Contacts
 ====================
-
 Information.
