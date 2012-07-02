@@ -89,7 +89,6 @@ def compute_inversion(dirname):
     if is_numerical:
         depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count)
     else:
-        params.depop_rate_rtol = 0.0
         depop_model_kwargs = {}
     depop_model_kwargs.update(params.depop_model_extra_args)
     depop_model = params.depop_model_class(active_medium, params.lasing_wavelen, **depop_model_kwargs)
@@ -485,9 +484,7 @@ def report_output_characteristics(ref_inversion, max_output_fluence, output_phot
     if params.train_pulse_count > 1:
         rel_gain_reduction_abs_error = (photon_count_last + photon_count_last_abs_error) / max(photon_count_first - photon_count_first_abs_error, 0.0) - photon_count_last / photon_count_first
     
-    unitconv.print_result("pump energy [{}]: {}", ("mJ",), (pump_energy,))
     unitconv.print_result("input energy [{}]: {}", ("mJ",), (input_energy,))
-    unitconv.print_result("stored energy [{}]: {} ~ {}", ("mJ",), (stored_energy, stored_energy_abs_error))
     unitconv.print_result("output energy [{}]: {} ~ {}", ("mJ",), (output_energy, output_energy_abs_error))
     unitconv.print_result("energy gain: {} ~ {}", (), (energy_gain, energy_gain_abs_error))
     unitconv.print_result("extraction efficiency [{}]: {} ~ {}", ("%",), (extraction_eff, extraction_eff_abs_error))
