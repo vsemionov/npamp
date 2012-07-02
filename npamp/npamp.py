@@ -102,10 +102,10 @@ def run(conf_path, output_path):
         if not output.output_dir:
             raise InvocationError("no output directory")
         if params.verbose:
-            print "graphs will be saved in:", output_path
+            print "graphs will be written to:", output_path
     else:
         if params.verbose:
-            print "graphs will not be saved"
+            print "graphs will not be written"
     
     dirname = "."
     
