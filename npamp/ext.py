@@ -706,9 +706,11 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), (num
     print output.div_line
     print "comparing lower state lifetimes"
     
+    lower_lifetime = params.dopant_lower_lifetime
+    
     initial_inversion = pamp.inversion.UniformInversion(ref_inversion)
     
-    doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     active_medium_3 = copy.deepcopy(active_medium)
     active_medium_3.doping_agent.lower_lifetime = float("inf")
@@ -736,7 +738,12 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), (num
     fluence_gain_4 = fluence_out_4 / ref_fluence
     unitconv.print_result("fluence gain: {}", (), (fluence_gain_4,))
     
-    print "finite"
+    lsl_output_label = "finite"
+    if lower_lifetime == 0.0:
+        lsl_output_label = "zero"
+    elif math.isinf(lower_lifetime):
+        lsl_output_label = "infinite"
+    print lsl_output_label
     density_out, _ = amp.amplify(*amplify_args)
     fluence_out = integrator.integral(amp.T, density_out) * active_medium.light_speed
     fluence_gain = fluence_out / ref_fluence
@@ -761,7 +768,12 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), (num
         ref_density = ref_pulse.ref_density
         densities = (density_out_4 / ref_density, density_out / ref_density, density_out_3 / ref_density)
         lifetime_scale = unitconv.units[output.lower_lifetime_unit]
-        labels = (output.lower_lifetime_legend % "0", output.lower_lifetime_legend % (r"%s \, %s" % (str(params.dopant_lower_lifetime/lifetime_scale), output.lower_lifetime_unit)), output.lower_lifetime_legend % "\infty")
+        lsl_graph_label_fmt = (r"%s \, %s" % (str(lower_lifetime/lifetime_scale), output.lower_lifetime_unit))
+        if lower_lifetime == 0.0:
+            lsl_graph_label_fmt = "0"
+        elif math.isinf(lower_lifetime):
+            lsl_graph_label_fmt = "\\infty"
+        labels = (output.lower_lifetime_legend % "0", output.lower_lifetime_legend % lsl_graph_label_fmt, output.lower_lifetime_legend % "\\infty")
         plot.plot_data(filename("lsl_effects"), "Effects of Lower State Lifetime", (Ts, None, tlim, out_t_label), (densities, None, None, output.density_rel_label), labels)
 
 def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), (num_types, counts)):
