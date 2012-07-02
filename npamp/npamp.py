@@ -94,15 +94,18 @@ def run(conf_path, output_path):
             print "reading configuration from:", conf_path
         execfile(conf_path, params.__dict__)
     
+    print "validating"
+    core.validate()
+    
     output.output_dir = output_path
     if params.graphs:
         if not output.output_dir:
             raise InvocationError("no output directory")
         if params.verbose:
-            print "result graphs will be saved in:", output_path
+            print "graphs will be saved in:", output_path
     else:
         if params.verbose:
-            print "result graphs will not be saved"
+            print "graphs will not be saved"
     
     dirname = "."
     
@@ -116,13 +119,7 @@ def run(conf_path, output_path):
         if params.verbose:
             print "number of parallel tasks:", task_pool.num_tasks
         
-        print "validating"
-        core.validate()
-        
-        print "running"
-        
-        if params.extended_mode:
-            ext.extended_mode(task_pool, dirname, (int_types, amp_types))
+        print "executing"
         
         if not params.initial_inversion:
             ref_inversion, ref_inversion_rel_error = core.compute_inversion(dirname)
@@ -134,6 +131,9 @@ def run(conf_path, output_path):
             energy_rel_error = core.compute_energy_rel_error(ref_inversion, ref_inversion_rel_error)
             max_output_fluence, output_photon_counts, output_energy, rel_gain_reduction = core.amplify_train(dirname, num_types, counts, ref_inversion)
             core.report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_reduction, ref_inversion_rel_error, energy_rel_error)
+        
+        if params.extended_mode:
+            ext.extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), (num_types, counts))
     
     print output.div_line
     print "done"

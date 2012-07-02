@@ -700,13 +700,12 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
         if params.train_pulse_count > 1:
             plot.plot_color(filename("gain_reduction"), "Gain Reduction", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (rel_gain_reductions.T, None, output.rel_gain_reduction_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
 
-def compare_lower_lifetimes(dirname, (int_types, amp_types)):
+def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), (num_types, counts)):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
     print "comparing lower state lifetimes"
     
-    ref_inversion = params.initial_inversion
     initial_inversion = pamp.inversion.UniformInversion(ref_inversion)
     
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
@@ -716,17 +715,16 @@ def compare_lower_lifetimes(dirname, (int_types, amp_types)):
     active_medium_4 = copy.deepcopy(active_medium)
     active_medium_4.doping_agent.lower_lifetime = 0.0
     
-    (int_type, amp_type), counts = core.setup_methods(dirname, (int_types, amp_types), ref_inversion, quiet=True)
-    
     pulse_photon_count = pamp.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
     ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
     beam_profile = params.beam_class(params.beam_radius, ref_fluence)
     
     ref_pulse = core.create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
     
+    (int_type, amp_type), (_, _, count_z, count_t) = num_types, counts
+    
     integrator = pamp.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
     
-    _, _, count_z, count_t = counts
     amp = amp_type(active_medium, count_z)
     amp_3 = pamp.amplifier.ExactOutputAmplifier(active_medium_3, count_z)
     amp_4 = pamp.amplifier.ExactOutputAmplifier(active_medium_4, count_z)
@@ -766,9 +764,9 @@ def compare_lower_lifetimes(dirname, (int_types, amp_types)):
         labels = (output.lower_lifetime_legend % "0", output.lower_lifetime_legend % (r"%s \, %s" % (str(params.dopant_lower_lifetime/lifetime_scale), output.lower_lifetime_unit)), output.lower_lifetime_legend % "\infty")
         plot.plot_data(filename("lsl_effects"), "Effects of Lower State Lifetime", (Ts, None, tlim, out_t_label), (densities, None, None, output.density_rel_label), labels)
 
-def extended_mode(task_pool, dirname, (int_types, amp_types)):
-    if params.initial_inversion and params.amplification:
-        compare_lower_lifetimes(dirname, (int_types, amp_types))
+def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), (num_types, counts)):
+    if params.amplification:
+        compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), (num_types, counts))
     
     if not params.initial_inversion:
         compare_depop_models(dirname)
