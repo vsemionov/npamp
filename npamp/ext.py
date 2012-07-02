@@ -768,7 +768,7 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), (num
         ref_density = ref_pulse.ref_density
         densities = (density_out_4 / ref_density, density_out / ref_density, density_out_3 / ref_density)
         lifetime_scale = unitconv.units[output.lower_lifetime_unit]
-        lsl_graph_label_fmt = (r"%s \, %s" % (str(lower_lifetime/lifetime_scale), output.lower_lifetime_unit))
+        lsl_graph_label_fmt = (r"%g \, %s" % (lower_lifetime/lifetime_scale, output.lower_lifetime_unit))
         if lower_lifetime == 0.0:
             lsl_graph_label_fmt = "0"
         elif math.isinf(lower_lifetime):

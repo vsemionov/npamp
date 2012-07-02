@@ -80,7 +80,7 @@ extraction_eff_label = "extraction efficiency [%]"
 total_eff_label = "optical to optical efficiency [%]"
 
 lower_lifetime_legend = r"$\tau_1 \, = \, %s$"
-lower_lifetime_unit = "ps"
+lower_lifetime_unit = "ns"
 
 
 def init_dir(name):
