@@ -32,6 +32,7 @@ import glob
 import getopt
 import time
 
+import signal
 import multiprocessing
 
 import meta
@@ -178,6 +179,8 @@ def process():
 
 def main():
     multiprocessing.freeze_support()
+    
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     
     load_extensions()
     process()

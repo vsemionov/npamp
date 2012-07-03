@@ -55,22 +55,23 @@ class MPOutput(object):
         if self.buff:
             self.send(self.buff)
 
-def in_thread(in_conn):
+def monitor_thread(in_conn):
     try:
         in_conn.recv()
     except EOFError:
         os.kill(os.getpid(), signal.SIGTERM)
 
-def io_thread(io_queue):
+def input_thread(io_queue):
     while True:
         s = io_queue.get()
         print s
 
-def task_init(conf, io_queue, in_conn):
+def task_init(io_queue, (in_conn, out_conn), conf):
     mpout = MPOutput(io_queue.put)
     sys.stdout = mpout
     sys.stderr = mpout
-    thr = threading.Thread(target=in_thread, args=(in_conn,))
+    out_conn.close()
+    thr = threading.Thread(target=monitor_thread, args=(in_conn,))
     thr.daemon = True
     thr.start()
     params.__dict__.update(conf)
@@ -88,12 +89,12 @@ class TaskPool(object):
         if num_tasks != 1:
             conf = core.copy_conf(task_params)
             io_queue = multiprocessing.Queue()
-            thr = threading.Thread(target=io_thread, args=(io_queue,))
+            thr = threading.Thread(target=input_thread, args=(io_queue,))
             thr.daemon = True
             thr.start()
             in_conn, out_conn = multiprocessing.Pipe(False)
             self._out_conn = out_conn
-            self.pool = multiprocessing.Pool(processes=num_tasks, initializer=task_init, initargs=(conf, io_queue, in_conn))
+            self.pool = multiprocessing.Pool(processes=num_tasks, initializer=task_init, initargs=(io_queue, (in_conn, out_conn), conf))
     
     def close(self):
         if self.pool is not None:

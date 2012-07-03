@@ -30,6 +30,8 @@ import sys
 import os
 import re
 
+import signal
+import threading
 import multiprocessing
 
 from PySide import QtCore, QtGui
@@ -78,6 +80,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
+        self.monitor_pipe = multiprocessing.Pipe(False)
         self.old_excepthook = None
         self.widget_module_map = dict()
         self.working_conf = npamp.core.copy_conf(defaults)
@@ -338,7 +341,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             output_path = None
         
         in_conn, out_conn = multiprocessing.Pipe(False)
-        proc = multiprocessing.Process(name=meta.app_name, target=worker, args=(out_conn, conf, output_path))
+        proc = multiprocessing.Process(name=meta.app_name, target=worker, args=(self.monitor_pipe, out_conn, conf, output_path))
         
         thr = InputThread(in_conn)
         out = OutputWindow(self, proc, thr)
@@ -428,16 +431,22 @@ class InputThread(QtCore.QThread):
         self.in_conn.close()
         self.finished.emit()
 
-def worker(out_conn, conf, output_path):
+def worker((monitor_in, monitor_out), out_conn, conf, output_path):
     mpout = npamp.mp.MPOutput(out_conn.send)
     sys.stdout = mpout
     sys.stderr = mpout
+    monitor_out.close()
+    thr = threading.Thread(target=npamp.mp.monitor_thread, args=(monitor_in,))
+    thr.daemon = True
+    thr.start()
     npamp.params.__dict__.update(conf)
     npamp.run(None, output_path)
 
 
 def main():
     multiprocessing.freeze_support()
+    
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     
     app = QtGui.QApplication(sys.argv)
     
