@@ -20,8 +20,8 @@ Mathematical Model Features
 Numerical Model Features
 ------------------------
 * Produces physically consistent and, where possible, numerically stable results.
-* Automatic error control
-* Automatic selection of the most efficient combination of numerical methods
+* Automatic determination of the discretization parameter domain, based on specified numerical error tolerances of individual intermediate results.
+* Automatic selection of the most efficient combination of employed numerical methods, based on physical consistency, numerical stability, and error tolerance criteria.
 
 Implementation Features
 -----------------------
