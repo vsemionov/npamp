@@ -786,12 +786,14 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), (nu
         inversions_geom, inversion_rdiffs_geom = compute_inversion_geom_dependence(task_pool, dirname)
         if params.amplification:
             print output.div_line
-            print "initializing extended mode amplification"
+            print "determining extended mode method combinations"
             
+            print "pumping"
             max_inversion_pump = inversions_pump[-1, -1]
             num_types_pump, counts_pump = core.setup_methods(dirname, (int_types, amp_types), max_inversion_pump, quiet=True)
             _, _, count_z_pump, count_t_pump = counts_pump
             
+            print "geometry"
             min_medium_radius = params.geomdep_mediumradius_interval[0]
             min_beam_radius = params.geomdep_beamradius_interval[0]
             medium_radius_orig = params.medium_radius
