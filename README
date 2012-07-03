@@ -13,27 +13,46 @@ It is designed for practical and educational purposes.
 
 Mathematical Model Features
 ---------------------------
-* Describes the propagation of pulse trains in a laser amplifier.
+* Describes the propagation of single pulses or pulse trains in a laser amplifier.
 * Accounts for the amplified spontaneous emission during pumping.
 * Accounts for the finite lower state lifetime during amplification.
 
 Numerical Model Features
 ------------------------
 * Produces physically consistent and, where possible, numerically stable results.
-* Automatic determination of the discretization parameter domain, based on specified numerical error tolerances of individual intermediate results.
+* Automatic determination of the discretization parameter domain, based on specified numerical error tolerances of the individual intermediate results.
 * Automatic selection of the most efficient combination of employed numerical methods, based on physical consistency, numerical stability, and error tolerance criteria.
 
 Implementation Features
 -----------------------
-* Feature 1
-* Feature 2
-* ...
+* Parallelism - performs calculations concurrently, on multiple CPU cores, where possible.
+* Cross-platform - supports all major modern operating systems (Windows, Linux, BSD, OS X, etc.).
+* Produces a wide variety of results.
+* Flexible and configurable operation.
+* Generates customizable, publication-quality graphics; writes graph data.
+* Extensible through Python modules.
+* Easy to deploy with a single-file installer (on Windows).
+* Easy to use graphical user interface.
+* Command-line interface, which facilitates the automation of research.
+* Freely distributable under the terms of the BSD license, completely free of charge.
 
-Modeled Amplifier and Input Signal Characteristics
---------------------------------------------------
-* Characteristic 1
-* Characteristic 2
-* ...
+Characteristics of the Modeled Amplifier and Input Signal
+---------------------------------------------------------
+* The amplifier is single-pass.
+* The active medium is four-level, solid-state, with cylindrical geometry.
+* The pumping is pulsed, homogeneous, and its optical power is a rectangular function of time.
+* The gain medium has a diffuse side surface and is water-cooled.
+* There are no significant temperature gradients and mechanical stresses inside the gain medium.
+* The laser beam, propagating in the amplifier, is collimated.
+* The input signal enters the amplifier immediately after the pumping; its power is null beforehand.
+* The input signal consists of either a single pulse or a finite-length train of equally-spaced in time pulses with arbitrary, but uniform, spatial and temporal shapes.
+* The signal's frequency spectrum width is much less than its carrier frequency.
+* The signal's total duration is much less than the upper state lifetime.
+* The signal's optical intensity is proportional to both its power and its fluence.
+* The time between the completion of an amplification and the start of the subsequent pumping is much longer than the upper state lifetime.
+* Pump-band population is negligible; ground state population is much greater than the sum of the laser state populations; nonradiative transitions, originating from the upper state, can be neglected; the frequency dependence of the upper state's stimulated emission cross section can be neglected.
+* Spontaneous emission during amplification is negligible; absorption and scattering losses are negligible; transit time of the amplifier is much shorter than the upper state lifetime.
+* Population inversion does not change significantly in the transit time of the amplifier during pumping.
 
 
 Installation
