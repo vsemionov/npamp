@@ -27,7 +27,7 @@ Implementation Features
 -----------------------
 * Parallelism -- performs calculations concurrently, on multiple CPU cores, where possible.
 * Cross-platform -- supports Windows, Linux, BSD, OS X, etc.
-* Flexible and configurable operation -- most computations and their outputs can be selectively enabled and adjusted.
+* Flexible and configurable operation -- most computations can be selectively enabled, their input parameters adjusted, and their outputs customized.
 * Computes a wide variety of results.
 * Generates publication-quality, customizable graphs.
 * Extensible through Python modules.
