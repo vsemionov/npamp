@@ -26,12 +26,11 @@ Numerical Model Features
 Implementation Features
 -----------------------
 * Parallelism -- performs calculations concurrently, on multiple CPU cores, where possible.
-* Cross-platform -- supports all major modern operating systems (Windows, Linux, BSD, OS X, etc.).
-* Produces a wide variety of results.
-* Flexible and configurable operation.
-* Generates customizable, publication-quality graphics; writes graph data.
+* Cross-platform -- supports Windows, Linux, BSD, OS X, etc.
+* Flexible and configurable operation -- most computations and their outputs can be selectively enabled and adjusted.
+* Computes a wide variety of results.
+* Generates publication-quality, customizable graphs.
 * Extensible through Python modules.
-* Easy to deploy with a single-file installer (on Windows).
 * Easy to use graphical user interface.
 * Command-line interface, which facilitates the automation of research.
 * Freely distributable under the terms of the BSD license.
