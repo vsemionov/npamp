@@ -50,7 +50,7 @@ Characteristics of the Modeled Amplifier and Input Signal
 * The signal's optical intensity is proportional to both its power and its fluence.
 * The time between the completion of an amplification and the start of the subsequent pumping is much longer than the upper state lifetime.
 * During pumping, population inversion does not change significantly in the transit time of the amplifier.
-* Pump band population is negligible; ground state population is much greater than the sum of the laser state populations; nonradiative transitions, originating from the upper state, can be neglected; the stimulated emission cross section of the upper state does not change significantly in the signal's spectral width.
+* Pump band population is negligible; ground state population is much greater than the sum of the laser state populations; nonradiative transitions, originating from the upper state, can be neglected; the frequency dependence of the upper state stimulated emission cross section can be neglected.
 * During amplification, spontaneous emission is negligible; absorption and scattering losses of signal radiation are negligible; the transit time of the amplifier is much shorter than the upper state lifetime.
 
 
