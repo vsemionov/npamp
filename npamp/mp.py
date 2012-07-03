@@ -141,7 +141,7 @@ class TaskPool(object):
             ca_list = zip(*([const_args] * count_tot))
             task_args = zip(i_args, x_args, *(va_list + ca_list))
         else:
-            assert False, "wrong number of coordinates"
+            assert False, "invalid number of coordinates"
         dispatch_args = zip((task,) * count_tot, task_args)
         mapper = self.pool.map if self.pool is not None else map
         task_results = mapper(dispatch_task, dispatch_args)
