@@ -54,6 +54,7 @@ class MPOutput(object):
     def flush(self):
         if self.buff:
             self.send(self.buff)
+            self.buff = str()
 
 
 class _sentinel_type(object): pass
