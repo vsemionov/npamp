@@ -85,16 +85,24 @@ There are two different modes of operation -- basic mode and extended mode. In b
 Basic Mode
 ----------
 The most important results, currently computed in basic mode, are:
+
 * pumping
+
  + numerical results:
+
   - pump energy
   - final population inversion
   - final small signal gain 
   - final stored energy
+
  + graphical results:
+
   - temporal evolution of population inversion
+
 * amplification
+
  + numerical results:
+
   - input energy
   - output energy
   - energy gain
@@ -102,7 +110,9 @@ The most important results, currently computed in basic mode, are:
   - optical to optical efficiency
   - maximum output fluence
   - relative gain reduction (difference between the gain of the first and last pulses, divided by the gain of the first pulse)
+
  + graphical results:
+
   - energy gain of individual pulses in the train
   - longitudinal and temporal evolution of upper and lower state population, population inversion and photon density
   - longitudinal evolution of the signal's fluence
@@ -113,29 +123,42 @@ The most important results, currently computed in basic mode, are:
 Extended Mode
 -------------
 The following computations are currently performed in extended mode:
+
 * effects of lower state lifetime on the temporal shape and fluence of a pulse
+
  + computed results:
+
   - output fluence for zero, finite, and infinite lifetimes
   - photon density evolution for the above lifetimes
+
 * optimization of the amplifier:
+
  + optimized parameters:
+
   - pumping system parameters -- pump power and duration
   - geometry parameters -- active medium diameter and input beam diameter
+
  + maximized output characteristics:
+
   - output energy
   - energy gain
   - extraction efficiency
   - optical to optical efficiency
+
  + minimized output characteristics:
+
   - relative gain reduction
+
  + imposed restrictions:
+
   - limited effect of ASE on population inversion during pumping
   - limited maximum output fluence (under the damage threshold)
+
  + most important computed results:
+
   - values of the set of optimized parameters, for which the output characteristics are minimal/maximal, while all restrictions are met
   - constraints on the domain of the set of optimized parameters
   - dependence of the following quantities on the optimized parameters: pump energy, population inversion, small signal gain, stored energy, effect of ASE on population inversion, input energy, output energy, energy gain, extraction efficiency, optical to optical efficiency, maximum output fluence
-
 
 Execution
 ---------
