@@ -112,7 +112,7 @@ class TaskPool(object):
             self.pool.terminate()
             self.pool.join()
             
-            sys.stdout, sys.stderr = self.oldfiles # avoid a race condition
+            sys.stdout, sys.stderr = self.oldfiles
             self.io_queue.put(_sentinel_type())
             self.input_thread.join()
         self.pool = None
