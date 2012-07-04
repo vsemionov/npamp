@@ -46,13 +46,14 @@ import svc
 
 
 usage_help = \
-"""Usage: {app_name} {{-h | -v | [-D definition [...]] [-o output_dir] conf_file}}
+"""Usage: {app_name} {{-h | -v | -e | [-D definition [...]] [-o output_dir] conf_file}}
 
 Options:
  -h             print this help message and exit
  -v             print version information and exit
+ -e             list installed extensions
  -D             define or override parameters
- -o output_dir  output directory path (required for graphs)""".format(app_name=meta.app_name)
+ -o output_dir  set output directory path (required for graphs)""".format(app_name=meta.app_name)
 
 help_hint = "Try \"{app_name} -h\" for more information.".format(app_name=meta.app_name)
 
@@ -66,11 +67,14 @@ def load_extensions():
     extension_path = os.path.normpath(os.path.expanduser("~/.%s/extensions" % meta.app_name.lower()))
     sys.path.append(extension_path)
     extension_pathnames = glob.glob(os.path.join(extension_path, "*.py"))
+    extensions = []
     for pathname in extension_pathnames:
         _, name = os.path.split(pathname)
         name, _ = os.path.splitext(name)
         print "loading extension \"%s\"" % name
-        __import__(name)
+        extension = __import__(name)
+        extensions.append(extension)
+    return extensions
 
 
 def print_help():
@@ -86,6 +90,15 @@ def print_info():
     print meta.app_coauthors_msg
     print
     print meta.app_website_msg
+
+def print_extensions(extensions):
+    if not extensions:
+        print "no extensions installed"
+    else:
+        print "installed extensions (name: description):"
+        for extension in extensions:
+            name, doc = extension.__name__, extension.__doc__
+            print "%s: %s" % (name, doc)
 
 def run(conf_path, output_path, definitions):
     start_time = time.clock()
@@ -150,7 +163,7 @@ def run(conf_path, output_path, definitions):
     if params.verbose:
         print "finished in %.3f seconds" % elapsed_time
 
-def process():
+def process(extensions):
     try:
         conf_path = None
         output_path = None
@@ -158,13 +171,16 @@ def process():
         
         help_flag = False
         version_flag = False
+        extensions_flag = False
         
-        opts, args = getopt.getopt(sys.argv[1:], "hvD:o:")
+        opts, args = getopt.getopt(sys.argv[1:], "hveD:o:")
         for opt, arg in opts:
             if opt == "-h":
                 help_flag = True
             elif opt == "-v":
                 version_flag = True
+            elif opt == "-e":
+                extensions_flag = True
             elif opt == "-D":
                 definitions.append(arg)
             elif opt == "-o":
@@ -179,6 +195,9 @@ def process():
             sys.exit()
         if version_flag:
             print_info()
+            sys.exit()
+        if extensions_flag:
+            print_extensions(extensions)
             sys.exit()
         
         if len(args) < 1:
@@ -198,8 +217,8 @@ def main():
     
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 1)
     
-    load_extensions()
-    process()
+    extensions = load_extensions()
+    process(extensions)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,7 @@
 
+"""Provides a sawtooth temporal pulse shape"""
+
+
 import pamp
 
 

@@ -78,8 +78,9 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     home_dir = QtCore.QDir.toNativeSeparators(QtCore.QDir.homePath())
     file_filter = "%s Files (*.%s)" % (meta.app_name, meta.file_extension)
     
-    def __init__(self):
+    def __init__(self, extensions):
         QtGui.QMainWindow.__init__(self)
+        self.extensions = extensions
         self.monitor_pipe = multiprocessing.Pipe(False)
         self.old_excepthook = None
         self.widget_module_map = dict()
@@ -357,6 +358,16 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     
     def onAbout(self):
         text = "%s %s\n%s\n\n%s\n\n%s\n%s\n\n%s" % (meta.app_name, meta.app_version, meta.app_copyright, meta.app_description, meta.app_author_msg, meta.app_coauthors_msg, meta.app_website_msg)
+        
+        text += "\n\n"
+        if not self.extensions:
+            text += "No extensions installed."
+        else:
+            text += "Installed extensions (name: description):"
+            for extension in self.extensions:
+                name, doc = extension.__name__, extension.__doc__
+                text += "\n%s: %s" % (name, doc)
+        
         QtGui.QMessageBox.about(self, "About %s" % meta.app_name, text)
     
     def closeEvent(self, event):
@@ -452,9 +463,9 @@ def main():
     old_except_hook = sys.excepthook
     sys.excepthook = boot_excepthook
     
-    npamp.load_extensions()
+    extensions = npamp.load_extensions()
     
-    win = AppWindow()
+    win = AppWindow(extensions)
     win.show()
     sys.excepthook = old_except_hook
     win.add_excepthook()
