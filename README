@@ -1,29 +1,39 @@
 =====
 NPAmp
 =====
+
 ------------------------------------------------------------------------------------------------------------------------------------
 Numerical model of a laser amplifier for pulse trains, accounting for amplified spontaneous emission and finite lower state lifetime
 ------------------------------------------------------------------------------------------------------------------------------------
 
 
+
+
 Overview
 ========
+
 NPAmp is an implementation of a numerical model of a laser amplifier. It is designed for practical and educational purposes.
+
 
 Mathematical Model Features
 ---------------------------
+
 * Describes the propagation of single pulses or pulse trains in a laser amplifier.
 * Accounts for the amplified spontaneous emission during pumping.
 * Accounts for the finite lower state lifetime during amplification.
 
+
 Numerical Model Features
 ------------------------
+
 * Produces physically consistent and, where possible, numerically stable results.
 * Automatic determination of the discretization parameter domain, based on specified numerical error tolerances of the individual intermediate results.
 * Automatic selection of the most efficient combination of employed numerical methods, based on physical consistency, numerical stability, and error tolerance criteria.
 
+
 Implementation Features
 -----------------------
+
 * Parallel computing -- performs calculations concurrently, on multiple CPU cores, where possible.
 * Cross-platform -- supports Windows, Linux, BSD, OS X, etc.
 * Flexible and configurable operation -- most computations can be selectively enabled, their input parameters adjusted, and their outputs customized.
@@ -34,8 +44,10 @@ Implementation Features
 * Command-line interface, which facilitates the automation of research.
 * Freely distributable under the terms of the BSD license.
 
+
 Characteristics of the Modeled Amplifier and Input Signal
 ---------------------------------------------------------
+
 * The amplifier is single-pass.
 * The active medium is solid-state, four-level, with cylindrical geometry.
 * The pumping is pulsed, homogeneous, and its optical power is a rectangular function of time.
@@ -53,16 +65,23 @@ Characteristics of the Modeled Amplifier and Input Signal
 * During amplification, spontaneous emission is negligible; absorption and scattering losses of signal radiation are negligible; the transit time of the amplifier is much shorter than the upper state lifetime.
 
 
+
+
 Installation
 ============
 
+
 Windows
 -------
+
 The recommended way of installing NPAmp on Windows is to download and run the provided installer.
+
 
 Unix
 ----
+
 On Unix, NPAmp needs to be built from source. First, the required build and runtime dependencies need to be present and accessible on the system. The required packages, and their tested versions, are:
+
 * python (2.7.3)
 * cython (0.15.1)
 * numpy (1.6.1)
@@ -71,19 +90,25 @@ On Unix, NPAmp needs to be built from source. First, the required build and runt
 * pyside (1.1.0)
 * make (3.81)
 * C compiler (gcc 4.6.3)
-Next, extract the source archive into the target directory, and run ``make`` inside that directory. The executables are <target>/npamp/npamp.py and <target>/npamp/gnpamp.py, where <target> is the path to the target directory.
+
+Next, extract the source archive into the target directory, and run ``make`` inside that directory. The executables are <target>/npamp/npamp.py and <target>/npamp/gnpamp.py, where <target> denotes the path to the target directory.
+
+
 
 
 Operation
 =========
+
 NPAmp has a graphical interface (GNPAmp) and a command-line interface (NPAmp).
 
 The model accepts a set of physical, numerical, operational and output parameters. These parameters can optionally be written to and loaded from configuration files. 
 
 There are two different modes of operation -- basic mode and extended mode. In basic mode, results are computed only for fixed values of the input parameters. In extended mode, results are computed for different values of various input parameters. This facilitates the studying of the effects of various parameters on the results.
 
+
 Basic Mode
 ----------
+
 The most important results, currently computed in basic mode, are:
 
 * pumping
@@ -120,8 +145,10 @@ The most important results, currently computed in basic mode, are:
   - radial shape of the input and output fluence
   - transverse shape of the input and output fluence
 
+
 Extended Mode
 -------------
+
 The following computations are currently performed in extended mode:
 
 * effects of lower state lifetime on the temporal shape and fluence of a pulse
@@ -160,26 +187,39 @@ The following computations are currently performed in extended mode:
   - constraints on the domain of the set of optimized parameters
   - dependence of the following quantities on the optimized parameters: pump energy, population inversion, small signal gain, stored energy, effect of ASE on population inversion, input energy, output energy, energy gain, extraction efficiency, optical to optical efficiency, maximum output fluence
 
+
 Execution
 ---------
+
 The most important parameters, governing the execution of the model, are:
+
 * parameter 1
+
+
 
 
 Extensions
 ==========
+
 NPAmp is extensible through Python modules. To install an extension module:
-1. Create the <home>/.npamp/extensions directory, if it doesn't exist, where <home> is the path to your home directory.
+
+1. Create the <home>/.npamp/extensions directory, if it doesn't exist, where <home> denotes the path to your home directory.
 2. Copy the extension module to the above directory.
 3. Restart any running instances of NPAmp or GNPAmp.
+
 For an example of an extension and a configuration which utilizes it, see examples/sawtooth_pulse.py and examples/extensions.npc, respectively, in the installation directory.
 To view the list of currently installed extensions in the the graphical interface, use "About NPAmp" from the Help menu.
 
 
+
+
 Contacts and Support
 ====================
+
 Developed and maintained by Victor Semionov <vsemionov@gmail.com>.
+
 Studied under the guidance of Assoc. Prof. Ivan Buchvarov and Assistant Prof. Alexander Gaydardzhiev at the Faculty of Physics, Sofia University.
+
 
 For the latest information and downloads, visit the main website:
 http://www.vsemionov.org/npamp/
