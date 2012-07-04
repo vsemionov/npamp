@@ -61,10 +61,13 @@ def monitor_thread(in_conn):
     except EOFError:
         os.kill(os.getpid(), signal.SIGTERM)
 
-def input_thread(io_queue):
-    while True:
-        s = io_queue.get()
-        print s
+def input_thread(io_queue, outfile):
+    try:
+        while True:
+            s = io_queue.get()
+            print >>outfile, s
+    except EOFError:
+        pass # workaround (for python bugs?)
 
 def task_init(io_queue, (in_conn, out_conn), conf):
     mpout = MPOutput(io_queue.put)
@@ -88,9 +91,12 @@ class TaskPool(object):
         if num_tasks != 1:
             conf = core.copy_conf(task_params)
             io_queue = multiprocessing.Queue()
-            thr = threading.Thread(target=input_thread, args=(io_queue,))
+            thr = threading.Thread(target=input_thread, args=(io_queue, sys.stdout))
             thr.daemon = True
             thr.start()
+            mpout = MPOutput(io_queue.put)
+            self.old_stdout, self.old_stderr = sys.stdout, sys.stderr
+            sys.stdout = sys.stderr = mpout
             in_conn, out_conn = multiprocessing.Pipe(False)
             self._out_conn = out_conn
             self.pool = multiprocessing.Pool(processes=num_tasks, initializer=task_init, initargs=(io_queue, (in_conn, out_conn), conf))
@@ -100,6 +106,7 @@ class TaskPool(object):
             self.pool.close()
             self.pool.terminate()
             self.pool.join()
+            sys.stdout, sys.stderr = self.old_stdout, self.old_stderr
         self.pool = None
     
     def __del__(self):
