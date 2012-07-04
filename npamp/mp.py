@@ -57,12 +57,15 @@ class MPOutput(object):
 
 
 class _sentinel_type(object): pass
-def input_thread(io_queue, outfile):
-    while True:
-        s = io_queue.get()
-        if type(s) is _sentinel_type:
-            break # workaround (for python bugs?)
-        print >>outfile, s
+def input_thread(io_queue, outfile, oldfiles):
+    try:
+        while True:
+            s = io_queue.get()
+            if type(s) is _sentinel_type:
+                break # workaround (for python bugs?)
+            print >>outfile, s
+    finally:
+        sys.stdout, sys.stderr = oldfiles
 
 def monitor_thread(in_conn):
     try:
@@ -92,11 +95,11 @@ class TaskPool(object):
         if num_tasks != 1:
             conf = core.copy_conf(task_params)
             self.io_queue = multiprocessing.Queue()
-            self.input_thread = threading.Thread(target=input_thread, args=(self.io_queue, sys.stdout))
+            self.oldfiles = sys.stdout, sys.stderr
+            self.input_thread = threading.Thread(target=input_thread, args=(self.io_queue, sys.stdout, self.oldfiles))
             self.input_thread.daemon = True
             self.input_thread.start()
             mpout = MPOutput(self.io_queue.put)
-            self.old_stdout, self.old_stderr = sys.stdout, sys.stderr
             sys.stdout = sys.stderr = mpout
             in_conn, out_conn = multiprocessing.Pipe(False)
             self._out_conn = out_conn
@@ -108,7 +111,7 @@ class TaskPool(object):
             self.pool.terminate()
             self.pool.join()
             
-            sys.stdout, sys.stderr = self.old_stdout, self.old_stderr
+            sys.stdout, sys.stderr = self.oldfiles # avoid a race condition
             self.io_queue.put(_sentinel_type())
             self.input_thread.join()
         self.pool = None
