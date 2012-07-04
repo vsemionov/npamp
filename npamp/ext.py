@@ -700,11 +700,15 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
         if params.train_pulse_count > 1:
             plot.plot_color(filename("gain_reduction"), "Gain Reduction", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (rel_gain_reductions.T, None, output.rel_gain_reduction_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
 
-def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), (num_types, counts)):
+def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), numerics):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
     print "comparing lower state lifetimes"
+    
+    if numerics is None:
+        numerics = core.setup_methods(dirname, (int_types, amp_types), ref_inversion, quiet=True)
+    num_types, counts = numerics
     
     lower_lifetime = params.dopant_lower_lifetime
     
@@ -776,9 +780,9 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), (num
         labels = (output.lower_lifetime_legend % "0", output.lower_lifetime_legend % lsl_graph_label_fmt, output.lower_lifetime_legend % "\\infty")
         plot.plot_data(filename("lsl_effects"), "Effects of Lower State Lifetime", (Ts, None, tlim, out_t_label), (densities, None, None, output.density_rel_label), labels)
 
-def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), (num_types, counts)):
+def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), numerics):
     if params.amplification:
-        compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), (num_types, counts))
+        compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), numerics)
     
     if not params.initial_inversion:
         compare_depop_models(dirname)
