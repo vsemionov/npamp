@@ -46,12 +46,13 @@ import svc
 
 
 usage_help = \
-"""Usage: {app_name} {{-h | -v | [-o output_dir] conf_file}}
+"""Usage: {app_name} {{-h | -v | [-D definition [...]] [-o output_dir] conf_file}}
 
 Options:
  -h             print this help message and exit
  -v             print version information and exit
- -o output_dir  output directory path (required when graphs are enabled)""".format(app_name=meta.app_name)
+ -D             define or override parameters
+ -o output_dir  output directory path (required for graphs)""".format(app_name=meta.app_name)
 
 help_hint = "Try \"{app_name} -h\" for more information.".format(app_name=meta.app_name)
 
@@ -86,7 +87,7 @@ def print_info():
     print
     print meta.app_website_msg
 
-def run(conf_path, output_path):
+def run(conf_path, output_path, definitions):
     start_time = time.clock()
     
     print "configuring"
@@ -94,6 +95,9 @@ def run(conf_path, output_path):
         if params.verbose:
             print "reading configuration from:", conf_path
         execfile(conf_path, params.__dict__)
+    if definitions is not None:
+        for definition in definitions:
+            exec definition in params.__dict__
     
     print "validating"
     core.validate()
@@ -150,31 +154,39 @@ def process():
     try:
         conf_path = None
         output_path = None
+        definitions = []
+        
         help_flag = False
         version_flag = False
-        opts, args = getopt.getopt(sys.argv[1:], "hvo:")
+        
+        opts, args = getopt.getopt(sys.argv[1:], "hvD:o:")
         for opt, arg in opts:
-            if opt == "-o":
-                output_path = arg
-            elif opt == "-h":
+            if opt == "-h":
                 help_flag = True
             elif opt == "-v":
                 version_flag = True
+            elif opt == "-D":
+                definitions.append(arg)
+            elif opt == "-o":
+                output_path = arg
             else:
                 assert False, "unhandled option"
+        if args:
+            conf_path = args[0]
+        
         if help_flag:
             print_help()
             sys.exit()
         if version_flag:
             print_info()
             sys.exit()
+        
         if len(args) < 1:
             raise InvocationError("no input file")
         elif len(args) > 1:
             raise InvocationError("too many arguments")
-        if args:
-            conf_path = args[0]
-        run(conf_path, output_path)
+        
+        run(conf_path, output_path, definitions)
     except InvocationError as ie:
         print >>sys.stderr, "%s: %s" % (meta.app_name, ie.message)
         print >>sys.stderr, help_hint

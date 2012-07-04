@@ -439,7 +439,7 @@ def worker((monitor_in, monitor_out), out_conn, conf, output_path):
     thr.daemon = True
     thr.start()
     npamp.params.__dict__.update(conf)
-    npamp.run(None, output_path)
+    npamp.run(None, output_path, None)
 
 
 def main():
