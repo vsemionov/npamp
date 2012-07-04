@@ -70,8 +70,8 @@ depop_model_extra_args = {}
 
 inverter_class = pamp.inverter.RungeKuttaInverter # RungeKuttaInverter usually makes fewer derivative evaluations for RossNumericalASEModel; for other depopulation models EulerInverter seems faster
 inversion_rtol = 1.0e-2
-inversion_validate = False
 inversion_min_count_t = 0
+inversion_validate = False
 
 ext_depop_models = [pamp.depop.FluorescenceModel, pamp.depop.RossApproximateASEModel, pamp.depop.RossNumericalASEModel]
 ext_alt_depop_model = pamp.depop.FluorescenceModel
