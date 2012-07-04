@@ -657,7 +657,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="9" column="0">
              <widget class="QLabel" name="label_ext_opt_pump_resolution">
               <property name="text">
-               <string>pump parameter domain resolution:</string>
+               <string>pump parameters resolution:</string>
               </property>
              </widget>
             </item>
@@ -696,7 +696,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <item row="10" column="0">
              <widget class="QLabel" name="label_ext_opt_geom_resolution">
               <property name="text">
-               <string>geometry parameter domain resolution:</string>
+               <string>geometry parameters resolution:</string>
               </property>
              </widget>
             </item>
