@@ -102,9 +102,13 @@ class TaskPool(object):
             self.input_thread.start()
             mpout = MPOutput(self.io_queue.put)
             sys.stdout = sys.stderr = mpout
-            in_conn, out_conn = multiprocessing.Pipe(False)
-            self._out_conn = out_conn
-            self.pool = multiprocessing.Pool(processes=num_tasks, initializer=task_init, initargs=(self.io_queue, (in_conn, out_conn), conf))
+            try:
+                in_conn, out_conn = multiprocessing.Pipe(False)
+                self._out_conn = out_conn
+                self.pool = multiprocessing.Pool(processes=num_tasks, initializer=task_init, initargs=(self.io_queue, (in_conn, out_conn), conf))
+            except:
+                sys.stdout, sys.stderr = self.oldfiles
+                raise
     
     def close(self):
         if self.pool is not None:
