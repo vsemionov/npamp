@@ -133,11 +133,11 @@ def compute_inversion_pump_dependence(task_pool, dirname):
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     
-    count_tau = params.pumpdep_step_counts[0]
-    count_pwr = params.pumpdep_step_counts[1]
+    count_tau = params.ext_opt_pump_resolution[0]
+    count_pwr = params.ext_opt_pump_resolution[1]
     
-    Tau = np.linspace(params.pumpdep_duration_interval[0], params.pumpdep_duration_interval[1], count_tau)
-    Pwr = np.linspace(params.pumpdep_power_interval[0], params.pumpdep_power_interval[1], count_pwr)
+    Tau = np.linspace(params.ext_opt_pump_duration[0], params.ext_opt_pump_duration[1], count_tau)
+    Pwr = np.linspace(params.ext_opt_pump_power[0], params.ext_opt_pump_power[1], count_pwr)
     
     num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count)
     depop_model_class1 = params.depop_model_class
@@ -161,8 +161,8 @@ def compute_inversion_pump_dependence(task_pool, dirname):
     
     if params.graphs:
         print "generating output"
-        dirname = os.path.join(dirname, output.pumpdep_rel_path)
-        inversion_rdiff_max = params.ext_inversion_rdiff_max
+        dirname = os.path.join(dirname, output.opt_pump_rel_path)
+        inversion_rdiff_max = params.ext_opt_inversion_rdiff_max
         zlim = None #(0.0, inversion_rdiff_max)
         depop_contours = [inversion_rdiff_max]
         ref_pump_energy = params.pump_duration * params.pump_power
@@ -216,11 +216,11 @@ def compute_inversion_geom_dependence(task_pool, dirname):
     
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     
-    min_medium_radius = params.geomdep_mediumradius_interval[0]
+    min_medium_radius = params.ext_opt_geom_mediumradius[0]
     
-    count_rm = params.geomdep_step_counts[0]
+    count_rm = params.ext_opt_geom_resolution[0]
     
-    Rm = np.linspace(min_medium_radius, params.geomdep_mediumradius_interval[1], count_rm)
+    Rm = np.linspace(min_medium_radius, params.ext_opt_geom_mediumradius[1], count_rm)
     
     num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count)
     depop_model_class1 = params.depop_model_class
@@ -238,9 +238,9 @@ def compute_inversion_geom_dependence(task_pool, dirname):
     
     if params.graphs:
         print "generating output"
-        dirname = os.path.join(dirname, output.geomdep_rel_path)
+        dirname = os.path.join(dirname, output.opt_geom_rel_path)
         dirname = output.init_dir(dirname)
-        inversion_rdiff_max = params.ext_inversion_rdiff_max
+        inversion_rdiff_max = params.ext_opt_inversion_rdiff_max
         pump_energy = params.pump_duration * params.pump_power
         energy_ylim = (0.0, pump_energy * 1.25)
         labels = [cls.descr for cls in [depop_model_class1, depop_model_class2]]
@@ -304,11 +304,11 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     integrator = pamp.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
     amp = amp_type(active_medium, count_z)
     
-    count_tau = params.pumpdep_step_counts[0]
-    count_pwr = params.pumpdep_step_counts[1]
+    count_tau = params.ext_opt_pump_resolution[0]
+    count_pwr = params.ext_opt_pump_resolution[1]
     
-    Tau = np.linspace(params.pumpdep_duration_interval[0], params.pumpdep_duration_interval[1], count_tau)
-    Pwr = np.linspace(params.pumpdep_power_interval[0], params.pumpdep_power_interval[1], count_pwr)
+    Tau = np.linspace(params.ext_opt_pump_duration[0], params.ext_opt_pump_duration[1], count_tau)
+    Pwr = np.linspace(params.ext_opt_pump_power[0], params.ext_opt_pump_power[1], count_pwr)
     
     rho, phi = beam_profile.rho_ref, beam_profile.phi_ref
     fluences = task_pool.parallel_task(compute_fluence_pump_dependence_task, (Tau, Pwr), (inversions,), (active_medium, (rho, phi), integrator, amp, (count_z, count_t), ref_pulse, decay))
@@ -317,8 +317,8 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     
     if params.graphs:
         print "generating output"
-        dirname = os.path.join(dirname, output.pumpdep_rel_path)
-        fluence_max = params.ext_fluence_max
+        dirname = os.path.join(dirname, output.opt_pump_rel_path)
+        fluence_max = params.ext_opt_fluence_max
         zlim = None #(0.0, fluence_max)
         contours = [fluence_max]
         graph_types = [
@@ -390,14 +390,14 @@ def compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), 
     ref_pulse = core.create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
     decay = core.get_decay(active_medium, ref_pulse)
     
-    min_medium_radius = params.geomdep_mediumradius_interval[0]
-    min_beam_radius = params.geomdep_beamradius_interval[0]
+    min_medium_radius = params.ext_opt_geom_mediumradius[0]
+    min_beam_radius = params.ext_opt_geom_beamradius[0]
     
-    count_rm = params.geomdep_step_counts[0]
-    count_rb = params.geomdep_step_counts[1]
+    count_rm = params.ext_opt_geom_resolution[0]
+    count_rb = params.ext_opt_geom_resolution[1]
     
-    Rm = np.linspace(min_medium_radius, params.geomdep_mediumradius_interval[1], count_rm)
-    Rb = np.linspace(min_beam_radius, params.geomdep_beamradius_interval[1], count_rb)
+    Rm = np.linspace(min_medium_radius, params.ext_opt_geom_mediumradius[1], count_rm)
+    Rb = np.linspace(min_beam_radius, params.ext_opt_geom_beamradius[1], count_rb)
     
     inversions2d = np.meshgrid(inversions, Rb)[0].T
     fluences = task_pool.parallel_task(compute_fluence_geom_dependence_task, (Rm, Rb), (inversions2d,), (doping_agent, pulse_photon_count, (int_type, amp_type), (count_z, count_t), decay))
@@ -406,9 +406,9 @@ def compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), 
     
     if params.graphs:
         print "generating output"
-        dirname = os.path.join(dirname, output.geomdep_rel_path)
+        dirname = os.path.join(dirname, output.opt_geom_rel_path)
         dirname = output.init_dir(dirname)
-        fluence_max = params.ext_fluence_max
+        fluence_max = params.ext_opt_fluence_max
         zlim = None #(0.0, fluence_max)
         contours = [fluence_max]
         plot.plot_color(filename("fluence_out_max"), "Maximum Output Fluence", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (fluences.T, zlim, output.fluence_abs_label_energy), params.num_auto_contours, contours)
@@ -424,14 +424,14 @@ def output_pump_constraints(dirname, inversion_rdiffs, max_fluences):
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     
-    count_tau = params.pumpdep_step_counts[0]
-    count_pwr = params.pumpdep_step_counts[1]
+    count_tau = params.ext_opt_pump_resolution[0]
+    count_pwr = params.ext_opt_pump_resolution[1]
     
-    Tau = np.linspace(params.pumpdep_duration_interval[0], params.pumpdep_duration_interval[1], count_tau)
-    Pwr = np.linspace(params.pumpdep_power_interval[0], params.pumpdep_power_interval[1], count_pwr)
+    Tau = np.linspace(params.ext_opt_pump_duration[0], params.ext_opt_pump_duration[1], count_tau)
+    Pwr = np.linspace(params.ext_opt_pump_power[0], params.ext_opt_pump_power[1], count_pwr)
     
-    inversion_rdiff_max = params.ext_inversion_rdiff_max
-    fluence_max = params.ext_fluence_max
+    inversion_rdiff_max = params.ext_opt_inversion_rdiff_max
+    fluence_max = params.ext_opt_fluence_max
     contours = [
         (inversion_rdiffs.T, inversion_rdiff_max, "depopulation"),
         (max_fluences.T, fluence_max, "damage"),
@@ -440,7 +440,7 @@ def output_pump_constraints(dirname, inversion_rdiffs, max_fluences):
     
     if params.graphs:
         print "generating output"
-        dirname = os.path.join(dirname, output.pumpdep_rel_path)
+        dirname = os.path.join(dirname, output.opt_pump_rel_path)
         graph_types = [
             (dirname, Pwr,output. pump_power_label),
             (os.path.join(dirname, output.alt_plot_rel_path), Pwr * params.pump_efficiency / active_medium.volume, output.eff_power_density_label),
@@ -457,14 +457,14 @@ def output_geom_constraints(dirname, inversion_rdiffs, max_fluences):
     print output.div_line
     print "computing geometry parameters domain from constraints"
     
-    count_rm = params.geomdep_step_counts[0]
-    count_rb = params.geomdep_step_counts[1]
+    count_rm = params.ext_opt_geom_resolution[0]
+    count_rb = params.ext_opt_geom_resolution[1]
     
-    Rm = np.linspace(params.geomdep_mediumradius_interval[0], params.geomdep_mediumradius_interval[1], count_rm)
-    Rb = np.linspace(params.geomdep_beamradius_interval[0], params.geomdep_beamradius_interval[1], count_rb)
+    Rm = np.linspace(params.ext_opt_geom_mediumradius[0], params.ext_opt_geom_mediumradius[1], count_rm)
+    Rb = np.linspace(params.ext_opt_geom_beamradius[0], params.ext_opt_geom_beamradius[1], count_rb)
     
-    inversion_rdiff_max = params.ext_inversion_rdiff_max
-    fluence_max = params.ext_fluence_max
+    inversion_rdiff_max = params.ext_opt_inversion_rdiff_max
+    fluence_max = params.ext_opt_fluence_max
     contours = [
         (max_fluences.T, fluence_max, "damage"),
     ]
@@ -476,7 +476,7 @@ def output_geom_constraints(dirname, inversion_rdiffs, max_fluences):
     
     if params.graphs:
         print "generating output"
-        dirname = os.path.join(dirname, output.geomdep_rel_path)
+        dirname = os.path.join(dirname, output.opt_geom_rel_path)
         dirname = output.init_dir(dirname)
         plot.plot_contour(filename("constraints"), "Geometry Parameter Domain Constraints", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), contours, xvals=xvals)
     
@@ -547,11 +547,11 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
     input_energy = pamp.energy.energy(params.lasing_wavelen, input_photon_count)
     input_energy *= params.train_pulse_count
     
-    count_tau = params.pumpdep_step_counts[0]
-    count_pwr = params.pumpdep_step_counts[1]
+    count_tau = params.ext_opt_pump_resolution[0]
+    count_pwr = params.ext_opt_pump_resolution[1]
     
-    Tau = np.linspace(params.pumpdep_duration_interval[0], params.pumpdep_duration_interval[1], count_tau)
-    Pwr = np.linspace(params.pumpdep_power_interval[0], params.pumpdep_power_interval[1], count_pwr)
+    Tau = np.linspace(params.ext_opt_pump_duration[0], params.ext_opt_pump_duration[1], count_tau)
+    Pwr = np.linspace(params.ext_opt_pump_power[0], params.ext_opt_pump_power[1], count_pwr)
     
     output_energies, rel_gain_reductions = task_pool.parallel_task(compute_energy_pump_dependence_task, (Tau, Pwr), (inversions,), (num_types, counts))
     
@@ -597,7 +597,7 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
     if params.graphs:
         print "generating output"
         extra_contours, xvals, yvals = limits
-        dirname = os.path.join(dirname, output.pumpdep_rel_path)
+        dirname = os.path.join(dirname, output.opt_pump_rel_path)
         graph_types = [
             (dirname, Pwr, output.pump_power_label),
             (os.path.join(dirname, output.alt_plot_rel_path), Pwr * params.pump_efficiency / active_medium.volume, output.eff_power_density_label),
@@ -639,14 +639,14 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     pulse_photon_count = pamp.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
     
-    min_medium_radius = params.geomdep_mediumradius_interval[0]
-    min_beam_radius = params.geomdep_beamradius_interval[0]
+    min_medium_radius = params.ext_opt_geom_mediumradius[0]
+    min_beam_radius = params.ext_opt_geom_beamradius[0]
     
-    count_rm = params.geomdep_step_counts[0]
-    count_rb = params.geomdep_step_counts[1]
+    count_rm = params.ext_opt_geom_resolution[0]
+    count_rb = params.ext_opt_geom_resolution[1]
     
-    Rm = np.linspace(min_medium_radius, params.geomdep_mediumradius_interval[1], count_rm)
-    Rb = np.linspace(min_beam_radius, params.geomdep_beamradius_interval[1], count_rb)
+    Rm = np.linspace(min_medium_radius, params.ext_opt_geom_mediumradius[1], count_rm)
+    Rb = np.linspace(min_beam_radius, params.ext_opt_geom_beamradius[1], count_rb)
     
     inversions2d = np.meshgrid(inversions, Rb)[0].T
     stored_energies, input_energies, output_energies, rel_gain_reductions = task_pool.parallel_task(compute_energy_geom_dependence_task, (Rm, Rb), (inversions2d,), (doping_agent, pulse_photon_count, num_types, counts))
@@ -690,7 +690,7 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
     if params.graphs:
         print "generating output"
         extra_contours, xvals, yvals = limits
-        dirname = os.path.join(dirname, output.geomdep_rel_path)
+        dirname = os.path.join(dirname, output.opt_geom_rel_path)
         dirname = output.init_dir(dirname)
         plot.plot_color(filename("energy_in"), "Input Energy", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (input_energies.T, None, output.energy_abs_pulse_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
         plot.plot_color(filename("energy_out"), "Output Energy", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (output_energies.T, None, output.energy_abs_pulse_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
@@ -794,8 +794,8 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), (nu
             _, _, count_z_pump, count_t_pump = counts_pump
             
             print "geometry"
-            min_medium_radius = params.geomdep_mediumradius_interval[0]
-            min_beam_radius = params.geomdep_beamradius_interval[0]
+            min_medium_radius = params.ext_opt_geom_mediumradius[0]
+            min_beam_radius = params.ext_opt_geom_beamradius[0]
             medium_radius_orig = params.medium_radius
             beam_radius_orig = params.beam_radius
             params.medium_radius = min_medium_radius

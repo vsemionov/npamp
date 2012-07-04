@@ -75,14 +75,14 @@ inversion_min_count_t = 0
 
 ext_depop_models = [pamp.depop.FluorescenceModel, pamp.depop.RossApproximateASEModel, pamp.depop.RossNumericalASEModel]
 ext_alt_depop_model = pamp.depop.FluorescenceModel
-ext_inversion_rdiff_max = 0.1
-ext_fluence_max = 1.0e4
-pumpdep_duration_interval = (dopant_upper_lifetime / 2.0, dopant_upper_lifetime * 2.0)
-pumpdep_power_interval = (2.0e3, 8.0e3)
-pumpdep_step_counts = (24, 24)
-geomdep_mediumradius_interval = (medium_radius / 2.0, medium_radius * 2.0)
-geomdep_beamradius_interval = (beam_radius / 2.0, beam_radius * 2.0)
-geomdep_step_counts = (24, 24)
+ext_opt_inversion_rdiff_max = 0.1
+ext_opt_fluence_max = 1.0e4
+ext_opt_pump_duration = (dopant_upper_lifetime / 2.0, dopant_upper_lifetime * 2.0)
+ext_opt_pump_power = (2.0e3, 8.0e3)
+ext_opt_pump_resolution = (24, 24)
+ext_opt_geom_mediumradius = (medium_radius / 2.0, medium_radius * 2.0)
+ext_opt_geom_beamradius = (beam_radius / 2.0, beam_radius * 2.0)
+ext_opt_geom_resolution = (24, 24)
 
 time_trunc_rtol = 1.0e-3
 energy_rtol = 1.0e-6

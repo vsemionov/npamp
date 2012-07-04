@@ -410,8 +410,8 @@ def validate():
         "out_phi_steps_divisor": 1,
         "out_z_steps_divisor": 1,
         "out_t_steps_divisor": 1,
-        "pumpdep_step_counts": 2,
-        "geomdep_step_counts": 2,
+        "ext_opt_pump_resolution": 2,
+        "ext_opt_geom_resolution": 2,
     }
     
     conf = copy_conf(params.__dict__)

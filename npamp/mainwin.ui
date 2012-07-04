@@ -519,24 +519,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="3" column="0">
-             <widget class="QLabel" name="label_pumpdep_duration_interval">
+             <widget class="QLabel" name="label_ext_opt_pump_duration">
               <property name="text">
                <string>pump duration interval [us]:</string>
               </property>
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QWidget" name="widget_pumpdep_duration_interval" native="true">
+             <widget class="QWidget" name="widget_ext_opt_pump_duration" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_1">
                <item>
-                <widget class="QLineEdit" name="lineEdit_pumpdep_duration_interval_1">
+                <widget class="QLineEdit" name="lineEdit_ext_opt_pump_duration_1">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit_pumpdep_duration_interval_2">
+                <widget class="QLineEdit" name="lineEdit_ext_opt_pump_duration_2">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
@@ -546,24 +546,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="4" column="0">
-             <widget class="QLabel" name="label_pumpdep_power_interval">
+             <widget class="QLabel" name="label_ext_opt_pump_power">
               <property name="text">
                <string>pump power interval [W]:</string>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QWidget" name="widget_pumpdep_power_interval" native="true">
+             <widget class="QWidget" name="widget_ext_opt_pump_power" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <item>
-                <widget class="QLineEdit" name="lineEdit_pumpdep_power_interval_1">
+                <widget class="QLineEdit" name="lineEdit_ext_opt_pump_power_1">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit_pumpdep_power_interval_2">
+                <widget class="QLineEdit" name="lineEdit_ext_opt_pump_power_2">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
@@ -573,24 +573,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="5" column="0">
-             <widget class="QLabel" name="label_geomdep_mediumradius_interval">
+             <widget class="QLabel" name="label_ext_opt_geom_mediumradius">
               <property name="text">
                <string>medium diameter interval [mm]:</string>
               </property>
              </widget>
             </item>
             <item row="5" column="1">
-             <widget class="QWidget" name="widget_geomdep_mediumradius_interval" native="true">
+             <widget class="QWidget" name="widget_ext_opt_geom_mediumradius" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_3">
                <item>
-                <widget class="QLineEdit" name="lineEdit_geomdep_mediumradius_interval_1">
+                <widget class="QLineEdit" name="lineEdit_ext_opt_geom_mediumradius_1">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit_geomdep_mediumradius_interval_2">
+                <widget class="QLineEdit" name="lineEdit_ext_opt_geom_mediumradius_2">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
@@ -600,24 +600,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="6" column="0">
-             <widget class="QLabel" name="label_geomdep_beamradius_interval">
+             <widget class="QLabel" name="label_ext_opt_geom_beamradius">
               <property name="text">
                <string>beam diameter interval [mm]:</string>
               </property>
              </widget>
             </item>
             <item row="6" column="1">
-             <widget class="QWidget" name="widget_geomdep_beamradius_interval" native="true">
+             <widget class="QWidget" name="widget_ext_opt_geom_beamradius" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_4">
                <item>
-                <widget class="QLineEdit" name="lineEdit_geomdep_beamradius_interval_1">
+                <widget class="QLineEdit" name="lineEdit_ext_opt_geom_beamradius_1">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit_geomdep_beamradius_interval_2">
+                <widget class="QLineEdit" name="lineEdit_ext_opt_geom_beamradius_2">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
@@ -627,45 +627,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="7" column="0">
-             <widget class="QLabel" name="label_ext_inversion_rdiff_max">
+             <widget class="QLabel" name="label_ext_opt_inversion_rdiff_max">
               <property name="text">
                <string>maximum inversion relative difference:</string>
               </property>
              </widget>
             </item>
             <item row="7" column="1">
-             <widget class="QLineEdit" name="lineEdit_ext_inversion_rdiff_max">
+             <widget class="QLineEdit" name="lineEdit_ext_opt_inversion_rdiff_max">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
             <item row="8" column="0">
-             <widget class="QLabel" name="label_ext_fluence_max">
+             <widget class="QLabel" name="label_ext_opt_fluence_max">
               <property name="text">
                <string>maximum output fluence [J/cm^2]:</string>
               </property>
              </widget>
             </item>
             <item row="8" column="1">
-             <widget class="QLineEdit" name="lineEdit_ext_fluence_max">
+             <widget class="QLineEdit" name="lineEdit_ext_opt_fluence_max">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
             <item row="9" column="0">
-             <widget class="QLabel" name="label_pumpdep_step_counts">
+             <widget class="QLabel" name="label_ext_opt_pump_resolution">
               <property name="text">
                <string>pump parameter domain resolution:</string>
               </property>
              </widget>
             </item>
             <item row="9" column="1">
-             <widget class="QWidget" name="widget_pumpdep_step_counts" native="true">
+             <widget class="QWidget" name="widget_ext_opt_pump_resolution" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_5">
                <item>
-                <widget class="QSpinBox" name="spinBox_pumpdep_step_counts_1">
+                <widget class="QSpinBox" name="spinBox_ext_opt_pump_resolution_1">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
@@ -678,7 +678,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 </widget>
                </item>
                <item>
-                <widget class="QSpinBox" name="spinBox_pumpdep_step_counts_2">
+                <widget class="QSpinBox" name="spinBox_ext_opt_pump_resolution_2">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
@@ -694,17 +694,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="10" column="0">
-             <widget class="QLabel" name="label_geomdep_step_counts">
+             <widget class="QLabel" name="label_ext_opt_geom_resolution">
               <property name="text">
                <string>geometry parameter domain resolution:</string>
               </property>
              </widget>
             </item>
             <item row="10" column="1">
-             <widget class="QWidget" name="widget_geomdep_step_counts" native="true">
+             <widget class="QWidget" name="widget_ext_opt_geom_resolution" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_6">
                <item>
-                <widget class="QSpinBox" name="spinBox_geomdep_step_counts_1">
+                <widget class="QSpinBox" name="spinBox_ext_opt_geom_resolution_1">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
@@ -717,7 +717,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 </widget>
                </item>
                <item>
-                <widget class="QSpinBox" name="spinBox_geomdep_step_counts_2">
+                <widget class="QSpinBox" name="spinBox_ext_opt_geom_resolution_2">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
