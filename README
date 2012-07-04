@@ -8,8 +8,7 @@ Numerical model of a laser amplifier for pulse trains, accounting for amplified 
 
 Overview
 ========
-NPAmp is an implementation of a numerical model of a laser amplifier.
-It is designed for practical and educational purposes.
+NPAmp is an implementation of a numerical model of a laser amplifier. It is designed for practical and educational purposes.
 
 Mathematical Model Features
 ---------------------------
@@ -56,19 +55,95 @@ Characteristics of the Modeled Amplifier and Input Signal
 
 Installation
 ============
-Installation instructions for Windows and Unix.
+
+Windows
+-------
+The recommended way of installing NPAmp on Windows is to download and run the provided installer.
+
+Unix
+----
+On Unix, NPAmp needs to be built from source. First, the required build and runtime dependencies need to be present and accessible on the system. The required packages, and their tested versions, are:
+* python (2.7.3)
+* cython (0.15.1)
+* numpy (1.6.1)
+* scipy (0.9.0)
+* matplotlib (1.1.1)
+* pyside (1.1.0)
+* make (3.81)
+* C compiler (gcc 4.6.3)
+Next, extract the source archive into the target directory, and run ``make`` inside that directory. The executables are <target>/npamp/npamp.py and <target>/npamp/gnpamp.py, where <target> is the path to the target directory.
 
 
 Operation
 =========
-Operation specification and instructions.
+NPAmp has a graphical interface (GNPAmp) and a command-line interface (NPAmp).
+
+The model accepts a set of physical, numerical, operational and output parameters. These parameters can optionally be written to and loaded from configuration files. 
+
+There are two different modes of operation -- basic mode and extended mode. In basic mode, results are computed only for fixed values of the input parameters. In extended mode, results are computed for different values of various input parameters. This facilitates the studying of the effects of various parameters on the results.
+
+Basic Mode
+----------
+The most important results, currently computed in basic mode, are:
+* pumping
+ - numerical results:
+  * pump energy
+  * final population inversion
+  * final small signal gain 
+  * final stored energy
+ - graphical results:
+  * temporal evolution of population inversion
+* amplification
+ - numerical results:
+  * input energy
+  * output energy
+  * energy gain
+  * extraction efficiency
+  * optical to optical efficiency
+  * maximum output fluence
+  * relative gain reduction (difference between the gain of the first and last pulses, divided by the gain of the first pulse)
+ - graphical results:
+  * energy gain of individual pulses in the train
+  * longitudinal and temporal evolution of upper and lower state population, population inversion and photon density
+  * longitudinal evolution of the signal's fluence
+  * temporal shape of input and output photon density
+  * radial shape of the input and output fluence
+  * transverse shape of the input and output fluence
+
+Extended Mode
+-------------
+The following results are currently output in extended mode:
+* result 1
+
+Execution
+---------
+The most important parameters, governing the execution of the model, are:
+* parameter 1
 
 
 Extensions
 ==========
-Brief description of extensions support.
+NPAmp is extensible through Python modules. To install an extension module:
+1. Create the <home>/.npamp/extensions directory, if it doesn't exist, where <home> is the path to your home directory.
+2. Copy the extension module to the above directory.
+3. Restart any running instances of NPAmp or GNPAmp.
+For an example of an extension and a configuration which utilizes it, see examples/sawtooth_pulse.py and examples/extensions.npc, respectively, in the installation directory.
+To view the list of currently installed extensions in the the graphical interface, use "About NPAmp" from the Help menu.
 
 
-Support and Contacts
+Contacts and Support
 ====================
-Information.
+Developed and maintained by Victor Semionov <vsemionov@gmail.com>.
+Studied under the guidance of Assoc. Prof. Ivan Buchvarov and Assistant Prof. Alexander Gaydardzhiev at the Faculty of Physics, Sofia University.
+
+For the latest information and downloads, visit the main website:
+http://www.vsemionov.org/npamp/
+
+For the source code and other technical resources, visit the development website:
+https://bitbucket.org/vsemionov/npamp
+
+Website of the Non-Linear Optics and Solid State Lasers Laboratory - Faculty of Physics, University of Sofia:
+http://www.phys.uni-sofia.bg/~ibuch/
+
+For feedback, support, or any other queries, email:
+Victor Semionov <vsemionov@gmail.com>
