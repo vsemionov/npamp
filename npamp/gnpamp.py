@@ -433,8 +433,7 @@ class InputThread(QtCore.QThread):
 
 def worker((monitor_in, monitor_out), out_conn, conf, output_path):
     mpout = npamp.mp.MPOutput(out_conn.send)
-    sys.stdout = mpout
-    sys.stderr = mpout
+    sys.stdout = sys.stderr = mpout
     monitor_out.close()
     thr = threading.Thread(target=npamp.mp.monitor_thread, args=(monitor_in,))
     thr.daemon = True

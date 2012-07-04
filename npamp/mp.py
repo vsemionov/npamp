@@ -68,8 +68,7 @@ def input_thread(io_queue):
 
 def task_init(io_queue, (in_conn, out_conn), conf):
     mpout = MPOutput(io_queue.put)
-    sys.stdout = mpout
-    sys.stderr = mpout
+    sys.stdout = sys.stderr = mpout
     out_conn.close()
     thr = threading.Thread(target=monitor_thread, args=(in_conn,))
     thr.daemon = True
