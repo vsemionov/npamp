@@ -25,7 +25,7 @@ Numerical Model Features
 
 Implementation Features
 -----------------------
-* Parallelism -- performs calculations concurrently, on multiple CPU cores, where possible.
+* Parallel computing -- performs calculations concurrently, on multiple CPU cores, where possible.
 * Cross-platform -- supports Windows, Linux, BSD, OS X, etc.
 * Flexible and configurable operation -- most computations can be selectively enabled, their input parameters adjusted, and their outputs customized.
 * Computes a wide variety of results.
