@@ -237,17 +237,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_Excitation">
+      <widget class="QWidget" name="tab_Pumping">
        <attribute name="title">
-        <string>Excitation</string>
+        <string>Pumping</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QScrollArea" name="scrollArea_Excitation">
+         <widget class="QScrollArea" name="scrollArea_Pumping">
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_Excitation">
+          <widget class="QWidget" name="scrollAreaWidgetContents_Pumping">
            <property name="geometry">
             <rect>
              <x>0</x>
