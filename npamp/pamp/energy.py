@@ -76,14 +76,14 @@ class PhotonCountIntegrator(object):
                     diff = abs(res - last_res)
                     if diff <= rtol * abs(res):
                         break
-                last_res = res
                 divs += 1
                 if divs > max_divs:
                     if diff is not None:
-                        warnings.warn("max divs (%d) exceeded; latest difference: %f" % (max_divs, diff), stacklevel=3)
+                        warnings.warn("max divs (%d) exceeded; latest difference: %f (current: %f; last: %f)" % (max_divs, diff, res, last_res), stacklevel=3)
                         break
                     else:
                         raise ValueError("max divs (%d) exceeded" % max_divs)
+                last_res = res
             return steps
         def fluence_integrals(steps_rho, steps_phi):
             Rho = np.linspace(0.0, active_medium.radius, steps_rho)
