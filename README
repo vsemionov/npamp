@@ -101,7 +101,7 @@ Operation
 
 NPAmp has a graphical interface (GNPAmp) and a command-line interface (NPAmp).
 
-The model accepts a set of physical, numerical, operational and output parameters. All of these parameters can be adjusted through the graphical interface. The parameters can optionally be written to and loaded from configuration files. 
+The model accepts a set of physical, numerical, operational, and output parameters. All of these parameters can be adjusted through the graphical interface. The parameters can optionally be written to and loaded from configuration files. 
 
 There are two different modes of operation -- basic mode and extended mode. In basic mode, results are computed only for fixed values of the input parameters. In extended mode, results are computed for different values of various parameters. This facilitates the studying of the effects of these parameters on the results.
 
@@ -139,7 +139,7 @@ The most important results, currently computed in basic mode, are:
  + graphical results:
 
   - energy gain of individual pulses in the train
-  - longitudinal and temporal evolution of upper state population, lower state population, population inversion and photon density
+  - longitudinal and temporal evolution of upper state population, lower state population, population inversion, and photon density
   - longitudinal evolution of the signal's fluence
   - temporal shape of the input and output photon density
   - radial shape of the input and output fluence
@@ -171,7 +171,7 @@ The following computations are currently performed in extended mode:
 
  + optimized sets of parameters:
 
-  - pumping system -- pump power and duration
+  - pumping system -- pump power and pump duration
   - geometry -- active medium diameter and input beam diameter
 
  + maximized output characteristics:
