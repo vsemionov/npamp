@@ -202,10 +202,10 @@ Execution
 
 The most important parameters, affecting the execution of the model, are:
 
-* generate graphs: enables the generation of result graphs
 * extended mode: enables extended mode; see above
 * initial inverson: specifies the initial population inversion for the amplification stage; if non-zero, pumping-stage inversion will not be computed
 * perform amplification: specifies whether amplification-stage computations will be performed
+* generate graphs: enables the generation of result graphs
 
 
 
