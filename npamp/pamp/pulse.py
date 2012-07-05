@@ -51,7 +51,7 @@ class SinglePulse(InputPulse):
     def ref_density(cls, light_speed, duration, photon_fluence):
         ref_density = 1.0
         test_pulse = cls(-duration/2.0, duration, ref_density)
-        test_fluence = 2.0 * light_speed * test_pulse.density_integral(0.0)
+        test_fluence = light_speed * test_pulse.density_integral(float("inf"))
         ref_density *= photon_fluence / test_fluence
         return ref_density
 
