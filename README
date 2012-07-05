@@ -39,9 +39,9 @@ Implementation Features
 * Flexible and configurable operation -- the various computations can be selectively enabled, their input parameters adjusted, and their outputs customized.
 * Computes a wide variety of results.
 * Generates publication-quality graphs.
+* Simple graphical user interface.
+* Command-line interface, facilitating the automation of research.
 * Extensible through Python modules.
-* Intuitive graphical user interface.
-* Command-line interface, which facilitates the automation of research.
 * Freely distributable under the terms of the BSD license.
 
 
