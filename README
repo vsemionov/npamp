@@ -200,7 +200,7 @@ The following computations are currently performed in extended mode:
 Execution
 ---------
 
-The most important parameters, controlling the execution of the model, are:
+The most important parameters, affecting the execution of the model, are:
 
 * generate graphs: enables the generation of result graphs
 * extended mode: enables extended mode; see above
