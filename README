@@ -213,7 +213,15 @@ The most important parameters, affecting the execution of the model, are:
 Practical Use
 =============
 
-Of all implemented depopulation models, the Ross ASE model accounts for the effects of the the greatest number of contributing factors, and is expected to yield the most correct results. In the graphical interface, this model is labeled as "RossApproximateASEModel".
+
+ASE Models
+----------
+
+Of all implemented depopulation models, the Ross ASE model accounts for the effects of the highest number of contributing factors, and is expected to yield the most accurate results. In the graphical interface, this model is labeled as "RossApproximateASEModel" and is selected by default.
+
+
+Numerical Parameters
+--------------------
 
 In many cases, the default values of the numerical parameters (in the Numerics tab of the graphical interface) are an acceptable compromise between accuracy and efficiency. In the absence of specific requirements, these parameters do not need to be modified.
 
