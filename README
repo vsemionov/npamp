@@ -27,20 +27,20 @@ Numerical Model Features
 ------------------------
 
 * Produces physically consistent and, where possible, numerically stable results.
-* Automatic determination of the discretization parameter domain, based on specified numerical error tolerances of the individual intermediate results.
+* Automatic determination of the discretization parameters domain, based on specified numerical error tolerances of individual intermediate results.
 * Automatic selection of the most efficient combination of employed numerical methods, based on physical consistency, numerical stability, and error tolerance criteria.
 
 
 Implementation Features
 -----------------------
 
-* Parallel computing -- performs calculations concurrently, on multiple CPU cores, where possible.
+* Parallel computing -- performs calculations concurrently, on multiple CPUs, where possible.
 * Cross-platform -- supports Windows, Linux, BSD, OS X, etc.
-* Flexible and configurable operation -- most computations can be selectively enabled, their input parameters adjusted, and their outputs customized.
+* Flexible and configurable operation -- the various computations can be selectively enabled, their input parameters adjusted, and their outputs customized.
 * Computes a wide variety of results.
-* Generates publication-quality, customizable graphs.
+* Generates publication-quality graphs.
 * Extensible through Python modules.
-* Easy to use graphical user interface.
+* Intuitive graphical user interface.
 * Command-line interface, which facilitates the automation of research.
 * Freely distributable under the terms of the BSD license.
 
@@ -61,8 +61,8 @@ Characteristics of the Modeled Amplifier and Input Signal
 * The signal's optical intensity is proportional to both its power and its fluence.
 * The time between the completion of an amplification and the start of the subsequent pumping is much longer than the upper state lifetime.
 * During pumping, population inversion does not change significantly in the transit time of the amplifier.
-* Pump band population is negligible; ground state population is much greater than the sum of the laser state populations; nonradiative transitions, originating from the upper state, can be neglected; the frequency dependence of the upper state stimulated emission cross section can be neglected.
-* During amplification, spontaneous emission is negligible; absorption and scattering losses of signal radiation are negligible; the transit time of the amplifier is much shorter than the upper state lifetime.
+* Pump band population is negligible; ground state population is much larger than the sum of the laser state populations; nonradiative transitions, originating from the upper state, can be neglected; the frequency dependence of the upper state stimulated emission cross section can be neglected.
+* During amplification, spontaneous emission is negligible; the transit time of the amplifier is much shorter than the upper state lifetime; absorption and scattering losses of signal radiation are negligible.
 
 
 
@@ -101,9 +101,9 @@ Operation
 
 NPAmp has a graphical interface (GNPAmp) and a command-line interface (NPAmp).
 
-The model accepts a set of physical, numerical, operational and output parameters. These parameters can optionally be written to and loaded from configuration files. 
+The model accepts a set of physical, numerical, operational and output parameters. All of these parameters can be adjusted through the graphical interface. The parameters can optionally be written to and loaded from configuration files. 
 
-There are two different modes of operation -- basic mode and extended mode. In basic mode, results are computed only for fixed values of the input parameters. In extended mode, results are computed for different values of various input parameters. This facilitates the studying of the effects of various parameters on the results.
+There are two different modes of operation -- basic mode and extended mode. In basic mode, results are computed only for fixed values of the input parameters. In extended mode, results are computed for different values of various parameters. This facilitates the studying of the effects of these parameters on the results.
 
 
 Basic Mode
@@ -111,7 +111,7 @@ Basic Mode
 
 The most important results, currently computed in basic mode, are:
 
-* pumping
+* pumping stage:
 
  + numerical results:
 
@@ -124,7 +124,7 @@ The most important results, currently computed in basic mode, are:
 
   - temporal evolution of population inversion
 
-* amplification
+* amplification stage:
 
  + numerical results:
 
@@ -134,14 +134,14 @@ The most important results, currently computed in basic mode, are:
   - extraction efficiency
   - optical to optical efficiency
   - maximum output fluence
-  - relative gain reduction (difference between the gain of the first and last pulses, divided by the gain of the first pulse)
+  - relative gain reduction (the difference between the gain of the first and last pulses, divided by the gain of the first pulse)
 
  + graphical results:
 
   - energy gain of individual pulses in the train
-  - longitudinal and temporal evolution of upper and lower state population, population inversion and photon density
+  - longitudinal and temporal evolution of upper state population, lower state population, population inversion and photon density
   - longitudinal evolution of the signal's fluence
-  - temporal shape of input and output photon density
+  - temporal shape of the input and output photon density
   - radial shape of the input and output fluence
   - transverse shape of the input and output fluence
 
@@ -151,7 +151,7 @@ Extended Mode
 
 The following computations are currently performed in extended mode:
 
-* effects of lower state lifetime on the temporal shape and fluence of a pulse
+* effects of lower state lifetime on the temporal shape and fluence of the pulse
 
  + computed results:
 
@@ -165,14 +165,14 @@ The following computations are currently performed in extended mode:
   - population inversion and depopulation rate immediately after pumping, for each model
   - temporal evolution of population inversion and depopulation rate during pumping, for all models
   - dependence of depopulation rate on population inversion, for all models
-  - temporal evolution of the relative difference between the population inversion, yielded by the compared models and a reference model (example use: evaluation of the effect of ASE on population inversion, by comparing ASE model results to fluorescence depopulation results)
+  - temporal evolution of the relative difference between the population inversion, yielded by the compared models and by a reference model (example use: evaluation of the effect of ASE on population inversion by comparing results from ASE and fluorescence models)
 
 * amplifier optimization:
 
- + optimized parameters:
+ + optimized sets of parameters:
 
-  - pumping system parameters -- pump power and duration
-  - geometry parameters -- active medium diameter and input beam diameter
+  - pumping system -- pump power and duration
+  - geometry -- active medium diameter and input beam diameter
 
  + maximized output characteristics:
 
@@ -192,9 +192,9 @@ The following computations are currently performed in extended mode:
 
  + most important computed results:
 
-  - values of the set of optimized parameters, for which the output characteristics are minimal/maximal, while all restrictions are met
+  - values of the optimized set of parameters, for which the output characteristics are minimal/maximal, while all restrictions are met
   - constraints on the domain of the set of optimized parameters
-  - dependence of the following quantities on the optimized parameters: pump energy, population inversion, small signal gain, stored energy, effect of ASE on population inversion, input energy, output energy, energy gain, extraction efficiency, optical to optical efficiency, maximum output fluence
+  - dependence of the following quantities on the set of optimized parameters: pump energy, population inversion, small signal gain, stored energy, effect of ASE on population inversion, input energy, output energy, energy gain, extraction efficiency, optical to optical efficiency, maximum output fluence
 
 
 Execution
@@ -213,9 +213,11 @@ The most important parameters, controlling the execution of the model, are:
 Practical Use
 =============
 
-Of all implemented depopulation models, the Ross ASE model accounts for the effects of the the greatest number of contributing factors, and is expected to yield the most correct results. In the graphical interface, this model is denoted as "RossApproximateASEModel".
+Of all implemented depopulation models, the Ross ASE model accounts for the effects of the the greatest number of contributing factors, and is expected to yield the most correct results. In the graphical interface, this model is labeled as "RossApproximateASEModel".
 
 In many cases, the default values of the numerical parameters (in the Numerics tab of the graphical interface) are an acceptable compromise between accuracy and efficiency. In the absence of specific requirements, these parameters do not need to be modified.
+
+In cases when examination of the temporal or spatial evolution of the computed quantities is required, the minimum discretization step counts may need adjustment in order to increase the smoothness of the generated graphs.
 
 
 
@@ -225,11 +227,11 @@ Extensions
 
 NPAmp is extensible through Python modules. To install an extension module:
 
-1. Create the <home>/.npamp/extensions directory, if it doesn't exist, where <home> denotes the path to your home directory.
+1. Create the <home>/.npamp/extensions directory, if it doesn't exist, where <home> denotes the path to the user's home directory.
 2. Copy the extension module to the above directory.
 3. Restart any running instances of NPAmp or GNPAmp.
 
-For an example of an extension and a configuration which utilizes it, see examples/sawtooth_pulse.py and examples/extensions.npc, respectively, in the installation directory.
+For an example of an extension and a configuration which uses it, see examples/sawtooth_pulse.py and examples/extensions.npc, respectively, in the installation directory.
 To view the list of currently installed extensions in the the graphical interface, use "About NPAmp" from the Help menu.
 
 
@@ -249,7 +251,7 @@ http://www.vsemionov.org/npamp/
 For the source code and other technical resources, visit the development website:
 https://bitbucket.org/vsemionov/npamp
 
-Website of the Non-Linear Optics and Solid State Lasers Laboratory - Faculty of Physics, University of Sofia:
+Website of the Non-Linear Optics and Solid State Lasers Laboratory:
 http://www.phys.uni-sofia.bg/~ibuch/
 
 For feedback, support, or any other queries, email:
