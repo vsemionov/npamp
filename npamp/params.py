@@ -84,7 +84,7 @@ ext_opt_geom_mediumradius = (medium_radius / 2.0, medium_radius * 2.0)
 ext_opt_geom_beamradius = (beam_radius / 2.0, beam_radius * 2.0)
 ext_opt_geom_resolution = (24, 24)
 
-time_trunc_rtol = 1.0e-3
+time_trunc_rtol = 1.0e-2
 energy_rtol = 1.0e-6
 fluence_rtol = 1.0e-6
 amp_rtol = 1.0e-2
