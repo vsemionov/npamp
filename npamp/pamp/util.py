@@ -29,10 +29,18 @@ import math
 import warnings
 
 
-def pulse_scale(pulse, rel_energy_loss):
-    half_energy = pulse.density_integral(pulse.offset)
+def pulse_scale(pulse, rel_fluence_loss):
+    total_fluence = pulse.density_integral(float("inf"))
     scale = 1.0
-    while pulse.density_integral(pulse.offset - pulse.duration/2.0 * scale) > half_energy * rel_energy_loss:
+    offset = pulse.offset
+    half_duration = pulse.duration/2.0
+    while True:
+        integral_t0 = pulse.density_integral(offset - half_duration * scale)
+        integral_t1 = pulse.density_integral(offset + half_duration * scale)
+        fluence = integral_t1 - integral_t0
+        trunc_fluence = total_fluence - fluence
+        if trunc_fluence <= total_fluence * rel_fluence_loss:
+            break
         scale *= 2.0
     return scale
 
