@@ -158,7 +158,16 @@ The following computations are currently performed in extended mode:
   - output fluence for zero, finite, and infinite lifetimes
   - photon density evolution for the above lifetimes
 
-* optimization of the amplifier:
+* comparison of various ASE models:
+
+ + most important computed results:
+
+  - population inversion and depopulation rate immediately after pumping, for each model
+  - temporal evolution of population inversion and depopulation rate during pumping, for all models
+  - dependence of depopulation rate on population inversion, for all models
+  - temporal evolution of the relative difference between the population inversion, yielded by the compared models and a reference model (example use: evaluation of the effect of ASE on population inversion, by comparing ASE model results to fluorescence depopulation results)
+
+* amplifier optimization:
 
  + optimized parameters:
 
@@ -191,9 +200,18 @@ The following computations are currently performed in extended mode:
 Execution
 ---------
 
-The most important parameters, governing the execution of the model, are:
+The most important parameters, controlling the execution of the model, are:
 
-* parameter 1
+* graphs: enables the generation of result graphs
+* extended mode: enables extended mode; see above
+* initial inverson: specifies the initial population inversion for the amplification stage; if non-zero, pumping-stage inversion will not be computed
+* perform amplification: specifies whether amplification-stage computations will be performed
+
+
+Notes
+-----
+
+Notes on ase models and numerical parameters.
 
 
 
