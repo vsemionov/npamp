@@ -192,7 +192,7 @@ The following computations are currently performed in extended mode:
 
  + most important computed results:
 
-  - values of the optimized set of parameters, for which the output characteristics are minimal/maximal, while all restrictions are met
+  - values of the optimized set of parameters, for which the output characteristics are extremal, while all restrictions are met
   - constraints on the domain of the set of optimized parameters
   - dependence of the following quantities on the set of optimized parameters: pump energy, population inversion, small signal gain, stored energy, effect of ASE on population inversion, input energy, output energy, energy gain, extraction efficiency, optical to optical efficiency, maximum output fluence
 
