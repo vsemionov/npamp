@@ -38,7 +38,7 @@ Implementation Features
 * Cross-platform -- supports Windows, Linux, BSD, OS X, etc.
 * Flexible and configurable operation -- the various computations can be selectively enabled, their input parameters adjusted, and their outputs customized.
 * Computes a wide variety of results.
-* Generates publication-quality graphs.
+* Generates publication-quality figures.
 * Simple graphical user interface.
 * Command-line interface, facilitating the automation of research.
 * Extensible through Python modules.
