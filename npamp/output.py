@@ -39,8 +39,8 @@ output_dir = None
 models_rel_path = "pumping"
 ref_pulse_rel_path = "ref_pulse"
 optimization_rel_path = "optimization"
-opt_pump_rel_path = os.path.join(optimization_rel_path, "pump")
-opt_geom_rel_path = os.path.join(optimization_rel_path, "geom")
+opt_pump_rel_path = os.path.join(optimization_rel_path, "pumping")
+opt_geom_rel_path = os.path.join(optimization_rel_path, "geometry")
 alt_plot_rel_path = "alt"
 
 x_label = "x [mm]"

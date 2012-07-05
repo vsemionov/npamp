@@ -128,7 +128,7 @@ def compute_inversion_pump_dependence(task_pool, dirname):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
-    print "computing inversion dependence on pump parameters"
+    print "computing inversion dependence on pumping parameters"
     
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
@@ -288,7 +288,7 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
-    print "computing fluence dependence on pump parameters"
+    print "computing fluence dependence on pumping parameters"
     
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
@@ -419,7 +419,7 @@ def output_pump_constraints(dirname, inversion_rdiffs, max_fluences):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
-    print "computing pump parameters domain from constraints"
+    print "computing pumping parameters domain from constraints"
     
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
@@ -447,7 +447,7 @@ def output_pump_constraints(dirname, inversion_rdiffs, max_fluences):
         ]
         for dirname, Y, ylabel in graph_types:
             dirname = output.init_dir(dirname)
-            plot.plot_contour(filename("constraints"), "Pump Parameter Domain Constraints", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), contours)
+            plot.plot_contour(filename("constraints"), "Pumping Parameters Domain Constraints", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), contours)
     
     return (contours, None, None), (contour_comps, None, None)
 
@@ -534,7 +534,7 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
-    print "computing energy dependence on pump parameters"
+    print "computing energy dependence on pumping parameters"
     
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
@@ -572,27 +572,27 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
     optimum = optimize_output((Tau, Pwr), output_energies, limits, comparisons, price)
     output_energy_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
     unitconv.print_result("max output energy [{}]: {}", ("mJ",), (output_energies[optimum] if optimum else None,))
-    unitconv.print_result("optimum pump parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), output_energy_optimum_params)
+    unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), output_energy_optimum_params)
     
     optimum = optimize_output((Tau, Pwr), energy_gains, limits, comparisons, price)
     energy_gain_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
     unitconv.print_result("max energy gain: {}", (), (energy_gains[optimum] if optimum else None,))
-    unitconv.print_result("optimum pump parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), energy_gain_optimum_params)
+    unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), energy_gain_optimum_params)
     
     optimum = optimize_output((Tau, Pwr), extraction_effs, limits, comparisons, price)
     extraction_eff_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
     unitconv.print_result("max extraction efficiency [{}]: {}", ("%",), (extraction_effs[optimum] if optimum else None,))
-    unitconv.print_result("optimum pump parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), extraction_eff_optimum_params)
+    unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), extraction_eff_optimum_params)
     
     optimum = optimize_output((Tau, Pwr), total_effs, limits, comparisons, price)
     total_eff_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
     unitconv.print_result("max opt-opt efficiency [{}]: {}", ("%",), (total_effs[optimum] if optimum else None,))
-    unitconv.print_result("optimum pump parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), total_eff_optimum_params)
+    unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), total_eff_optimum_params)
     
     optimum = optimize_output((Tau, Pwr), -rel_gain_reductions, limits, comparisons, price)
     rel_gain_reduction_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
     unitconv.print_result("min rel gain reduction [{}]: {}", ("%",), (rel_gain_reductions[optimum] if optimum else None,))
-    unitconv.print_result("optimum pump parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), rel_gain_reduction_optimum_params)
+    unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), rel_gain_reduction_optimum_params)
     
     if params.graphs:
         print "generating output"
