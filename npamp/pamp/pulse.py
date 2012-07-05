@@ -125,23 +125,6 @@ class ExtendedPulse(TransformedPulse):
         self.duration *= scale
         self.t0 = self.offset - self.duration/2.0
 
-class ZeroedPulse(TransformedPulse):
-    # assumptions:
-    # density(t0) == density(t0+duration)
-    # density(t0) <= density(t) for any t0 <= t <= t0+duration
-    
-    def __init__(self, pulse):
-        super(ZeroedPulse, self).__init__(pulse)
-        self.ref_density -= pulse.density(self.t0)
-    
-    def density(self, t):
-        t = min(t, self.t0 + self.duration)
-        return max(self.pulse.density(t) - self.pulse.density(self.pulse.t0), 0.0)
-    
-    def density_integral(self, t):
-        t = min(t, self.t0 + self.duration)
-        return self.pulse.density_integral(t) - self.pulse.density_integral(min(t, self.t0)) - max(t - self.t0, 0.0)*self.pulse.density(self.t0)
-
 class TruncatedPulse(TransformedPulse):
     
     def __init__(self, pulse):
