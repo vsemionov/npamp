@@ -201,7 +201,7 @@ def test_pulse(amp_type, active_medium, pulse, (min_count_z, min_count_t), integ
         results = (amp, exact_density_out, exact_population_out)
         return results, rel_error
     
-    min_count_z = max(min_count_z, 2)
+    min_count_z = max(min_count_z, 3)
     min_count_t = max(min_count_t, 3)
     compute_rdiff = lambda last_res, res: get_rel_error_amp(last_res[0], res[0])
     data = pamp.util.min_steps((min_count_z, min_count_t), (True, True), params.amp_rtol, amplify_pulse, compute_rdiff, retextra=True)
