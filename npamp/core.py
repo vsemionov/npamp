@@ -51,14 +51,14 @@ class ComputationError(Exception):
 
 copy_conf = lambda conf: {k: v for k, v in conf.items() if not k.startswith('_') and type(v) is not types.ModuleType}
 
-def create_pulse(active_medium, beam, rho, phi):
+def create_pulse(active_medium, beam, rho, phi, ret_time_trunc_rel_error=False):
     fluence = beam.fluence(rho, phi)
     ref_density = params.pulse_class.ref_density(active_medium.light_speed, params.pulse_duration, fluence)
     pulse = params.pulse_class(-params.pulse_duration/2.0, params.pulse_duration, ref_density)
-    scale = pamp.util.pulse_scale(pulse, params.time_trunc_rtol)
+    scale, time_trunc_rel_error = pamp.util.pulse_scale(pulse, params.time_trunc_rtol)
     pulse = pamp.pulse.ExtendedPulse(pulse, scale)
     pulse = pamp.pulse.TruncatedPulse(pulse)
-    return pulse
+    return (pulse, time_trunc_rel_error) if ret_time_trunc_rel_error else pulse
 
 def mangle_count_z(count_z):
     count_z = max(count_z, 3)
@@ -276,7 +276,7 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
     
     return (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
 
-def setup_methods(dirname, (int_types, amp_types), ref_inversion, quiet=False):
+def setup_methods(dirname, (int_types, amp_types), ref_inversion, ret_rel_errors=False, quiet=False):
     ref_pulse_dir = os.path.join(dirname, output.ref_pulse_rel_path)
     
     initial_inversion = pamp.inversion.UniformInversion(ref_inversion)
@@ -288,7 +288,7 @@ def setup_methods(dirname, (int_types, amp_types), ref_inversion, quiet=False):
     ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
     beam_profile = params.beam_class(params.beam_radius, ref_fluence)
     
-    ref_pulse = create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
+    ref_pulse, time_trunc_rel_error = create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref, ret_time_trunc_rel_error=True)
     
     (int_type, amp_type), (count_rho, count_phi, count_z, count_t) = most_efficient_method(ref_pulse_dir, active_medium, beam_profile, ref_pulse, int_types, amp_types, quiet)
     
@@ -297,7 +297,9 @@ def setup_methods(dirname, (int_types, amp_types), ref_inversion, quiet=False):
         print "count_rho: %d; count_phi: %d" % (count_rho, count_phi)
         print "count_z: %d; count_t: %d" % (count_z, count_t)
     
-    return (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
+    numerics = (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
+    rel_errors = (time_trunc_rel_error,)
+    return (numerics, rel_errors) if ret_rel_errors else numerics
 
 def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     if not quiet:
@@ -439,9 +441,10 @@ def validate():
     if not train_duration <= params.dopant_upper_lifetime / 10.0:
         warnings.warn("approximation validity condition violated: pulse train duration is not much shorter than upper state (fluorescence) lifetime", stacklevel=2)
 
-def compute_energy_rel_error(ref_inversion, ref_inversion_rel_error):
+def compute_energy_rel_error(ref_inversion, ref_inversion_rel_error, rel_errors):
+    (time_trunc_rel_error,) = rel_errors
     rel_error_inversion = math.exp(params.dopant_xsection * ref_inversion_rel_error * ref_inversion * params.medium_length) - 1.0
-    rel_error_energy = params.time_trunc_rtol + params.amp_rtol + params.energy_rtol
+    rel_error_energy = time_trunc_rel_error + params.amp_rtol + params.energy_rtol
     energy_rel_error = rel_error_inversion + rel_error_energy
     return energy_rel_error
 

@@ -146,9 +146,9 @@ def run(conf_path, output_path, definitions):
         
         numerics = None
         if params.amplification:
-            numerics = core.setup_methods(dirname, (int_types, amp_types), ref_inversion)
+            numerics, rel_errors = core.setup_methods(dirname, (int_types, amp_types), ref_inversion, ret_rel_errors=True)
             num_types, counts = numerics
-            energy_rel_error = core.compute_energy_rel_error(ref_inversion, ref_inversion_rel_error)
+            energy_rel_error = core.compute_energy_rel_error(ref_inversion, ref_inversion_rel_error, rel_errors)
             max_output_fluence, output_photon_counts, output_energy, rel_gain_reduction = core.amplify_train(dirname, num_types, counts, ref_inversion)
             core.report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_reduction, ref_inversion_rel_error, energy_rel_error)
         
