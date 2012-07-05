@@ -1,5 +1,5 @@
 import pamp
-amp_rtol = 0.01
+amp_rtol = 0.02
 amplification = False
 amplifier_classes = [pamp.amplifier.HybridAmplifier, pamp.amplifier.NSFDAmplifier]
 beam_class = pamp.beam.GaussianBeam
