@@ -38,7 +38,7 @@ import params
 import core
 
 
-# The MP IO system is flawed and needs to be rewritten.
+# The MP IO subsystem is flawed and needs to be redesigned.
 # It contains many concurrency issues (race conditions) and is not 100% reliable.
 # As a workaround for any eventual issues, use the command-line interface (as opposed to the GUI).
 
