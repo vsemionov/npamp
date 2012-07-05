@@ -203,7 +203,7 @@ Execution
 The most important parameters, affecting the execution of the model, are:
 
 * extended mode: enables extended mode; see above
-* initial inverson: specifies the initial population inversion for the amplification stage; if non-zero, pumping-stage inversion will not be computed
+* initial inversion: specifies the initial population inversion for the amplification stage; if non-zero, pumping-stage inversion will not be computed
 * perform amplification: specifies whether amplification-stage computations will be performed
 * generate graphs: enables the generation of result graphs
 
@@ -240,7 +240,7 @@ NPAmp is extensible through Python modules. To install an extension module:
 3. Restart any running instances of NPAmp or GNPAmp.
 
 For an example of an extension and a configuration which uses it, see examples/sawtooth_pulse.py and examples/extensions.npc, respectively, in the installation directory.
-To view the list of currently installed extensions in the the graphical interface, use "About NPAmp" from the Help menu.
+To view the list of currently installed extensions in the graphical interface, use "About NPAmp" from the Help menu.
 
 
 
