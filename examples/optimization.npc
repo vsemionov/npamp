@@ -1,5 +1,5 @@
 import pamp
-amp_rtol = 0.02
+amp_rtol = 0.08
 amplification = True
 amplifier_classes = [pamp.amplifier.HybridAmplifier, pamp.amplifier.NSFDAmplifier]
 beam_class = pamp.beam.GaussianBeam
@@ -25,7 +25,7 @@ ext_opt_pump_duration = (0.0001, 0.0004)
 ext_opt_pump_power = (800.0, 2400.0)
 ext_opt_pump_resolution = (24, 24)
 extended_mode = True
-extended_status_strides = (1, 0)
+extended_status_strides = (4, 0)
 fluence_rtol = 1e-06
 graphs = True
 initial_inversion = 0.0
