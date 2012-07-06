@@ -48,11 +48,11 @@ class InputPulse(object):
 class SinglePulse(InputPulse):
     
     @classmethod
-    def ref_density(cls, light_speed, duration, photon_fluence):
+    def ref_density(cls, light_speed, duration, fluence):
         ref_density = 1.0
         test_pulse = cls(-duration/2.0, duration, ref_density)
         test_fluence = light_speed * test_pulse.density_integral(float("inf"))
-        ref_density *= photon_fluence / test_fluence
+        ref_density *= fluence / test_fluence
         return ref_density
 
 class SquarePulse(SinglePulse):
