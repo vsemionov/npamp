@@ -101,7 +101,7 @@ def print_extensions(extensions):
             print "%s: %s" % (name, doc)
 
 def run(conf_path, output_path, definitions):
-    start_time = time.clock()
+    start_time = time.time()
     
     print "configuring"
     if conf_path is not None:
@@ -158,10 +158,10 @@ def run(conf_path, output_path, definitions):
     print output.div_line
     print "done"
     
-    end_time = time.clock()
+    end_time = time.time()
     elapsed_time = end_time - start_time
     if params.verbose:
-        print "finished in %.3f s" % elapsed_time
+        print "finished in %.2f s" % elapsed_time
 
 def process(extensions):
     try:
