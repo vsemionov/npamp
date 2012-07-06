@@ -301,7 +301,7 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     
     decay = core.get_decay(active_medium, ref_pulse)
     
-    integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
+    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
     amp = amp_type(active_medium, count_z)
     
     count_tau = params.ext_opt_pump_resolution[0]
@@ -348,7 +348,7 @@ def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, doping_age
     rho, phi = beam_profile.rho_ref, beam_profile.phi_ref
     ref_pulse = core.create_pulse(active_medium, beam_profile, rho, phi)
     
-    integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
+    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
     amp = amp_type(active_medium, count_z)
     
     upper = np.vectorize(initial_inversion.inversion)(rho, phi, amp.Z)
@@ -729,7 +729,7 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
     
     (int_type, amp_type), (_, _, count_z, count_t) = num_types, counts
     
-    integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
+    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
     
     amp = amp_type(active_medium, count_z)
     amp_3 = model.amplifier.ExactOutputAmplifier(active_medium_3, count_z)

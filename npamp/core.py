@@ -151,76 +151,21 @@ def get_decay(active_medium, pulse):
         decay = math.exp(- separation / lower_lifetime)
     return decay
 
-def test_pulse(amp_type, active_medium, pulse, (min_count_z, min_count_t), integrator):
-    def get_rel_error((num_density_out, num_population_out, num_T, num_Z), (exact_density_out, exact_population_out, exact_T, exact_Z), active_medium):
-        decay = get_decay(active_medium, pulse)
-        num_inversion = num_population_out[0] - num_population_out[1] * decay
-        exact_inversion = exact_population_out[0] - exact_population_out[1] * decay
-        num_density_integral = integrator.integrate(num_T, num_density_out)
-        exact_density_integral = integrator.integrate(exact_T, exact_density_out)
-        rel_error_density = abs((num_density_integral - exact_density_integral) / exact_density_integral)
-        rel_error_density += params.fluence_rtol * (1.0 + num_density_integral / exact_density_integral)
-        num_inversion_integral = integrator.integrate(num_Z, num_inversion)
-        exact_inversion_integral = integrator.integrate(exact_Z, exact_inversion)
-        inversion_abs_error = abs(num_inversion_integral - exact_inversion_integral) + params.fluence_rtol * (num_inversion_integral + exact_inversion_integral)
-        rel_error_inversion = math.exp(active_medium.doping_agent.xsection * inversion_abs_error) - 1.0
-        rel_error = rel_error_density + rel_error_inversion
-        return rel_error
-    def get_rel_error_amp(num_amp, exact_amp):
-        assert num_amp.active_medium is exact_amp.active_medium
-        num_density_out = num_amp.density[-1]
-        num_population_out = (num_amp.population[0].T[-1], num_amp.population[1].T[-1])
-        num_T = num_amp.T
-        num_Z = num_amp.Z
-        exact_density_out = exact_amp.density[-1]
-        exact_population_out = (exact_amp.population[0].T[-1], exact_amp.population[1].T[-1])
-        exact_T = exact_amp.T
-        exact_Z = exact_amp.Z
-        active_medium = num_amp.active_medium
-        rel_error = get_rel_error((num_density_out, num_population_out, num_T, num_Z), (exact_density_out, exact_population_out, exact_T, exact_Z), active_medium)
-        return rel_error
-    def amplify_pulse(count_z, count_t):
-        rel_error = 0.0
-        analytical_lower_lifetimes = [float("inf"), 0.0]
-        for lower_lifetime in analytical_lower_lifetimes:
-            test_active_medium = copy.deepcopy(active_medium)
-            test_active_medium.doping_agent.lower_lifetime = lower_lifetime
-            amp = amp_type(test_active_medium, count_z)
-            num_density_out, num_population_out = amp.amplify(0.0, 0.0, pulse, count_t)
-            exact = model.amplifier.ExactOutputAmplifier(test_active_medium, count_z)
-            exact_density_out, exact_population_out = exact.amplify(0.0, 0.0, pulse, count_t)
-            test_rel_error = get_rel_error((num_density_out, num_population_out, amp.T, amp.Z), (exact_density_out, exact_population_out, exact.T, exact.Z), test_active_medium)
-            rel_error = max(test_rel_error, rel_error)
-        amp = amp_type(active_medium, count_z)
-        amp.amplify(0.0, 0.0, pulse, count_t)
-        if active_medium.doping_agent.lower_lifetime in analytical_lower_lifetimes:
-            exact = model.amplifier.ExactOutputAmplifier(active_medium, count_z)
-            exact_density_out, exact_population_out = exact.amplify(0.0, 0.0, pulse, count_t)
-        else:
-            exact_density_out, exact_population_out = None, None
-        results = (amp, exact_density_out, exact_population_out)
-        return results, rel_error
-    
-    min_count_z = max(min_count_z, 3)
-    min_count_t = max(min_count_t, 3)
-    compute_rdiff = lambda last_res, res: get_rel_error_amp(last_res[0], res[0])
-    data = model.util.min_steps((min_count_z, min_count_t), (True, True), params.amp_rtol, amplify_pulse, compute_rdiff, retextra=True)
-    
-    return data
-
 def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_types, amp_types, quiet=False):
     if not quiet:
         print output.div_line
     if not quiet or params.verbose:
         print "determining most efficient method combination"
     
+    decay = get_decay(active_medium, ref_pulse)
+    
     size_exc_types = (ValueError, MemoryError)
     best_method = None
     for int_type in int_types:
         int_name = int_type.__name__
-        integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
+        integrator = model.integrator.DomainIntegrator(int_type, active_medium)
         try:
-            count_rho, count_phi, min_count_z, min_count_t = integrator.min_steps((ref_pulse, ), params.energy_rtol, params.fluence_rtol)
+            count_rho, count_phi, min_count_z, min_count_t = model.error.min_integration_steps(integrator, beam_profile, (ref_pulse,), params.energy_rtol, params.fluence_rtol)
         except size_exc_types:
             traceback.print_exc()
             print "attempting to recover"
@@ -236,7 +181,7 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
             test_min_count_z = max(min_count_z, amp_type.min_steps_z(active_medium))
             test_min_count_t = max(min_count_t, amp_type(active_medium, test_min_count_z).min_steps_t(ref_pulse))
             try:
-                data = test_pulse(amp_type, active_medium, ref_pulse, (test_min_count_z, test_min_count_t), integrator)
+                data = model.error.min_amplification_steps(amp_type, active_medium, ref_pulse, decay, (test_min_count_z, test_min_count_t), integrator, params.fluence_rtol, params.amp_rtol, ret_extra=True)
             except size_exc_types:
                 traceback.print_exc()
                 print "attempting to recover"
@@ -266,7 +211,7 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
     
     if not quiet:
         if params.graphs:
-            integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
+            integrator = model.integrator.DomainIntegrator(int_type, active_medium)
             fluences = np.empty(amp.count_z)
             for l in range(amp.count_z):
                 fluences[l] = integrator.integrate(amp.T, amp.density[l]) * active_medium.light_speed
@@ -320,7 +265,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     
     int_type, amp_type = num_types
     count_rho, count_phi, count_z, count_t = counts
-    integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
+    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
     amp = amp_type(active_medium, count_z)
     
     Rho = np.linspace(0.0, active_medium.radius, count_rho)
