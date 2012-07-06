@@ -54,6 +54,12 @@ class DepopulationModel(object):
     def __init__(self, active_medium, wavelen):
         self.active_medium = active_medium
         self.wavelen = wavelen
+        self.photon_energy = energy.photon_energy(self.wavelen)
+        self.active_solid_angle = self.active_medium.aperture / self.active_medium.length**2.0
+        self.upper_probability = 1.0 / active_medium.doping_agent.upper_lifetime
+        self.radiative_probability = self.upper_probability * active_medium.doping_agent.branching_ratio
+        self.nonradiative_probability = self.upper_probability * (1.0 - active_medium.doping_agent.branching_ratio)
+        self.saturation_intensity = self.photon_energy * self.radiative_probability / self.active_medium.doping_agent.xsection
     
     def rate(self, inversion):
         if inversion < 0.0:
@@ -65,16 +71,6 @@ class DepopulationModel(object):
 
 class ExactDepopulationModel(DepopulationModel):
     descr = "exact depopulation model"
-    
-    def __init__(self, active_medium, wavelen):
-        super(ExactDepopulationModel, self).__init__(active_medium, wavelen)
-        
-        self.photon_energy = energy.photon_energy(self.wavelen)
-        self.active_solid_angle = self.active_medium.aperture / self.active_medium.length**2.0
-        self.upper_probability = 1.0 / active_medium.doping_agent.upper_lifetime
-        self.radiative_probability = self.upper_probability * active_medium.doping_agent.branching_ratio
-        self.nonradiative_probability = self.upper_probability * (1.0 - active_medium.doping_agent.branching_ratio)
-        self.saturation_intensity = self.photon_energy * self.radiative_probability / self.active_medium.doping_agent.xsection
 
 class NumericalDepopulationModel(DepopulationModel):
     descr = "numerical depopulation model"
