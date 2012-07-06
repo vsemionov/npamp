@@ -35,8 +35,8 @@ from . import depop
 from . import beam
 from . import pulse
 from . import inverter
+from . import integrator
 from . import amplifier
-from . import integral
 from . import energy
 from . import util
 from . import error

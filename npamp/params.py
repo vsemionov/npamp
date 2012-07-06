@@ -94,7 +94,7 @@ min_count_phi = 0
 min_count_z = 0
 min_count_t = 0
 
-integrator_classes = [model.integral.SimpsonIntegrator]
+integrator_classes = [model.integrator.SimpsonIntegrator]
 amplifier_classes = [model.amplifier.HybridAmplifier, model.amplifier.NSFDAmplifier] # HybridAmplifier is faster and may produce less error in some cases; NSFDAmplifier is unconditionally stable and produces qualitatively correct solutions (with all expected properties)
 
 

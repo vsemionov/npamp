@@ -277,7 +277,7 @@ def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_m
         lower = population_out[1] * decay
         population = (upper, lower)
         
-        fluence_out = integrator.integral(amp.T, density_out) * active_medium.light_speed
+        fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
         pulse_fluences[pnum] = fluence_out
     
     fluence_out = pulse_fluences[::-1].sum()
@@ -301,7 +301,7 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     
     decay = core.get_decay(active_medium, ref_pulse)
     
-    integrator = model.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
+    integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
     amp = amp_type(active_medium, count_z)
     
     count_tau = params.ext_opt_pump_resolution[0]
@@ -348,7 +348,7 @@ def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, doping_age
     rho, phi = beam_profile.rho_ref, beam_profile.phi_ref
     ref_pulse = core.create_pulse(active_medium, beam_profile, rho, phi)
     
-    integrator = model.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
+    integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
     amp = amp_type(active_medium, count_z)
     
     upper = np.vectorize(initial_inversion.inversion)(rho, phi, amp.Z)
@@ -364,7 +364,7 @@ def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, doping_age
         lower = population_out[1] * decay
         population = (upper, lower)
         
-        fluence_out = integrator.integral(amp.T, density_out) * active_medium.light_speed
+        fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
         pulse_fluences[pnum] = fluence_out
     
     fluence_out = pulse_fluences[::-1].sum()
@@ -729,7 +729,7 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
     
     (int_type, amp_type), (_, _, count_z, count_t) = num_types, counts
     
-    integrator = model.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
+    integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
     
     amp = amp_type(active_medium, count_z)
     amp_3 = model.amplifier.ExactOutputAmplifier(active_medium_3, count_z)
@@ -738,7 +738,7 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
     
     print "zero"
     density_out_4, _ = amp_4.amplify(*amplify_args)
-    fluence_out_4 = integrator.integral(amp_4.T, density_out_4) * active_medium_4.light_speed
+    fluence_out_4 = integrator.integrate(amp_4.T, density_out_4) * active_medium_4.light_speed
     fluence_gain_4 = fluence_out_4 / ref_fluence
     unitconv.print_result("fluence gain: {}", (), (fluence_gain_4,))
     
@@ -749,13 +749,13 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
         lsl_output_label = "infinite"
     print lsl_output_label
     density_out, _ = amp.amplify(*amplify_args)
-    fluence_out = integrator.integral(amp.T, density_out) * active_medium.light_speed
+    fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
     fluence_gain = fluence_out / ref_fluence
     unitconv.print_result("fluence gain: {}", (), (fluence_gain,))
     
     print "infinite"
     density_out_3, _ = amp_3.amplify(*amplify_args)
-    fluence_out_3 = integrator.integral(amp_3.T, density_out_3) * active_medium_3.light_speed
+    fluence_out_3 = integrator.integrate(amp_3.T, density_out_3) * active_medium_3.light_speed
     fluence_gain_3 = fluence_out_3 / ref_fluence
     unitconv.print_result("fluence gain: {}", (), (fluence_gain_3,))
     

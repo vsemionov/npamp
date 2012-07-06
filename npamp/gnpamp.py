@@ -128,11 +128,11 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             if type(obj) is type and issubclass(obj, model.inverter.PopulationInverter) and obj is not model.inverter.PopulationInverter:
                 self.comboBox_inverter_class.addItem(name)
         self.widget_module_map[self.comboBox_inverter_class.objectName()] = model.inverter
-        for name in dir(model.integral):
-            obj = getattr(model.integral, name)
-            if type(obj) is type and issubclass(obj, model.integral.SampleIntegrator) and obj is not model.integral.SampleIntegrator:
+        for name in dir(model.integrator):
+            obj = getattr(model.integrator, name)
+            if type(obj) is type and issubclass(obj, model.integrator.NumericalIntegrator) and obj is not model.integrator.NumericalIntegrator:
                 self.listWidget_integrator_classes.addItem(name)
-        self.widget_module_map[self.listWidget_integrator_classes.objectName()] = model.integral
+        self.widget_module_map[self.listWidget_integrator_classes.objectName()] = model.integrator
         self.listWidget_integrator_classes.resize(self.listWidget_integrator_classes.sizeHint())
         for name in dir(model.amplifier):
             obj = getattr(model.amplifier, name)

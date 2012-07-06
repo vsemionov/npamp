@@ -156,12 +156,12 @@ def test_pulse(amp_type, active_medium, pulse, (min_count_z, min_count_t), integ
         decay = get_decay(active_medium, pulse)
         num_inversion = num_population_out[0] - num_population_out[1] * decay
         exact_inversion = exact_population_out[0] - exact_population_out[1] * decay
-        num_density_integral = integrator.integral(num_T, num_density_out)
-        exact_density_integral = integrator.integral(exact_T, exact_density_out)
+        num_density_integral = integrator.integrate(num_T, num_density_out)
+        exact_density_integral = integrator.integrate(exact_T, exact_density_out)
         rel_error_density = abs((num_density_integral - exact_density_integral) / exact_density_integral)
         rel_error_density += params.fluence_rtol * (1.0 + num_density_integral / exact_density_integral)
-        num_inversion_integral = integrator.integral(num_Z, num_inversion)
-        exact_inversion_integral = integrator.integral(exact_Z, exact_inversion)
+        num_inversion_integral = integrator.integrate(num_Z, num_inversion)
+        exact_inversion_integral = integrator.integrate(exact_Z, exact_inversion)
         inversion_abs_error = abs(num_inversion_integral - exact_inversion_integral) + params.fluence_rtol * (num_inversion_integral + exact_inversion_integral)
         rel_error_inversion = math.exp(active_medium.doping_agent.xsection * inversion_abs_error) - 1.0
         rel_error = rel_error_density + rel_error_inversion
@@ -218,7 +218,7 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
     best_method = None
     for int_type in int_types:
         int_name = int_type.__name__
-        integrator = model.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
+        integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
         try:
             count_rho, count_phi, min_count_z, min_count_t = integrator.min_steps((ref_pulse, ), params.energy_rtol, params.fluence_rtol)
         except size_exc_types:
@@ -266,10 +266,10 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
     
     if not quiet:
         if params.graphs:
-            integrator = model.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
+            integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
             fluences = np.empty(amp.count_z)
             for l in range(amp.count_z):
-                fluences[l] = integrator.integral(amp.T, amp.density[l]) * active_medium.light_speed
+                fluences[l] = integrator.integrate(amp.T, amp.density[l]) * active_medium.light_speed
             print "generating output"
             dirname = output.init_dir(dirname)
             output.plot_output(dirname, beam_profile, ref_pulse, params.pulse_duration, amp, fluences, exact_density_out, exact_population_out)
@@ -320,7 +320,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     
     int_type, amp_type = num_types
     count_rho, count_phi, count_z, count_t = counts
-    integrator = model.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
+    integrator = model.integrator.DomainIntegrator(int_type, active_medium, beam_profile)
     amp = amp_type(active_medium, count_z)
     
     Rho = np.linspace(0.0, active_medium.radius, count_rho)
@@ -357,7 +357,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
                 lower = population_out[1] * decay
                 population[m][n] = (upper, lower)
                 
-                fluence_out = integrator.integral(amp.T, density_out) * active_medium.light_speed
+                fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
                 output_fluence[m, n] = fluence_out
         
         if pnum == 0:
