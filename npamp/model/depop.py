@@ -28,8 +28,8 @@
 import math
 import warnings
 
-import energy
 import native
+import energy
 import exc
 
 

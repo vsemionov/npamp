@@ -26,17 +26,17 @@
 
 
 from . import exc
+from . import beam
+from . import pulse
 from . import const
-from . import inversion
+from . import energy
 from . import dopant
+from . import inversion
 from . import medium
 from . import pump
 from . import depop
-from . import beam
-from . import pulse
+from . import util
 from . import inverter
 from . import integrator
 from . import amplifier
-from . import energy
-from . import util
 from . import error
