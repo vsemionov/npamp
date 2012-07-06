@@ -161,7 +161,7 @@ def run(conf_path, output_path, definitions):
     end_time = time.clock()
     elapsed_time = end_time - start_time
     if params.verbose:
-        print "finished in %.3f seconds" % elapsed_time
+        print "finished in %.3f s" % elapsed_time
 
 def process(extensions):
     try:
