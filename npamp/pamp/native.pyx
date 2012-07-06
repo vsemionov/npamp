@@ -229,6 +229,9 @@ def _ross_ase_model_integrate_B(self, inversion, nsamples):
     
     branching_ratio = active_medium.doping_agent.branching_ratio
     
+    if branching_ratio * inversion == 0.0:
+        return 0.0, 0.0
+    
     volume = active_medium.volume
     integration_volume = volume**2
     
@@ -294,6 +297,9 @@ def _ross_ase_model_integrate_BP(self, x1, y1, z1, inversion, nsamples):
     
     branching_ratio = active_medium.doping_agent.branching_ratio
     
+    if branching_ratio * inversion == 0.0:
+        return 0.0, 0.0
+    
     volume = active_medium.volume
     
     cdef DTYPE_t radius = active_medium.radius
@@ -355,7 +361,10 @@ def _ross_ase_model_integrate_BP(self, x1, y1, z1, inversion, nsamples):
 def _ross_ase_model_B_stddev(self, inversion, nsamples, nsubsamples):
     active_medium = self.active_medium
     
-    cdef DTYPE_t branching_ratio = active_medium.doping_agent.branching_ratio
+    branching_ratio = active_medium.doping_agent.branching_ratio
+    
+    if branching_ratio * inversion == 0.0:
+        return 0.0
     
     cdef DTYPE_t volume = active_medium.volume
     
