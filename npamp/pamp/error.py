@@ -25,17 +25,5 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from . import const
-from . import inversion
-from . import dopant
-from . import medium
-from . import pump
-from . import depop
-from . import beam
-from . import pulse
-from . import inverter
-from . import amplifier
-from . import integral
-from . import energy
-from . import util
-from . import error
+class ModelError(Exception):
+    pass
