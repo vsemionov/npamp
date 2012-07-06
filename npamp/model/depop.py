@@ -30,7 +30,7 @@ import warnings
 
 import energy
 import native
-import error
+import exc
 
 
 # All the ASE models assume a four-level system by considering the inversion equivalent to the upper state population, which is valid only when the lower state population is zero.
@@ -180,7 +180,7 @@ class RossNumericalASEModel(NumericalDepopulationModel):
     
     def _rate_coef(self, inversion):
         if self.min_count > self.max_nsamples:
-            raise error.ModelError("min. sample count (%d) is greater than max. number of samples (%d)" % (self.min_count, self.max_nsamples))
+            raise exc.ModelError("min. sample count (%d) is greater than max. number of samples (%d)" % (self.min_count, self.max_nsamples))
         nsamples = self.min_count
         while True:
             B, B_rel_error = self._integrate_B(inversion, nsamples)

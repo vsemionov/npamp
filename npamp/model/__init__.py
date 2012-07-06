@@ -25,6 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+from . import exc
 from . import const
 from . import inversion
 from . import dopant
@@ -38,4 +39,3 @@ from . import amplifier
 from . import integral
 from . import energy
 from . import util
-from . import error
