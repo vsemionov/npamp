@@ -91,7 +91,7 @@ On Unix, NPAmp needs to be built from source. First, the required build and runt
 * make (3.81)
 * C compiler (gcc 4.6.3)
 
-Next, extract the source archive into the target directory, and run ``make`` inside that directory. The executables are <target>/npamp/npamp.py and <target>/npamp/gnpamp.py, where <target> denotes the path to the target directory.
+Next, extract the source archive into the target directory, and execute ``make`` inside that directory. The executables are <target>/npamp/npamp.py and <target>/npamp/gnpamp.py, where <target> denotes the path to the target directory.
 
 
 
