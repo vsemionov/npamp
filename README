@@ -52,16 +52,17 @@ Characteristics of the Modeled Amplifier and Input Signal
 * The active medium is solid-state, four-level, with cylindrical geometry.
 * The pumping is pulsed, homogeneous, and its optical power is a rectangular function of time.
 * The gain medium has a diffuse side surface and is water-cooled.
-* There are no significant temperature gradients and mechanical stresses inside the gain medium.
+* There are no significant temperature gradients and mechanical stresses inside the gain medium, therefore the gain medium is homogeneous.
+* The gain medium's temperature, and therefore its refractive index, is constant in time.
 * The laser beam, propagating in the amplifier, is collimated.
 * The input signal enters the amplifier immediately after the pumping; its power is null beforehand.
 * The input signal consists of either a single pulse or a finite-length train of equally-separated in time pulses with arbitrary, but uniform, spatial and temporal shapes.
 * The signal's frequency spectrum width is much smaller than its carrier frequency.
 * The signal's total duration is much shorter than the upper state lifetime.
 * The signal's optical intensity is proportional to both its power and its fluence.
-* The time between the completion of an amplification and the start of the subsequent pumping is much longer than the upper state lifetime.
+* The time between amplification and the subsequent pumping is much longer than the upper state lifetime.
 * During pumping, population inversion does not change significantly in the transit time of the amplifier.
-* Pump band population is negligible; ground state population is much larger than the sum of the laser state populations; nonradiative transitions, originating from the upper state, can be neglected; the frequency dependence of the upper state stimulated emission cross section can be neglected.
+* The pump band's lifetime is much shorter than the upper state lifetime, and therefore its population is negligible; ground state population is much larger than the sum of the laser state populations, and is therefore constant in time; nonradiative transitions, originating from the upper state, can be neglected; the frequency dependence of the upper state stimulated emission cross section can be neglected.
 * During amplification, spontaneous emission is negligible; the transit time of the amplifier is much shorter than the upper state lifetime; absorption and scattering losses of signal radiation are negligible.
 
 
