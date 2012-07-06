@@ -29,21 +29,6 @@ import math
 import warnings
 
 
-def pulse_scale(pulse, trunc_rtol):
-    total_fluence = pulse.density_integral(float("inf"))
-    scale = 1.0
-    offset = pulse.offset
-    half_duration = pulse.duration/2.0
-    while True:
-        integral_t0 = pulse.density_integral(offset - half_duration * scale)
-        integral_t1 = pulse.density_integral(offset + half_duration * scale)
-        fluence = integral_t1 - integral_t0
-        trunc_rel_error = (total_fluence - fluence) / total_fluence
-        if trunc_rel_error <= trunc_rtol:
-            break
-        scale *= 2.0
-    return scale, trunc_rel_error
-
 def steps(divs):
     steps = 2**divs + 1
     return steps

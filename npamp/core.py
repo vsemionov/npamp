@@ -55,7 +55,7 @@ def create_pulse(active_medium, beam, rho, phi, ret_time_trunc_rel_error=False):
     fluence = beam.fluence(rho, phi)
     ref_density = params.pulse_class.ref_density(active_medium.light_speed, params.pulse_duration, fluence)
     pulse = params.pulse_class(-params.pulse_duration/2.0, params.pulse_duration, ref_density)
-    scale, time_trunc_rel_error = model.util.pulse_scale(pulse, params.time_trunc_rtol)
+    scale, time_trunc_rel_error = model.error.pulse_scale(pulse, params.time_trunc_rtol)
     pulse = model.pulse.ExtendedPulse(pulse, scale)
     pulse = model.pulse.TruncatedPulse(pulse)
     return (pulse, time_trunc_rel_error) if ret_time_trunc_rel_error else pulse

@@ -25,18 +25,17 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from . import exc
-from . import const
-from . import inversion
-from . import dopant
-from . import medium
-from . import pump
-from . import depop
-from . import beam
-from . import pulse
-from . import inverter
-from . import amplifier
-from . import integral
-from . import energy
-from . import util
-from . import error
+def pulse_scale(pulse, trunc_rtol):
+    total_fluence = pulse.density_integral(float("inf"))
+    scale = 1.0
+    offset = pulse.offset
+    half_duration = pulse.duration/2.0
+    while True:
+        integral_t0 = pulse.density_integral(offset - half_duration * scale)
+        integral_t1 = pulse.density_integral(offset + half_duration * scale)
+        fluence = integral_t1 - integral_t0
+        trunc_rel_error = (total_fluence - fluence) / total_fluence
+        if trunc_rel_error <= trunc_rtol:
+            break
+        scale *= 2.0
+    return scale, trunc_rel_error
