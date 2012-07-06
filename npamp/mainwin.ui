@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="res/main.qrc">
+   <iconset resource="../res/main.qrc">
     <normaloff>:/main/app.png</normaloff>:/main/app.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -1521,7 +1521,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </widget>
   <action name="actionNew">
    <property name="icon">
-    <iconset resource="res/main.qrc">
+    <iconset resource="../res/main.qrc">
      <normaloff>:/main/new.png</normaloff>:/main/new.png</iconset>
    </property>
    <property name="text">
@@ -1533,7 +1533,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </action>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="res/main.qrc">
+    <iconset resource="../res/main.qrc">
      <normaloff>:/main/open.png</normaloff>:/main/open.png</iconset>
    </property>
    <property name="text">
@@ -1545,7 +1545,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="res/main.qrc">
+    <iconset resource="../res/main.qrc">
      <normaloff>:/main/save.png</normaloff>:/main/save.png</iconset>
    </property>
    <property name="text">
@@ -1557,7 +1557,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </action>
   <action name="actionClose">
    <property name="icon">
-    <iconset resource="res/main.qrc">
+    <iconset resource="../res/main.qrc">
      <normaloff>:/main/close.png</normaloff>:/main/close.png</iconset>
    </property>
    <property name="text">
@@ -1569,7 +1569,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </action>
   <action name="actionExecute">
    <property name="icon">
-    <iconset resource="res/main.qrc">
+    <iconset resource="../res/main.qrc">
      <normaloff>:/main/execute.png</normaloff>:/main/execute.png</iconset>
    </property>
    <property name="text">
@@ -1581,7 +1581,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </action>
   <action name="actionQuit">
    <property name="icon">
-    <iconset resource="res/main.qrc">
+    <iconset resource="../res/main.qrc">
      <normaloff>:/main/quit.png</normaloff>:/main/quit.png</iconset>
    </property>
    <property name="text">
@@ -1593,7 +1593,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </action>
   <action name="actionAbout">
    <property name="icon">
-    <iconset resource="res/main.qrc">
+    <iconset resource="../res/main.qrc">
      <normaloff>:/main/about.png</normaloff>:/main/about.png</iconset>
    </property>
    <property name="text">
@@ -1602,7 +1602,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </action>
   <action name="actionSaveAs">
    <property name="icon">
-    <iconset resource="res/main.qrc">
+    <iconset resource="../res/main.qrc">
      <normaloff>:/main/save.png</normaloff>:/main/save.png</iconset>
    </property>
    <property name="text">
@@ -1617,7 +1617,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </action>
  </widget>
  <resources>
-  <include location="res/main.qrc"/>
+  <include location="../res/main.qrc"/>
  </resources>
  <connections/>
 </ui>
