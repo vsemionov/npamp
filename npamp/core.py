@@ -388,42 +388,76 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     return max_output_fluence, output_photon_counts, train_output_energy, rel_gain_reduction
 
 def validate():
-    def validate_param_nonnegative(name, value):
-        if type(value) in (int, float):
-            if value < 0.0:
+    def validate_param_bounds(name, value):
+        vtype = type(value)
+        if vtype in (int, float):
+            if vtype is float and name not in param_zero_allowed:
+                if value <= 0.0:
+                    raise ConfigurationError("parameter \"%s\" has (or contains) a zero value" % name)
+            elif value < 0.0:
                 raise ConfigurationError("parameter \"%s\" has (or contains) a negative value" % name)
-        elif type(value) in (tuple, list):
+            if vtype is float and name not in param_infty_allowed:
+                if math.isinf(value):
+                    raise ConfigurationError("parameter \"%s\" has (or contains) an infinite value" % name)
+            if name in param_bounds:
+                min_value, max_value = param_bounds[name]
+                if min_value is not None:
+                    if value < min_value:
+                        raise ConfigurationError("parameter \"%s\" has (or contains) a value less than %s" % (name, min_value))
+                if max_value is not None:
+                    if value > max_value:
+                        raise ConfigurationError("parameter \"%s\" has (or contains) a value greater than %s" % (name, max_value))
+        elif vtype in (tuple, list):
             for element in value:
-                validate_param_nonnegative(name, element)
+                validate_param_bounds(name, element)
     
-    def validate_param_min_value(name, min_value, value):
-        if type(value) in (int, float):
-            if value < min_value:
-                raise ConfigurationError("parameter \"%s\" has (or contains) a value less than %s" % (name, min_value))
-        elif type(value) in (tuple, list):
-            for element in value:
-                validate_param_min_value(name, min_value, element)
+    def validate_interval(name, values):
+        if values[0] > values[1]:
+            raise ConfigurationError("parameter \"%s\" has a lower bound greater than the upper bound" % name)
     
-    param_min_vals = {
-        "train_pulse_count": 1,
-        "depop_rate_min_count": 16,
-        "out_markers_step_divisor": 1,
-        "out_rho_steps_divisor": 1,
-        "out_phi_steps_divisor": 1,
-        "out_z_steps_divisor": 1,
-        "out_t_steps_divisor": 1,
-        "ext_opt_pump_resolution": 2,
-        "ext_opt_geom_resolution": 2,
+    def validate_list_uniques(name, values):
+        if len(values) != len(set(values)):
+            raise ConfigurationError("parameter \"%s\" contains duplicate values" % name)
+    
+    param_zero_allowed = set([
+        "dopant_branching_ratio",
+        "dopant_lower_lifetime",
+        "initial_inversion",
+    ])
+    param_infty_allowed = set([
+        "dopant_upper_lifetime",
+        "dopant_lower_lifetime",
+        "ext_opt_inversion_rdiff_max",
+        "ext_opt_fluence_max",
+    ])
+    param_bounds = {
+        "train_pulse_count": (1, None),
+        "depop_rate_min_count": (16, None),
+        "out_markers_step_divisor": (1, None),
+        "out_rho_steps_divisor": (1, None),
+        "out_phi_steps_divisor": (1, None),
+        "out_z_steps_divisor": (1, None),
+        "out_t_steps_divisor": (1, None),
+        "ext_opt_pump_resolution": (2, None),
+        "ext_opt_geom_resolution": (2, None),
+        "dopant_branching_ratio": (None, 1.0),
+        "pump_efficiency": (None, 1.0),
     }
+    param_intervals = set([
+        "ext_opt_pump_duration",
+        "ext_opt_pump_power",
+        "ext_opt_geom_mediumradius",
+        "ext_opt_geom_beamradius",
+    ])
     
     conf = copy_conf(params.__dict__)
     
-    for parameter, min_value in param_min_vals.items():
-        value = conf[parameter]
-        validate_param_min_value(parameter, min_value, value)
-    
     for parameter, value in conf.items():
-        validate_param_nonnegative(parameter, value)
+        validate_param_bounds(parameter, value)
+    
+    for parameter in param_intervals:
+        values = conf[parameter]
+        validate_interval(parameter, values)
     
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
@@ -436,6 +470,12 @@ def validate():
     
     if not (params.train_pulse_period >= ref_pulse.duration or params.train_pulse_count == 1):
         raise ConfigurationError("invalid parameters: pulse repetition period is less than (extended) pulse duration")
+    
+    if not params.pump_wavelen < params.lasing_wavelen:
+        warnings.warn("pump wavelength is not less than lasing wavelength", stacklevel=2)
+    
+    if not params.dopant_lower_lifetime <= params.dopant_upper_lifetime / 10.0:
+        warnings.warn("approximation validity condition violated: lower state lifetime is not much shorter than upper state (fluorescence) lifetime", stacklevel=2)
     
     train_duration = params.train_pulse_period * (params.train_pulse_count - 1) + params.pulse_duration
     if not train_duration <= params.dopant_upper_lifetime / 10.0:
