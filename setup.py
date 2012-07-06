@@ -39,7 +39,7 @@ sys.path.append(os.path.join(os.getcwd(), "npamp"))
 import meta
 
 
-ext_modules = [Extension("pamp.native", ["npamp/pamp/native.pyx", "npamp/pamp/randomkit.c"], include_dirs = ["npamp/pamp", numpy.get_include()], extra_compile_args=["-DRK_NO_WINCRYPT"])]
+ext_modules = [Extension("model.native", ["npamp/model/native.pyx", "npamp/model/randomkit.c"], include_dirs = ["npamp/model", numpy.get_include()], extra_compile_args=["-DRK_NO_WINCRYPT"])]
 
 setup_args = dict(
     name = meta.app_name,
@@ -63,7 +63,7 @@ if os.name == "nt":
     options = {
         "py2exe": {
             "includes": [
-                "pamp.native", # not required, but used because it generates an error if the module is not found
+                "model.native", # not required, but used because it generates an error if the module is not found
             ],
             "excludes": ["Tkinter", ],
             "bundle_files" : 2, # unreliable

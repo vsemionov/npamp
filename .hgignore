@@ -6,10 +6,10 @@ syntax: glob
 build
 dist
 output
-npamp/pamp/native.c
-npamp/pamp/native.html
-npamp/pamp/native.pyd
-npamp/pamp/native.so
+npamp/model/native.c
+npamp/model/native.html
+npamp/model/native.pyd
+npamp/model/native.so
 npamp/main_rc.py
 npamp/mainwin.py
 npamp/outwin.py

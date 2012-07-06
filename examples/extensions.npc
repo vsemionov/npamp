@@ -1,6 +1,6 @@
-import pamp
+import model
 graphs = True
-beam_class = pamp.beam.TopHatBeam
-pulse_class = pamp.pulse.SawtoothPulse
+beam_class = model.beam.TopHatBeam
+pulse_class = model.pulse.SawtoothPulse
 min_count_z = 17
 min_count_t = 17

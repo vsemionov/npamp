@@ -33,7 +33,7 @@ import copy
 import numpy as np
 
 import params
-import pamp
+import model
 import plot
 import core
 import output
@@ -49,14 +49,14 @@ def compare_depop_models(dirname):
     if not params.ext_depop_models:
         return
     
-    doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
-    pump_system = pamp.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
+    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    pump_system = model.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
     data = []
     for depop_model_class in params.ext_depop_models:
         depop_model_label = depop_model_class.descr
         print depop_model_label
-        depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count) if issubclass(depop_model_class, pamp.depop.NumericalDepopulationModel) else {}
+        depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count) if issubclass(depop_model_class, model.depop.NumericalDepopulationModel) else {}
         if depop_model_class is params.depop_model_class:
             depop_model_kwargs.update(params.depop_model_extra_args)
         depop_model = depop_model_class(active_medium, params.lasing_wavelen, **depop_model_kwargs)
@@ -111,7 +111,7 @@ def compare_depop_models(dirname):
 
 def compute_inversion_pump_dependence_task((i, j), (tau, pwr), active_medium, (depop_model1, depop_model2)):
     output.show_status((i, j), params.extended_status_strides, False)
-    pump_system = pamp.pump.PumpSystem(params.pump_wavelen, tau, pwr, params.pump_efficiency)
+    pump_system = model.pump.PumpSystem(params.pump_wavelen, tau, pwr, params.pump_efficiency)
     inv1 = params.inverter_class(active_medium, pump_system, depop_model1)
     inv2 = params.inverter_class(active_medium, pump_system, depop_model2)
     inversion1 = inv1.invert(params.inversion_rtol, params.inversion_min_count_t)
@@ -130,8 +130,8 @@ def compute_inversion_pump_dependence(task_pool, dirname):
     print output.div_line
     print "computing inversion dependence on pumping parameters"
     
-    doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     
     count_tau = params.ext_opt_pump_resolution[0]
     count_pwr = params.ext_opt_pump_resolution[1]
@@ -142,8 +142,8 @@ def compute_inversion_pump_dependence(task_pool, dirname):
     num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count)
     depop_model_class1 = params.depop_model_class
     depop_model_class2 = params.ext_alt_depop_model
-    depop_model_kwargs1 = num_model_kwargs if issubclass(depop_model_class1, pamp.depop.NumericalDepopulationModel) else {}
-    depop_model_kwargs2 = num_model_kwargs if issubclass(depop_model_class2, pamp.depop.NumericalDepopulationModel) else {}
+    depop_model_kwargs1 = num_model_kwargs if issubclass(depop_model_class1, model.depop.NumericalDepopulationModel) else {}
+    depop_model_kwargs2 = num_model_kwargs if issubclass(depop_model_class2, model.depop.NumericalDepopulationModel) else {}
     if depop_model_class1 is params.depop_model_class:
         depop_model_kwargs1.update(params.depop_model_extra_args)
     if depop_model_class2 is params.depop_model_class:
@@ -156,8 +156,8 @@ def compute_inversion_pump_dependence(task_pool, dirname):
     output.show_status((count_tau, count_pwr), params.extended_status_strides, True)
     
     pump_energies = np.prod(np.array(np.meshgrid(Tau, Pwr)), axis=0).T
-    stored_energies1 = pamp.energy.energy(params.lasing_wavelen, inversions1 * active_medium.volume)
-    stored_energies2 = pamp.energy.energy(params.lasing_wavelen, inversions2 * active_medium.volume)
+    stored_energies1 = model.energy.energy(params.lasing_wavelen, inversions1 * active_medium.volume)
+    stored_energies2 = model.energy.energy(params.lasing_wavelen, inversions2 * active_medium.volume)
     
     if params.graphs:
         print "generating output"
@@ -189,10 +189,10 @@ def compute_inversion_geom_dependence_task(i, rm, doping_agent, (depop_model_cla
     output.show_status((i, None), params.extended_status_strides, False)
     medium_radius_orig = params.medium_radius
     params.medium_radius = rm
-    active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     depop_model1 = depop_model_class1(active_medium, params.lasing_wavelen, **depop_model_kwargs1)
     depop_model2 = depop_model_class2(active_medium, params.lasing_wavelen, **depop_model_kwargs2)
-    pump_system = pamp.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
+    pump_system = model.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
     inv1 = params.inverter_class(active_medium, pump_system, depop_model1)
     inv2 = params.inverter_class(active_medium, pump_system, depop_model2)
     inversion1 = inv1.invert(params.inversion_rtol, params.inversion_min_count_t)
@@ -201,8 +201,8 @@ def compute_inversion_geom_dependence_task(i, rm, doping_agent, (depop_model_cla
     gain_coef2 = inversion2 * active_medium.doping_agent.xsection
     gain1 = math.exp(gain_coef1 * active_medium.length)
     gain2 = math.exp(gain_coef2 * active_medium.length)
-    stored_energy1 = pamp.energy.energy(params.lasing_wavelen, inversion1 * active_medium.volume)
-    stored_energy2 = pamp.energy.energy(params.lasing_wavelen, inversion2 * active_medium.volume)
+    stored_energy1 = model.energy.energy(params.lasing_wavelen, inversion1 * active_medium.volume)
+    stored_energy2 = model.energy.energy(params.lasing_wavelen, inversion2 * active_medium.volume)
     inversion_rdiff = abs((inversion1 - inversion2) / min(inversion1, inversion2))
     gain_rdiff = abs((gain1 - gain2) / min(gain1, gain2))
     params.medium_radius = medium_radius_orig
@@ -214,7 +214,7 @@ def compute_inversion_geom_dependence(task_pool, dirname):
     print output.div_line
     print "computing inversion dependence on geometry parameters"
     
-    doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     
     min_medium_radius = params.ext_opt_geom_mediumradius[0]
     
@@ -225,8 +225,8 @@ def compute_inversion_geom_dependence(task_pool, dirname):
     num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count)
     depop_model_class1 = params.depop_model_class
     depop_model_class2 = params.ext_alt_depop_model
-    depop_model_kwargs1 = num_model_kwargs if issubclass(depop_model_class1, pamp.depop.NumericalDepopulationModel) else {}
-    depop_model_kwargs2 = num_model_kwargs if issubclass(depop_model_class2, pamp.depop.NumericalDepopulationModel) else {}
+    depop_model_kwargs1 = num_model_kwargs if issubclass(depop_model_class1, model.depop.NumericalDepopulationModel) else {}
+    depop_model_kwargs2 = num_model_kwargs if issubclass(depop_model_class2, model.depop.NumericalDepopulationModel) else {}
     if depop_model_class1 is params.depop_model_class:
         depop_model_kwargs1.update(params.depop_model_extra_args)
     if depop_model_class2 is params.depop_model_class:
@@ -261,7 +261,7 @@ def compute_inversion_geom_dependence(task_pool, dirname):
 def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_medium, (rho, phi), integrator, amp, (count_z, count_t), ref_pulse, decay):
     output.show_status((i, j), params.extended_status_strides, False)
     
-    initial_inversion = pamp.inversion.UniformInversion(inversion)
+    initial_inversion = model.inversion.UniformInversion(inversion)
     active_medium.initial_inversion = initial_inversion
     
     upper = np.vectorize(initial_inversion.inversion)(rho, phi, amp.Z)
@@ -281,7 +281,7 @@ def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_m
         pulse_fluences[pnum] = fluence_out
     
     fluence_out = pulse_fluences[::-1].sum()
-    fluence_out = pamp.energy.energy(params.lasing_wavelen, fluence_out)
+    fluence_out = model.energy.energy(params.lasing_wavelen, fluence_out)
     return fluence_out
 
 def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions, (int_type, amp_type), (count_z, count_t)):
@@ -290,10 +290,10 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     print output.div_line
     print "computing fluence dependence on pumping parameters"
     
-    doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     
-    pulse_photon_count = pamp.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
+    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
     ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
     beam_profile = params.beam_class(params.beam_radius, ref_fluence)
     
@@ -301,7 +301,7 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     
     decay = core.get_decay(active_medium, ref_pulse)
     
-    integrator = pamp.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
+    integrator = model.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
     amp = amp_type(active_medium, count_z)
     
     count_tau = params.ext_opt_pump_resolution[0]
@@ -340,15 +340,15 @@ def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, doping_age
     params.beam_radius = rb
     
     ref_inversion = inversion
-    initial_inversion = pamp.inversion.UniformInversion(ref_inversion)
-    active_medium = pamp.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    initial_inversion = model.inversion.UniformInversion(ref_inversion)
+    active_medium = model.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     
     ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
     beam_profile = params.beam_class(params.beam_radius, ref_fluence)
     rho, phi = beam_profile.rho_ref, beam_profile.phi_ref
     ref_pulse = core.create_pulse(active_medium, beam_profile, rho, phi)
     
-    integrator = pamp.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
+    integrator = model.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
     amp = amp_type(active_medium, count_z)
     
     upper = np.vectorize(initial_inversion.inversion)(rho, phi, amp.Z)
@@ -368,7 +368,7 @@ def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, doping_age
         pulse_fluences[pnum] = fluence_out
     
     fluence_out = pulse_fluences[::-1].sum()
-    fluence_out = pamp.energy.energy(params.lasing_wavelen, fluence_out)
+    fluence_out = model.energy.energy(params.lasing_wavelen, fluence_out)
     
     params.medium_radius = medium_radius_orig
     params.beam_radius = beam_radius_orig
@@ -381,10 +381,10 @@ def compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), 
     print output.div_line
     print "computing fluence dependence on geometry parameters"
     
-    doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    pulse_photon_count = pamp.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
+    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
     
-    active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
     beam_profile = params.beam_class(params.beam_radius, ref_fluence)
     ref_pulse = core.create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
@@ -421,8 +421,8 @@ def output_pump_constraints(dirname, inversion_rdiffs, max_fluences):
     print output.div_line
     print "computing pumping parameters domain from constraints"
     
-    doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     
     count_tau = params.ext_opt_pump_resolution[0]
     count_pwr = params.ext_opt_pump_resolution[1]
@@ -536,15 +536,15 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
     print output.div_line
     print "computing energy dependence on pumping parameters"
     
-    doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     
-    pulse_photon_count = pamp.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
+    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
     ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
     beam_profile = params.beam_class(params.beam_radius, ref_fluence)
     
     input_photon_count = beam_profile.fluence_integral(active_medium.radius)
-    input_energy = pamp.energy.energy(params.lasing_wavelen, input_photon_count)
+    input_energy = model.energy.energy(params.lasing_wavelen, input_photon_count)
     input_energy *= params.train_pulse_count
     
     count_tau = params.ext_opt_pump_resolution[0]
@@ -558,7 +558,7 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
     output.show_status((count_tau, count_pwr), params.extended_status_strides, True)
     
     pump_energies = np.prod(np.array(np.meshgrid(Tau, Pwr)), axis=0).T
-    stored_energies = pamp.energy.energy(params.lasing_wavelen, inversions * active_medium.volume)
+    stored_energies = model.energy.energy(params.lasing_wavelen, inversions * active_medium.volume)
     energy_gains = output_energies / input_energy
     added_energies = output_energies - input_energy
     extraction_effs = added_energies / stored_energies
@@ -618,12 +618,12 @@ def compute_energy_geom_dependence_task((i, j), (rm, rb), inversion, doping_agen
     params.medium_radius = rm
     params.beam_radius = rb
     ref_inversion = inversion
-    active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
-    stored_energy = pamp.energy.energy(params.lasing_wavelen, ref_inversion * active_medium.volume)
+    active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    stored_energy = model.energy.energy(params.lasing_wavelen, ref_inversion * active_medium.volume)
     ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
     beam_profile = params.beam_class(params.beam_radius, ref_fluence)
     input_photon_count = beam_profile.fluence_integral(active_medium.radius)
-    input_energy = pamp.energy.energy(params.lasing_wavelen, input_photon_count)
+    input_energy = model.energy.energy(params.lasing_wavelen, input_photon_count)
     input_energy *= params.train_pulse_count
     _, _, output_energy, rel_gain_reduction = core.amplify_train(None, num_types, counts, ref_inversion, quiet=True)
     params.medium_radius = medium_radius_orig
@@ -636,8 +636,8 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
     print output.div_line
     print "computing energy dependence on geometry parameters"
     
-    doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    pulse_photon_count = pamp.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
+    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
     
     min_medium_radius = params.ext_opt_geom_mediumradius[0]
     min_beam_radius = params.ext_opt_geom_beamradius[0]
@@ -712,16 +712,16 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
     
     lower_lifetime = params.dopant_lower_lifetime
     
-    initial_inversion = pamp.inversion.UniformInversion(ref_inversion)
+    initial_inversion = model.inversion.UniformInversion(ref_inversion)
     
-    doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = pamp.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    active_medium = model.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     active_medium_3 = copy.deepcopy(active_medium)
     active_medium_3.doping_agent.lower_lifetime = float("inf")
     active_medium_4 = copy.deepcopy(active_medium)
     active_medium_4.doping_agent.lower_lifetime = 0.0
     
-    pulse_photon_count = pamp.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
+    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
     ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
     beam_profile = params.beam_class(params.beam_radius, ref_fluence)
     
@@ -729,11 +729,11 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
     
     (int_type, amp_type), (_, _, count_z, count_t) = num_types, counts
     
-    integrator = pamp.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
+    integrator = model.energy.PhotonCountIntegrator(int_type, active_medium, beam_profile)
     
     amp = amp_type(active_medium, count_z)
-    amp_3 = pamp.amplifier.ExactOutputAmplifier(active_medium_3, count_z)
-    amp_4 = pamp.amplifier.ExactOutputAmplifier(active_medium_4, count_z)
+    amp_3 = model.amplifier.ExactOutputAmplifier(active_medium_3, count_z)
+    amp_4 = model.amplifier.ExactOutputAmplifier(active_medium_4, count_z)
     amplify_args = (beam_profile.rho_ref, beam_profile.phi_ref, ref_pulse, count_t)
     
     print "zero"

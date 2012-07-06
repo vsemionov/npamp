@@ -29,7 +29,7 @@
 
 app:
 	python setup.py build_ext
-	find build -type f -and \( -name native.so -or -name native.pyd \) -exec cp \{\} npamp/pamp/ \;
+	find build -type f -and \( -name native.so -or -name native.pyd \) -exec cp \{\} npamp/model/ \;
 	pyside-rcc -o npamp/main_rc.py res/main.qrc
 	pyside-uic -o npamp/mainwin.py npamp/mainwin.ui
 	pyside-uic -o npamp/outwin.py npamp/outwin.ui
@@ -47,4 +47,4 @@ clean:
 	rm -rf build
 	find . -type f -name \*.pyc -exec rm -f \{\} \;
 	rm -f npamp/outwin.py npamp/mainwin.py npamp/main_rc.py
-	rm -f npamp/pamp/native.so npamp/pamp/native.pyd npamp/pamp/native.c
+	rm -f npamp/model/native.so npamp/model/native.pyd npamp/model/native.c

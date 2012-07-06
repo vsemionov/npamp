@@ -37,7 +37,7 @@ import multiprocessing
 from PySide import QtCore, QtGui
 
 import meta
-import pamp
+import model
 import npamp
 import unitconv
 
@@ -67,7 +67,7 @@ def file2conf(path):
 
 def conf2file(conf, path):
     with open(path, "w") as fp:
-        fp.write("import pamp\n")
+        fp.write("import model\n")
         for param, value in sorted(conf.items()):
             fp.write("%s = %s\n" % (param, repr_classless(value)))
 
@@ -104,41 +104,41 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         QtGui.QMessageBox.critical(self, "Error", str(value))
     
     def initWidgets(self):
-        for name in dir(pamp.beam):
-            obj = getattr(pamp.beam, name)
-            if type(obj) is type and issubclass(obj, pamp.beam.BeamProfile) and obj is not pamp.beam.BeamProfile:
+        for name in dir(model.beam):
+            obj = getattr(model.beam, name)
+            if type(obj) is type and issubclass(obj, model.beam.BeamProfile) and obj is not model.beam.BeamProfile:
                 self.comboBox_beam_class.addItem(name)
-        self.widget_module_map[self.comboBox_beam_class.objectName()] = pamp.beam
-        for name in dir(pamp.pulse):
-            obj = getattr(pamp.pulse, name)
-            if type(obj) is type and issubclass(obj, pamp.pulse.SinglePulse) and obj is not pamp.pulse.SinglePulse:
+        self.widget_module_map[self.comboBox_beam_class.objectName()] = model.beam
+        for name in dir(model.pulse):
+            obj = getattr(model.pulse, name)
+            if type(obj) is type and issubclass(obj, model.pulse.SinglePulse) and obj is not model.pulse.SinglePulse:
                 self.comboBox_pulse_class.addItem(name)
-        self.widget_module_map[self.comboBox_pulse_class.objectName()] = pamp.pulse
-        for name in dir(pamp.depop):
-            obj = getattr(pamp.depop, name)
-            if type(obj) is type and issubclass(obj, pamp.depop.DepopulationModel) and hasattr(obj, "concrete") and obj.concrete is True:
+        self.widget_module_map[self.comboBox_pulse_class.objectName()] = model.pulse
+        for name in dir(model.depop):
+            obj = getattr(model.depop, name)
+            if type(obj) is type and issubclass(obj, model.depop.DepopulationModel) and hasattr(obj, "concrete") and obj.concrete is True:
                 self.comboBox_depop_model_class.addItem(name)
                 self.comboBox_ext_alt_depop_model.addItem(name)
                 self.listWidget_ext_depop_models.addItem(name)
-        self.widget_module_map[self.comboBox_depop_model_class.objectName()] = pamp.depop
-        self.widget_module_map[self.comboBox_ext_alt_depop_model.objectName()] = pamp.depop
-        self.widget_module_map[self.listWidget_ext_depop_models.objectName()] = pamp.depop
-        for name in dir(pamp.inverter):
-            obj = getattr(pamp.inverter, name)
-            if type(obj) is type and issubclass(obj, pamp.inverter.PopulationInverter) and obj is not pamp.inverter.PopulationInverter:
+        self.widget_module_map[self.comboBox_depop_model_class.objectName()] = model.depop
+        self.widget_module_map[self.comboBox_ext_alt_depop_model.objectName()] = model.depop
+        self.widget_module_map[self.listWidget_ext_depop_models.objectName()] = model.depop
+        for name in dir(model.inverter):
+            obj = getattr(model.inverter, name)
+            if type(obj) is type and issubclass(obj, model.inverter.PopulationInverter) and obj is not model.inverter.PopulationInverter:
                 self.comboBox_inverter_class.addItem(name)
-        self.widget_module_map[self.comboBox_inverter_class.objectName()] = pamp.inverter
-        for name in dir(pamp.integral):
-            obj = getattr(pamp.integral, name)
-            if type(obj) is type and issubclass(obj, pamp.integral.SampleIntegrator) and obj is not pamp.integral.SampleIntegrator:
+        self.widget_module_map[self.comboBox_inverter_class.objectName()] = model.inverter
+        for name in dir(model.integral):
+            obj = getattr(model.integral, name)
+            if type(obj) is type and issubclass(obj, model.integral.SampleIntegrator) and obj is not model.integral.SampleIntegrator:
                 self.listWidget_integrator_classes.addItem(name)
-        self.widget_module_map[self.listWidget_integrator_classes.objectName()] = pamp.integral
+        self.widget_module_map[self.listWidget_integrator_classes.objectName()] = model.integral
         self.listWidget_integrator_classes.resize(self.listWidget_integrator_classes.sizeHint())
-        for name in dir(pamp.amplifier):
-            obj = getattr(pamp.amplifier, name)
-            if type(obj) is type and issubclass(obj, pamp.amplifier.NumericalAmplifier) and obj is not pamp.amplifier.NumericalAmplifier:
+        for name in dir(model.amplifier):
+            obj = getattr(model.amplifier, name)
+            if type(obj) is type and issubclass(obj, model.amplifier.NumericalAmplifier) and obj is not model.amplifier.NumericalAmplifier:
                 self.listWidget_amplifier_classes.addItem(name)
-        self.widget_module_map[self.listWidget_amplifier_classes.objectName()] = pamp.amplifier
+        self.widget_module_map[self.listWidget_amplifier_classes.objectName()] = model.amplifier
         self.listWidget_amplifier_classes.resize(self.listWidget_amplifier_classes.sizeHint())
     
     def shortFilename(self):

@@ -25,7 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import pamp
+import model
 
 
 # physical parameters:
@@ -49,12 +49,12 @@ pump_duration = 250.0e-6
 pump_power = 4000.0
 pump_efficiency = 0.5
 
-depop_model_class = pamp.depop.RossApproximateASEModel
+depop_model_class = model.depop.RossApproximateASEModel
 
-beam_class = pamp.beam.GaussianBeam
+beam_class = model.beam.GaussianBeam
 beam_radius = 2.0e-3
 
-pulse_class = pamp.pulse.GaussianPulse
+pulse_class = model.pulse.GaussianPulse
 pulse_energy = 1.0e-6
 pulse_duration = 6.0e-12
 
@@ -68,13 +68,13 @@ depop_rate_rtol = 5.0e-2
 depop_rate_min_count = 4096
 depop_model_extra_args = {}
 
-inverter_class = pamp.inverter.RungeKuttaInverter # RungeKuttaInverter usually makes fewer derivative evaluations for RossNumericalASEModel; for other depopulation models EulerInverter seems faster
+inverter_class = model.inverter.RungeKuttaInverter # RungeKuttaInverter usually makes fewer derivative evaluations for RossNumericalASEModel; for other depopulation models EulerInverter seems faster
 inversion_rtol = 1.0e-2
 inversion_min_count_t = 0
 inversion_validate = False
 
-ext_depop_models = [pamp.depop.FluorescenceModel, pamp.depop.RossApproximateASEModel, pamp.depop.RossNumericalASEModel]
-ext_alt_depop_model = pamp.depop.FluorescenceModel
+ext_depop_models = [model.depop.FluorescenceModel, model.depop.RossApproximateASEModel, model.depop.RossNumericalASEModel]
+ext_alt_depop_model = model.depop.FluorescenceModel
 ext_opt_inversion_rdiff_max = 0.1
 ext_opt_fluence_max = 1.0e4
 ext_opt_pump_duration = (dopant_upper_lifetime / 2.0, dopant_upper_lifetime * 2.0)
@@ -94,8 +94,8 @@ min_count_phi = 0
 min_count_z = 0
 min_count_t = 0
 
-integrator_classes = [pamp.integral.SimpsonIntegrator]
-amplifier_classes = [pamp.amplifier.HybridAmplifier, pamp.amplifier.NSFDAmplifier] # HybridAmplifier is faster and may produce less error in some cases; NSFDAmplifier is unconditionally stable and produces qualitatively correct solutions (with all expected properties)
+integrator_classes = [model.integral.SimpsonIntegrator]
+amplifier_classes = [model.amplifier.HybridAmplifier, model.amplifier.NSFDAmplifier] # HybridAmplifier is faster and may produce less error in some cases; NSFDAmplifier is unconditionally stable and produces qualitatively correct solutions (with all expected properties)
 
 
 # output parameters:

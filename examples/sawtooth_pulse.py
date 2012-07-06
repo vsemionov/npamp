@@ -2,10 +2,10 @@
 """Provides a sawtooth temporal pulse shape"""
 
 
-import pamp
+import model
 
 
-class SawtoothPulse(pamp.pulse.SinglePulse):
+class SawtoothPulse(model.pulse.SinglePulse):
     
     def __init__(self, *args, **kwargs):
         super(SawtoothPulse, self).__init__(*args, **kwargs)
@@ -22,4 +22,4 @@ class SawtoothPulse(pamp.pulse.SinglePulse):
         return self.slope * t**2.0 / 2.0
 
 
-setattr(pamp.pulse, SawtoothPulse.__name__, SawtoothPulse)
+setattr(model.pulse, SawtoothPulse.__name__, SawtoothPulse)
