@@ -383,6 +383,7 @@ class OutputWindow(QtGui.QDialog, outwin.Ui_Dialog):
         self.proc = proc
         self.thr = thr
         self.setupUi(self)
+        self.buttonBox.buttons()[0].setDefault(True)
         self.connectSignals()
         self.setWindowTitle(meta.app_name + " output")
         width = max(self.sizeHint().width(), self.width())
