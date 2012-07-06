@@ -35,7 +35,7 @@ Implementation Features
 -----------------------
 
 * Parallel computing -- performs calculations concurrently, on multiple CPUs, where possible.
-* Cross-platform -- supports Windows, Linux, BSD, OS X, etc.
+* Cross-platform -- operates on Windows and various Unix-like systems (Linux, BSD, etc.)
 * Flexible and configurable operation -- the various computations can be selectively enabled, their input parameters adjusted, and their outputs customized.
 * Computes a wide variety of results.
 * Generates publication-quality figures.
