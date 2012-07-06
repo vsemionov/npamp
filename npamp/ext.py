@@ -43,11 +43,11 @@ import unitconv
 def compare_depop_models(dirname):
     filename = lambda name: os.path.join(dirname, name)
     
-    if not params.ext_depop_models:
-        return
-    
     print output.div_line
     print "comparing depopulation models"
+    
+    if not params.ext_depop_models:
+        return
     
     doping_agent = pamp.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = pamp.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
