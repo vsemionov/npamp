@@ -152,7 +152,7 @@ def get_decay(active_medium, pulse):
         decay = math.exp(- separation / lower_lifetime)
     return decay
 
-def most_efficient_method(active_medium, beam_profile, ref_pulse, (int_types, amp_types), quiet=False):
+def most_efficient_method((int_types, amp_types), active_medium, beam_profile, ref_pulse, quiet=False):
     if not quiet:
         print output.div_line
     if not quiet or params.verbose:
@@ -227,7 +227,7 @@ def setup_methods((int_types, amp_types), ref_inversion, ret_rel_errors=False, q
     
     ref_pulse, time_trunc_rel_error = create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref, ret_time_trunc_rel_error=True)
     
-    (int_type, amp_type), (count_rho, count_phi, count_z, count_t) = most_efficient_method(active_medium, beam_profile, ref_pulse, (int_types, amp_types), quiet)
+    (int_type, amp_type), (count_rho, count_phi, count_z, count_t) = most_efficient_method((int_types, amp_types), active_medium, beam_profile, ref_pulse, quiet)
     
     if params.verbose:
         print "int_type: %s; amp_type: %s" % (int_type.__name__, amp_type.__name__, )
