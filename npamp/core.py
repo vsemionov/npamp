@@ -25,6 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import sys
 import os
 
 import math
@@ -171,6 +172,7 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
         except size_exc_types:
             traceback.print_exc()
             print "attempting to recover"
+            sys.exc_clear()
             continue
         count_rho = max(count_rho, mangle_count_cyl(params.min_count_rho))
         count_phi = max(count_phi, mangle_count_cyl(params.min_count_phi))
@@ -187,6 +189,7 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
             except size_exc_types:
                 traceback.print_exc()
                 print "attempting to recover"
+                sys.exc_clear()
                 continue
             if data is None:
                 continue

@@ -25,6 +25,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import sys
+
 import warnings
 
 import numpy as np
@@ -75,6 +77,7 @@ class PopulationInverter(object):
                 dn = self._step(f, dt, n)
             except (ValueError, ArithmeticError):
                 if persist:
+                    sys.exc_clear()
                     return None
                 else:
                     raise
