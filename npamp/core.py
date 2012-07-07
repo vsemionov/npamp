@@ -163,6 +163,8 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
     best_method = None
     for int_type in int_types:
         int_name = int_type.__name__
+        if params.verbose:
+            print int_name
         integrator = model.integrator.DomainIntegrator(int_type, active_medium)
         try:
             count_rho, count_phi, min_count_z, min_count_t = model.error.min_integration_steps(integrator, beam_profile, (ref_pulse,), params.energy_rtol, params.fluence_rtol)
@@ -177,7 +179,7 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
         for amp_type in amp_types:
             amp_name = amp_type.__name__
             if params.verbose:
-                print "%s, %s" % (int_name, amp_name)
+                print amp_name
             test_min_count_z = max(min_count_z, amp_type.min_steps_z(active_medium))
             test_min_count_t = max(min_count_t, amp_type(active_medium, test_min_count_z).min_steps_t(ref_pulse))
             try:
