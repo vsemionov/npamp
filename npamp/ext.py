@@ -419,7 +419,7 @@ def output_pump_constraints(dirname, inversion_rdiffs, max_fluences):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
-    print "computing pumping parameters domain from constraints"
+    print "computing pumping parameters domain constraints"
     
     doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
@@ -455,7 +455,7 @@ def output_geom_constraints(dirname, inversion_rdiffs, max_fluences):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
-    print "computing geometry parameters domain from constraints"
+    print "computing geometry parameters domain constraints"
     
     count_rm = params.ext_opt_geom_resolution[0]
     count_rb = params.ext_opt_geom_resolution[1]
