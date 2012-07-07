@@ -71,7 +71,7 @@ class PulseAmplifier(object):
         shape = (self.Z.shape + self.T.shape)
         self.density = new_buffer(self.density, shape)
         self.population = self.population or (None, None)
-        self.population = tuple(new_buffer(level, shape) for level in self.population)
+        self.population = tuple(new_buffer(state, shape) for state in self.population)
     
     def _calc_output(self):
         for l in range(self.count_z):
@@ -85,7 +85,7 @@ class PulseAmplifier(object):
         self._calc_output()
         
         density_out = self.density[-1]
-        population_out = tuple(level.T[-1] for level in self.population)
+        population_out = tuple(state.T[-1] for state in self.population)
         return density_out, population_out
     
     def amplify(self, rho, phi, input_pulse, count_t):
