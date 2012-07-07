@@ -98,7 +98,7 @@ def plot_inversion(dirname, inv):
     tlim = (T[0], T[-1])
     plot.plot_data(filename("inversion_evo"), "Population Inversion Evolution", (T, None, tlim, t_pump_label), (inversion, None, None, inversion_abs_label))
 
-def plot_output(dirname, beam_profile, input_pulse, fwhm, amp, fluences, exact_density_out=None, exact_population_out=None):
+def plot_output(dirname, beam_profile, input_pulse, fwhm, amp, fluences, exact_density_out=None, exact_population_final=None):
     filename = lambda name: os.path.join(dirname, name)
     
     density = amp.density
@@ -145,11 +145,11 @@ def plot_output(dirname, beam_profile, input_pulse, fwhm, amp, fluences, exact_d
     
     if exact_density_out is not None:
         plot.plot_error(filename("density_err"), "Photon Density Relative Error", (T, None, tlim, out_t_label), ((exact_density_out, density[-1]), None, None, error_label))
-    if exact_population_out is not None:
-        plot.plot_error(filename("inversion_err"), "Population Inversion Relative Error", (Z, None, zlim, z_label), ((exact_population_out[0] - exact_population_out[1], inversion.T[-1]), None, None, error_label))
+    if exact_population_final is not None:
+        plot.plot_error(filename("inversion_err"), "Population Inversion Relative Error", (Z, None, zlim, z_label), ((exact_population_final[0] - exact_population_final[1], inversion.T[-1]), None, None, error_label))
         if amp.active_medium.doping_agent.lower_lifetime != 0.0:
-            plot.plot_error(filename("upper_err"), "Upper State Population Relative Error", (Z, None, zlim, z_label), ((exact_population_out[0], upper.T[-1]), None, None, error_label))
-            plot.plot_error(filename("lower_err"), "Lower State Population Relative Error", (Z, None, zlim, z_label), ((exact_population_out[1], lower.T[-1]), None, None, error_label))
+            plot.plot_error(filename("upper_err"), "Upper State Population Relative Error", (Z, None, zlim, z_label), ((exact_population_final[0], upper.T[-1]), None, None, error_label))
+            plot.plot_error(filename("lower_err"), "Lower State Population Relative Error", (Z, None, zlim, z_label), ((exact_population_final[1], lower.T[-1]), None, None, error_label))
     
     norm_fluences = fluences / beam_profile.ref_fluence
     plot.plot_data(filename("fluence"), "Fluence Evolution", (Z, None, zlim, z_label), (norm_fluences, None, None, fluence_rel_label))

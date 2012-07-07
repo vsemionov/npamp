@@ -271,10 +271,10 @@ def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_m
     pulse_fluences = np.empty(params.train_pulse_count)
     
     for pnum in range(params.train_pulse_count):
-        density_out, population_out = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
+        density_out, population_final = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
         
-        upper = np.copy(population_out[0])
-        lower = population_out[1] * decay
+        upper = np.copy(population_final[0])
+        lower = population_final[1] * decay
         population = (upper, lower)
         
         fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
@@ -358,10 +358,10 @@ def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, doping_age
     pulse_fluences = np.empty(params.train_pulse_count)
     
     for pnum in range(params.train_pulse_count):
-        density_out, population_out = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
+        density_out, population_final = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
         
-        upper = np.copy(population_out[0])
-        lower = population_out[1] * decay
+        upper = np.copy(population_final[0])
+        lower = population_final[1] * decay
         population = (upper, lower)
         
         fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
@@ -707,7 +707,7 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
     print "comparing lower state lifetimes"
     
     if numerics is None:
-        numerics = core.setup_methods(dirname, (int_types, amp_types), ref_inversion, quiet=True)
+        numerics = core.setup_methods((int_types, amp_types), ref_inversion, quiet=True)
     num_types, counts = numerics
     
     lower_lifetime = params.dopant_lower_lifetime
@@ -794,7 +794,7 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), num
             
             print "pumping"
             max_inversion_pump = inversions_pump[-1, -1]
-            num_types_pump, counts_pump = core.setup_methods(dirname, (int_types, amp_types), max_inversion_pump, quiet=True)
+            num_types_pump, counts_pump = core.setup_methods((int_types, amp_types), max_inversion_pump, quiet=True)
             _, _, count_z_pump, count_t_pump = counts_pump
             
             print "geometry"
@@ -805,7 +805,7 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), num
             params.medium_radius = min_medium_radius
             params.beam_radius = min_beam_radius
             max_inversion_geom = inversions_geom[0]
-            num_types_geom, counts_geom = core.setup_methods(dirname, (int_types, amp_types), max_inversion_geom, quiet=True)
+            num_types_geom, counts_geom = core.setup_methods((int_types, amp_types), max_inversion_geom, quiet=True)
             _, _, count_z_geom, count_t_geom = counts_geom
             params.medium_radius = medium_radius_orig
             params.beam_radius = beam_radius_orig

@@ -152,7 +152,7 @@ def get_decay(active_medium, pulse):
         decay = math.exp(- separation / lower_lifetime)
     return decay
 
-def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_types, amp_types, quiet=False):
+def most_efficient_method(active_medium, beam_profile, ref_pulse, (int_types, amp_types), quiet=False):
     if not quiet:
         print output.div_line
     if not quiet or params.verbose:
@@ -212,23 +212,10 @@ def most_efficient_method(dirname, active_medium, beam_profile, ref_pulse, int_t
     if best_method is None:
         raise ComputationError("no suitable method combination found")
     (int_type, amp_type), (count_rho, count_phi, count_z, count_t), results, _, _ = best_method
-    amp, exact_density_out, exact_population_out = results
-    
-    if not quiet:
-        if params.graphs:
-            integrator = model.integrator.DomainIntegrator(int_type, active_medium)
-            fluences = np.empty(amp.count_z)
-            for l in range(amp.count_z):
-                fluences[l] = integrator.integrate(amp.T, amp.density[l]) * active_medium.light_speed
-            print "generating output"
-            dirname = output.init_dir(dirname)
-            output.plot_output(dirname, beam_profile, ref_pulse, params.pulse_duration, amp, fluences, exact_density_out, exact_population_out)
     
     return (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
 
-def setup_methods(dirname, (int_types, amp_types), ref_inversion, ret_rel_errors=False, quiet=False):
-    ref_pulse_dir = os.path.join(dirname, output.ref_pulse_rel_path)
-    
+def setup_methods((int_types, amp_types), ref_inversion, ret_rel_errors=False, quiet=False):
     initial_inversion = model.inversion.UniformInversion(ref_inversion)
     
     doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
@@ -240,7 +227,7 @@ def setup_methods(dirname, (int_types, amp_types), ref_inversion, ret_rel_errors
     
     ref_pulse, time_trunc_rel_error = create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref, ret_time_trunc_rel_error=True)
     
-    (int_type, amp_type), (count_rho, count_phi, count_z, count_t) = most_efficient_method(ref_pulse_dir, active_medium, beam_profile, ref_pulse, int_types, amp_types, quiet)
+    (int_type, amp_type), (count_rho, count_phi, count_z, count_t) = most_efficient_method(active_medium, beam_profile, ref_pulse, (int_types, amp_types), quiet)
     
     if params.verbose:
         print "int_type: %s; amp_type: %s" % (int_type.__name__, amp_type.__name__, )
@@ -250,6 +237,49 @@ def setup_methods(dirname, (int_types, amp_types), ref_inversion, ret_rel_errors
     numerics = (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
     rel_errors = (time_trunc_rel_error,)
     return (numerics, rel_errors) if ret_rel_errors else numerics
+
+def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
+    print output.div_line
+    print "amplifying ref. pulse"
+    
+    dirname = os.path.join(dirname, output.ref_pulse_rel_path)
+    
+    (int_type, amp_type), (_, _, count_z, count_t) = num_types, counts
+    
+    initial_inversion = model.inversion.UniformInversion(ref_inversion)
+    
+    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    active_medium = model.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    
+    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
+    ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
+    beam_profile = params.beam_class(params.beam_radius, ref_fluence)
+    
+    ref_pulse = create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
+    
+    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
+    amp = amp_type(active_medium, count_z)
+    
+    num_density_out, _ = amp.amplify(0.0, 0.0, ref_pulse, count_t)
+    
+    if active_medium.doping_agent.lower_lifetime in model.amplifier.ExactAmplifier.analytical_lower_lifetimes:
+        exact = model.amplifier.ExactOutputAmplifier(active_medium, count_z)
+        exact_density_out, exact_population_out = exact.amplify(0.0, 0.0, ref_pulse, count_t)
+    else:
+        exact_density_out, exact_population_out = None, None
+    
+    fluence_out = integrator.integrate(amp.T, num_density_out) * active_medium.light_speed
+    fluence_gain = fluence_out / ref_fluence
+    unitconv.print_result("fluence gain: {}", (), (fluence_gain,))
+    
+    if params.graphs:
+        integrator = model.integrator.DomainIntegrator(int_type, active_medium)
+        fluences = np.empty(amp.count_z)
+        for l in range(amp.count_z):
+            fluences[l] = integrator.integrate(amp.T, amp.density[l]) * active_medium.light_speed
+        print "generating output"
+        dirname = output.init_dir(dirname)
+        output.plot_output(dirname, beam_profile, ref_pulse, params.pulse_duration, amp, fluences, exact_density_out, exact_population_out)
 
 def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     if not quiet:
@@ -301,10 +331,10 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
         for m, rho in enumerate(Rho):
             for n, phi in enumerate(Phi):
                 pulse = pulses[m][n]
-                density_out, population_out = amp.amplify(rho, phi, pulse, count_t, initial_population=population[m][n])
+                density_out, population_final = amp.amplify(rho, phi, pulse, count_t, initial_population=population[m][n])
                 
-                upper = np.copy(population_out[0])
-                lower = population_out[1] * decay
+                upper = np.copy(population_final[0])
+                lower = population_final[1] * decay
                 population[m][n] = (upper, lower)
                 
                 fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed

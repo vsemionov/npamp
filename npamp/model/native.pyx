@@ -61,7 +61,7 @@ def _hybrid_amplifier_calc_output(self):
     cdef int have_initial_population = self.initial_population is not None
     cdef np.ndarray[DTYPE_t, ndim=1] initial_upper = self.initial_population[0] if have_initial_population else None
     cdef np.ndarray[DTYPE_t, ndim=1] initial_lower = self.initial_population[1] if have_initial_population else None
-    cdef np.ndarray[DTYPE_t, ndim=1] initial_density = self.initial_density
+    cdef np.ndarray[DTYPE_t, ndim=1] input_density = self.input_density
     
     cdef unsigned int count_z = self.count_z
     cdef unsigned int count_t = self.count_t
@@ -114,8 +114,8 @@ def _hybrid_amplifier_calc_output(self):
                     _phi = density[l-1, k]
                     density[l, k] = _phi * (1.0 + density_coef * _n) / (1.0 - density_coef * _nn)
                 else:
-                    if initial_density is not None:
-                        density[0, k] = initial_density[k]
+                    if input_density is not None:
+                        density[0, k] = input_density[k]
                     else:
                         with gil:
                             density[0, k] = input_pulse.density(T[k])
@@ -142,7 +142,7 @@ def _nsfd_amplifier_calc_output(self):
     cdef int have_initial_population = self.initial_population is not None
     cdef np.ndarray[DTYPE_t, ndim=1] initial_upper = self.initial_population[0] if have_initial_population else None
     cdef np.ndarray[DTYPE_t, ndim=1] initial_lower = self.initial_population[1] if have_initial_population else None
-    cdef np.ndarray[DTYPE_t, ndim=1] initial_density = self.initial_density
+    cdef np.ndarray[DTYPE_t, ndim=1] input_density = self.input_density
     
     cdef unsigned int count_z = self.count_z
     cdef unsigned int count_t = self.count_t
@@ -210,8 +210,8 @@ def _nsfd_amplifier_calc_output(self):
                     _phi = density[l-1, k]
                     density[l, k] = _phi * libc.math.exp(density_coef * _n)
                 else:
-                    if initial_density is not None:
-                        density[0, k] = initial_density[k]
+                    if input_density is not None:
+                        density[0, k] = input_density[k]
                     else:
                         with gil:
                             density[0, k] = input_pulse.density(T[k])

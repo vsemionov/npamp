@@ -85,8 +85,8 @@ class PulseAmplifier(object):
         self._calc_output()
         
         density_out = self.density[-1]
-        population_out = tuple(state.T[-1] for state in self.population)
-        return density_out, population_out
+        population_final = tuple(state.T[-1] for state in self.population)
+        return density_out, population_final
     
     def amplify(self, rho, phi, input_pulse, count_t):
         self.rho = rho
@@ -103,6 +103,8 @@ class PulseAmplifier(object):
         return data_out
 
 class ExactAmplifier(PulseAmplifier):
+    
+    analytical_lower_lifetimes = [0.0, float("inf")]
     
     def __init__(self, *args, **kwargs):
         super(ExactAmplifier, self).__init__(*args, **kwargs)
@@ -158,19 +160,19 @@ class ExactAmplifier(PulseAmplifier):
         xsection = active_medium.doping_agent.xsection
         inversion_integral = active_medium.initial_inversion.inversion_integral(self.rho, self.phi, z)
         density_integral = input_pulse.density_integral(t)
-        initial_density = input_pulse.density(t)
+        input_density = input_pulse.density(t)
         inversion_coef = 2.0 if not self.four_level else 1.0
         density_exp = math.exp(- inversion_coef * xsection * light_speed * density_integral)
-        density = initial_density / (1.0 - (1.0 - math.exp(- xsection * inversion_integral)) * density_exp)
+        density = input_density / (1.0 - (1.0 - math.exp(- xsection * inversion_integral)) * density_exp)
         return density
 
 class ExactOutputAmplifier(ExactAmplifier):
     
     def amplify_data(self):
         density_out = np.vectorize(self.exact_density)(self.Z[-1], self.T)
-        population_out = np.vectorize(self.exact_population)(self.Z, self.T[-1])
+        population_final = np.vectorize(self.exact_population)(self.Z, self.T[-1])
         
-        return density_out, population_out
+        return density_out, population_final
 
 class NumericalAmplifier(PulseAmplifier):
     
@@ -178,7 +180,7 @@ class NumericalAmplifier(PulseAmplifier):
         super(NumericalAmplifier, self).__init__(active_medium, count_z)
         
         self.initial_population = None
-        self.initial_density = None
+        self.input_density = None
     
     @staticmethod
     def _min_steps(total_size, max_step_size):
@@ -194,12 +196,12 @@ class NumericalAmplifier(PulseAmplifier):
     def _calc_output(self):
         raise NotImplementedError()
     
-    def amplify(self, rho, phi, input_pulse, count_t, initial_population=None, initial_density=None):
+    def amplify(self, rho, phi, input_pulse, count_t, initial_population=None, input_density=None):
         assert initial_population is None or (len(initial_population) == 2 and [pop.shape == (self.count_z,) for pop in initial_population] == [True] * 2)
-        assert initial_density is None or initial_density.shape == (count_t,)
+        assert input_density is None or input_density.shape == (count_t,)
         
         self.initial_population = initial_population
-        self.initial_density = initial_density
+        self.input_density = input_density
         
         return super(NumericalAmplifier, self).amplify(rho, phi, input_pulse, count_t)
 

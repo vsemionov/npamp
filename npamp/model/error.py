@@ -236,9 +236,11 @@ def min_integration_steps(integrator, beam_profile, single_pulses, energy_rtol, 
     return steps_rho, steps_phi, steps_z, steps_t
 
 def min_amplification_steps(amp_type, active_medium, pulse, decay, (min_count_z, min_count_t), integrator, fluence_rtol, amp_rtol, ret_extra=False):
-    def get_rel_error((num_density_out, num_population_out, num_T, num_Z), (exact_density_out, exact_population_out, exact_T, exact_Z), active_medium):
-        num_inversion = num_population_out[0] - num_population_out[1] * decay
-        exact_inversion = exact_population_out[0] - exact_population_out[1] * decay
+    def compute_rdiff((num_Z, num_T, num_density_out, num_population_final), (exact_Z, exact_T, exact_density_out, exact_population_final)):
+        num_upper_final, num_lower_final = num_population_final
+        exact_upper_final, exact_lower_final = exact_population_final
+        num_inversion = num_upper_final - num_lower_final * decay
+        exact_inversion = exact_upper_final - exact_lower_final * decay
         num_density_integral = integrator.integrate(num_T, num_density_out)
         exact_density_integral = integrator.integrate(exact_T, exact_density_out)
         rel_error_density = abs((num_density_integral - exact_density_integral) / exact_density_integral)
@@ -249,44 +251,25 @@ def min_amplification_steps(amp_type, active_medium, pulse, decay, (min_count_z,
         rel_error_inversion = math.exp(active_medium.doping_agent.xsection * inversion_abs_error) - 1.0
         rel_error = rel_error_density + rel_error_inversion
         return rel_error
-    def get_rel_error_amp(num_amp, exact_amp):
-        assert num_amp.active_medium is exact_amp.active_medium
-        num_density_out = num_amp.density[-1]
-        num_population_out = (num_amp.population[0].T[-1], num_amp.population[1].T[-1])
-        num_T = num_amp.T
-        num_Z = num_amp.Z
-        exact_density_out = exact_amp.density[-1]
-        exact_population_out = (exact_amp.population[0].T[-1], exact_amp.population[1].T[-1])
-        exact_T = exact_amp.T
-        exact_Z = exact_amp.Z
-        active_medium = num_amp.active_medium
-        rel_error = get_rel_error((num_density_out, num_population_out, num_T, num_Z), (exact_density_out, exact_population_out, exact_T, exact_Z), active_medium)
-        return rel_error
     def amplify_pulse(count_z, count_t):
         rel_error = 0.0
-        analytical_lower_lifetimes = [float("inf"), 0.0]
-        for lower_lifetime in analytical_lower_lifetimes:
+        for lower_lifetime in amplifier.ExactAmplifier.analytical_lower_lifetimes:
             test_active_medium = copy.deepcopy(active_medium)
             test_active_medium.doping_agent.lower_lifetime = lower_lifetime
             amp = amp_type(test_active_medium, count_z)
-            num_density_out, num_population_out = amp.amplify(0.0, 0.0, pulse, count_t)
+            num_density_out, num_population_final = amp.amplify(0.0, 0.0, pulse, count_t)
             exact = amplifier.ExactOutputAmplifier(test_active_medium, count_z)
-            exact_density_out, exact_population_out = exact.amplify(0.0, 0.0, pulse, count_t)
-            test_rel_error = get_rel_error((num_density_out, num_population_out, amp.T, amp.Z), (exact_density_out, exact_population_out, exact.T, exact.Z), test_active_medium)
+            exact_density_out, exact_population_final = exact.amplify(0.0, 0.0, pulse, count_t)
+            test_rel_error = compute_rdiff((amp.Z, amp.T, num_density_out, num_population_final), (exact.Z, exact.T, exact_density_out, exact_population_final))
             rel_error = max(test_rel_error, rel_error)
+        del amp, exact, num_density_out, num_population_final, exact_density_out, exact_population_final
         amp = amp_type(active_medium, count_z)
-        amp.amplify(0.0, 0.0, pulse, count_t)
-        if active_medium.doping_agent.lower_lifetime in analytical_lower_lifetimes:
-            exact = amplifier.ExactOutputAmplifier(active_medium, count_z)
-            exact_density_out, exact_population_out = exact.amplify(0.0, 0.0, pulse, count_t)
-        else:
-            exact_density_out, exact_population_out = None, None
-        results = (amp, exact_density_out, exact_population_out)
+        num_density_out, num_population_final = amp.amplify(0.0, 0.0, pulse, count_t)
+        results = amp.Z, amp.T, np.copy(num_density_out), tuple(np.copy(state) for state in num_population_final)
         return results, rel_error
     
     min_count_z = max(min_count_z, 3)
     min_count_t = max(min_count_t, 3)
-    compute_rdiff = lambda last_res, res: get_rel_error_amp(last_res[0], res[0])
     data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_pulse, compute_rdiff, ret_extra)
     
     return data
