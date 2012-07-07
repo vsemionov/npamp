@@ -131,6 +131,7 @@ def plot_data(basename, title, (X, xscale, xlim, xlabel), (Y, yscale, ylim, ylab
     if callback is not None:
         callback()
     plt.savefig(basename + '.' + params.output_file_format)
+    plt.clf()
 
 def plot_projection(basename, title, (XY, xlim, xlabel), (YX, ylim, ylabel), (Z, zlim, zlabel), (elev, azim), (stride_x, stride_y)):
     if params.output_data:
@@ -160,6 +161,7 @@ def plot_projection(basename, title, (XY, xlim, xlabel), (YX, ylim, ylabel), (Z,
         zlim = [t * uzscale for t in zlim]
         ax.set_zlim(zlim)
     plt.savefig(basename + '.' + params.output_file_format)
+    plt.clf()
 
 def plot_error(basename, title, (X, xscale, xlim, xlabel), ((exact, approx), yscale, ylim, ylabel), **kwargs):
     error = np.fabs((exact - approx) / exact)
@@ -239,6 +241,7 @@ def plot_color(basename, title, (X, xscale, xlim, xlabel), (Y, yscale, ylim, yla
     if callback is not None:
         callback()
     plt.savefig(basename + '.' + params.output_file_format)
+    plt.clf()
 
 def plot_contour(basename, title, (X, xscale, xlim, xlabel), (Y, yscale, ylim, ylabel), contours, grid="both", xvals=None, yvals=None, callback=None):
     uxscale, uyscale = unitconv.output_scale(xlabel), unitconv.output_scale(ylabel)
@@ -280,3 +283,4 @@ def plot_contour(basename, title, (X, xscale, xlim, xlabel), (Y, yscale, ylim, y
     if callback is not None:
         callback()
     plt.savefig(basename + '.' + params.output_file_format)
+    plt.clf()
