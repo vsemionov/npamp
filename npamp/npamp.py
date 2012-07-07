@@ -215,8 +215,6 @@ def main():
     
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 1)
-    
     extensions = load_extensions()
     process(extensions)
 
