@@ -281,4 +281,32 @@ Victor Semionov <vsemionov@gmail.com>
 Examples
 ========
 
-Example graphs.
+
+ASE
+---
+
+See examples/ase.npc in the installation directory.
+
+
+Gain Saturation
+---------------
+
+See examples/gain_saturation.npc in the installation directory.
+
+
+Lower State Lifetime
+--------------------
+
+See examples/lower_state_lifetime.npc in the installation directory.
+
+
+Optimization
+------------
+
+See examples/optimization.npc in the installation directory.
+
+
+Pulse Train
+-----------
+
+See examples/pulse_train.npc in the installation directory.
