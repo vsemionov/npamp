@@ -478,7 +478,7 @@ def output_geom_constraints(dirname, inversion_rdiffs, max_fluences):
         print "generating output"
         dirname = os.path.join(dirname, output.opt_geom_rel_path)
         dirname = output.init_dir(dirname)
-        plot.plot_contour(filename("constraints"), "Geometry Parameter Domain Constraints", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), contours, xvals=xvals)
+        plot.plot_contour(filename("constraints"), "Geometry Parameters Domain Constraints", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), contours, xvals=xvals)
     
     return (contours, xvals, None), (contour_comps, xval_comps, None)
 
