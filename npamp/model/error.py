@@ -258,11 +258,14 @@ def min_amplification_steps(amp_type, active_medium, pulse, decay, (min_count_z,
             test_active_medium.doping_agent.lower_lifetime = lower_lifetime
             amp = amp_type(test_active_medium, count_z)
             num_density_out, num_population_final = amp.amplify(0.0, 0.0, pulse, count_t)
+            num_Z, num_T, num_density_out, num_population_final = amp.Z, amp.T, np.copy(num_density_out), tuple(np.copy(state) for state in num_population_final)
+            del amp
             exact = amplifier.ExactOutputAmplifier(test_active_medium, count_z)
             exact_density_out, exact_population_final = exact.amplify(0.0, 0.0, pulse, count_t)
-            test_rel_error = compute_rdiff((amp.Z, amp.T, num_density_out, num_population_final), (exact.Z, exact.T, exact_density_out, exact_population_final))
+            test_rel_error = compute_rdiff((num_Z, num_T, num_density_out, num_population_final), (exact.Z, exact.T, exact_density_out, exact_population_final))
+            del exact
+            del num_density_out, num_population_final, exact_density_out, exact_population_final
             rel_error = max(test_rel_error, rel_error)
-        del amp, exact, num_density_out, num_population_final, exact_density_out, exact_population_final
         amp = amp_type(active_medium, count_z)
         num_density_out, num_population_final = amp.amplify(0.0, 0.0, pulse, count_t)
         results = amp.Z, amp.T, np.copy(num_density_out), tuple(np.copy(state) for state in num_population_final)
