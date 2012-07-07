@@ -128,8 +128,8 @@ def plot_output(dirname, beam_profile, input_pulse, fwhm, amp, fluences, exact_d
     
     plot.plot_data(filename("density_in"), "Input Photon Density", (T, None, tlim, out_t_label), (density[0]/ref_density, None, None, density_rel_label))
     plot.plot_data(filename("density_out"), "Output Photon Density", (T, None, tlim, out_t_label), (density[-1]/ref_density, None, None, density_rel_label))
-    plot.plot_data(filename("densities"), "Input and Output Photon Densities", ((T, ) * 2, None, tlim, out_t_label), ((density[0]/ref_density, density[-1]/ref_density), None, None, density_rel_label), ("input pulse", "output pulse"))
-    plot.plot_data(filename("densities_norm"), "Normalized Input and Output Photon Densities", ((T, ) * 2, None, tlim, out_t_label), ((density[0]/ref_density, density[-1]/np.amax(density[-1])), None, None, density_norm_rel_label), ("input pulse", "output pulse"))
+    plot.plot_data(filename("densities"), "Input and Output Photon Density", ((T, ) * 2, None, tlim, out_t_label), ((density[0]/ref_density, density[-1]/ref_density), None, None, density_rel_label), ("input pulse", "output pulse"))
+    plot.plot_data(filename("densities_norm"), "Normalized Input and Output Photon Density", ((T, ) * 2, None, tlim, out_t_label), ((density[0]/ref_density, density[-1]/np.amax(density[-1])), None, None, density_norm_rel_label), ("input pulse", "output pulse"))
     
     plot.plot_data(filename("upper_init"), "Initial Upper State Population", (Z, None, zlim, z_label), (upper.T[0]/ref_inversion, None, None, upper_rel_label))
     plot.plot_data(filename("upper_final"), "Final Upper State Population", (Z, None, zlim, z_label), (upper.T[-1]/ref_inversion, None, None, upper_rel_label))
@@ -152,7 +152,7 @@ def plot_output(dirname, beam_profile, input_pulse, fwhm, amp, fluences, exact_d
             plot.plot_error(filename("lower_err"), "Lower State Population Relative Error", (Z, None, zlim, z_label), ((exact_population_out[1], lower.T[-1]), None, None, error_label))
     
     norm_fluences = fluences / beam_profile.ref_fluence
-    plot.plot_data(filename("fluence"), "Pulse Fluence", (Z, None, zlim, z_label), (norm_fluences, None, None, fluence_rel_label))
+    plot.plot_data(filename("fluence"), "Fluence Evolution", (Z, None, zlim, z_label), (norm_fluences, None, None, fluence_rel_label))
 
 def plot_train(dirname, beam_profile, active_medium, output_photon_counts):
     filename = lambda name: os.path.join(dirname, name)
@@ -178,16 +178,16 @@ def plot_beam(dirname, beam_profile, Rho, Phi, ref_output_fluence):
     scale = np.amax(norm_output_fluence)
     stride_rho = max(len(Rho) // params.out_rho_steps_divisor, 1)
     stride_phi = max(len(Phi) // params.out_phi_steps_divisor, 1)
-    plot.plot_projection(filename("fluence_in"), "Input Pulse Fluence", (XY, None, x_label), (YX, None, y_label), (norm_input_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
-    plot.plot_projection(filename("fluence_out"), "Output Pulse Fluence", (XY, None, x_label), (YX, None, y_label), (norm_output_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
+    plot.plot_projection(filename("fluence_in"), "Input Fluence", (XY, None, x_label), (YX, None, y_label), (norm_input_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
+    plot.plot_projection(filename("fluence_out"), "Output Fluence", (XY, None, x_label), (YX, None, y_label), (norm_output_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
     
     n_ref = -1
     for n, phi in enumerate(Phi):
         if n_ref < 0 or abs(phi - beam_profile.phi_ref) < abs(Phi[n_ref] - beam_profile.phi_ref):
             n_ref = n
     rholim = (Rho[0], Rho[-1])
-    plot.plot_data(filename("fluences"), "Input and Output Pulse Fluences", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref]), None, None, fluence_rel_label), ("input beam", "output beam"))
-    plot.plot_data(filename("fluences_norm"), "Normalized Input and Output Pulse Fluences", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref] / scale), None, None, fluence_norm_rel_label), ("input beam", "output beam"))
+    plot.plot_data(filename("fluences"), "Input and Output Fluence", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref]), None, None, fluence_rel_label), ("input beam", "output beam"))
+    plot.plot_data(filename("fluences_norm"), "Normalized Input and Output Fluence", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref] / scale), None, None, fluence_norm_rel_label), ("input beam", "output beam"))
 
 
 def show_status((i, j), (si, sj), done):
