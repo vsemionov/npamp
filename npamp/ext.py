@@ -41,12 +41,12 @@ import unitconv
 
 
 def set_geom(rm, rb):
-    old_geom = params.medium_radius, params.medium_length
+    old_geom = params.medium_radius, params.beam_radius
     try:
-        params.medium_radius, params.medium_length = rm, rb
+        params.medium_radius, params.beam_radius = rm, rb
         return old_geom
     except:
-        params.medium_radius, params.medium_length = old_geom
+        params.medium_radius, params.beam_radius = old_geom
         raise
 
 def compare_depop_models(dirname):
