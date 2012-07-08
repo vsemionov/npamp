@@ -527,8 +527,8 @@ def optimize_output(domain, outputs, limits, comparisons, price):
 
 def compute_energy_pump_dependence_task((i, j), (tau, pwr), inversion, num_types, counts):
     output.show_status((i, j), params.extended_status_strides, False)
-    _, _, output_energy, rel_gain_reduction = core.amplify_train(None, num_types, counts, inversion, quiet=True)
-    return output_energy, rel_gain_reduction
+    _, _, output_energy, rel_gain_decrease = core.amplify_train(None, num_types, counts, inversion, quiet=True)
+    return output_energy, rel_gain_decrease
 
 def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions, constraints, num_types, counts):
     filename = lambda name: os.path.join(dirname, name)
@@ -553,7 +553,7 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
     Tau = np.linspace(params.ext_opt_pump_duration[0], params.ext_opt_pump_duration[1], count_tau)
     Pwr = np.linspace(params.ext_opt_pump_power[0], params.ext_opt_pump_power[1], count_pwr)
     
-    output_energies, rel_gain_reductions = task_pool.parallel_task(compute_energy_pump_dependence_task, (Tau, Pwr), (inversions,), (num_types, counts))
+    output_energies, rel_gain_decreases = task_pool.parallel_task(compute_energy_pump_dependence_task, (Tau, Pwr), (inversions,), (num_types, counts))
     
     output.show_status((count_tau, count_pwr), params.extended_status_strides, True)
     
@@ -589,10 +589,10 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
     unitconv.print_result("max opt-opt efficiency [{}]: {}", ("%",), (total_effs[optimum] if optimum else None,))
     unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), total_eff_optimum_params)
     
-    optimum = optimize_output((Tau, Pwr), -rel_gain_reductions, limits, comparisons, price)
-    rel_gain_reduction_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("min rel gain reduction [{}]: {}", ("%",), (rel_gain_reductions[optimum] if optimum else None,))
-    unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), rel_gain_reduction_optimum_params)
+    optimum = optimize_output((Tau, Pwr), -rel_gain_decreases, limits, comparisons, price)
+    rel_gain_decrease_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
+    unitconv.print_result("min rel gain decrease [{}]: {}", ("%",), (rel_gain_decreases[optimum] if optimum else None,))
+    unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), rel_gain_decrease_optimum_params)
     
     if params.graphs:
         print "generating output"
@@ -609,7 +609,7 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
             plot.plot_color(filename("efficiency_extr"), "Extraction Efficiency", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (extraction_effs.T, None, output.extraction_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
             plot.plot_color(filename("efficiency_opt2"), "Optical to Optical Efficiency", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (total_effs.T, None, output.total_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
             if params.train_pulse_count > 1:
-                plot.plot_color(filename("gain_reduction"), "Gain Reduction", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (rel_gain_reductions.T, None, output.rel_gain_reduction_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+                plot.plot_color(filename("gain_decrease"), "Gain decrease", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (rel_gain_decreases.T, None, output.rel_gain_decrease_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
 
 def compute_energy_geom_dependence_task((i, j), (rm, rb), inversion, doping_agent, pulse_photon_count, num_types, counts):
     output.show_status((i, j), params.extended_status_strides, False)
@@ -625,10 +625,10 @@ def compute_energy_geom_dependence_task((i, j), (rm, rb), inversion, doping_agen
     input_photon_count = beam_profile.fluence_integral(active_medium.radius)
     input_energy = model.energy.energy(params.lasing_wavelen, input_photon_count)
     input_energy *= params.train_pulse_count
-    _, _, output_energy, rel_gain_reduction = core.amplify_train(None, num_types, counts, ref_inversion, quiet=True)
+    _, _, output_energy, rel_gain_decrease = core.amplify_train(None, num_types, counts, ref_inversion, quiet=True)
     params.medium_radius = medium_radius_orig
     params.beam_radius = beam_radius_orig
-    return stored_energy, input_energy, output_energy, rel_gain_reduction
+    return stored_energy, input_energy, output_energy, rel_gain_decrease
 
 def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions, constraints, num_types, counts):
     filename = lambda name: os.path.join(dirname, name)
@@ -649,7 +649,7 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
     Rb = np.linspace(min_beam_radius, params.ext_opt_geom_beamradius[1], count_rb)
     
     inversions2d = np.meshgrid(inversions, Rb)[0].T
-    stored_energies, input_energies, output_energies, rel_gain_reductions = task_pool.parallel_task(compute_energy_geom_dependence_task, (Rm, Rb), (inversions2d,), (doping_agent, pulse_photon_count, num_types, counts))
+    stored_energies, input_energies, output_energies, rel_gain_decreases = task_pool.parallel_task(compute_energy_geom_dependence_task, (Rm, Rb), (inversions2d,), (doping_agent, pulse_photon_count, num_types, counts))
     
     output.show_status((count_rm, count_rb), params.extended_status_strides, True)
     
@@ -682,10 +682,10 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
     unitconv.print_result("max opt-opt efficiency [{}]: {}", ("%",), (total_effs[optimum] if optimum else None,))
     unitconv.print_result("optimum geometry parameters (medium diameter [{}], beam diameter [{}]): ({}, {})", ("mm", "mm"), total_eff_optimum_params)
     
-    optimum = optimize_output((Rm, Rb), -rel_gain_reductions, limits, comparisons, price)
-    rel_gain_reduction_optimum_params = (Rm[optimum[0]], Rb[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("min rel gain reduction [{}]: {}", ("%",), (rel_gain_reductions[optimum] if optimum else None,))
-    unitconv.print_result("optimum geometry parameters (medium diameter [{}], beam diameter [{}]): ({}, {})", ("mm", "mm"), rel_gain_reduction_optimum_params)
+    optimum = optimize_output((Rm, Rb), -rel_gain_decreases, limits, comparisons, price)
+    rel_gain_decrease_optimum_params = (Rm[optimum[0]], Rb[optimum[1]]) if optimum else (None, None)
+    unitconv.print_result("min rel gain decrease [{}]: {}", ("%",), (rel_gain_decreases[optimum] if optimum else None,))
+    unitconv.print_result("optimum geometry parameters (medium diameter [{}], beam diameter [{}]): ({}, {})", ("mm", "mm"), rel_gain_decrease_optimum_params)
     
     if params.graphs:
         print "generating output"
@@ -698,7 +698,7 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
         plot.plot_color(filename("efficiency_extr"), "Extraction Efficiency", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (extraction_effs.T, None, output.extraction_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
         plot.plot_color(filename("efficiency_opt2"), "Optical to Optical Efficiency", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (total_effs.T, None, output.total_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
         if params.train_pulse_count > 1:
-            plot.plot_color(filename("gain_reduction"), "Gain Reduction", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (rel_gain_reductions.T, None, output.rel_gain_reduction_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+            plot.plot_color(filename("gain_decrease"), "Gain decrease", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (rel_gain_decreases.T, None, output.rel_gain_decrease_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
 
 def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), numerics):
     filename = lambda name: os.path.join(dirname, name)

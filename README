@@ -135,7 +135,7 @@ The most important results, currently computed in basic mode, are:
   - extraction efficiency
   - optical to optical efficiency
   - maximum output fluence
-  - relative gain reduction (the difference between the gain of the first and last pulses, divided by the gain of the first pulse)
+  - relative gain decrease (the difference between the gain of the first and last pulses, divided by the gain of the first pulse)
 
  + graphical results:
 
@@ -184,7 +184,7 @@ The following computations are currently performed in extended mode:
 
  + minimized output characteristics:
 
-  - relative gain reduction
+  - relative gain decrease
 
  + imposed restrictions:
 

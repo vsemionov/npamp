@@ -355,7 +355,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     max_output_fluence = model.energy.energy(params.lasing_wavelen, max_output_fluence)
     train_output_photon_count = output_photon_counts[::-1].sum()
     train_output_energy = model.energy.energy(params.lasing_wavelen, train_output_photon_count)
-    rel_gain_reduction = 1.0 - output_photon_counts[-1] / output_photon_counts[0]
+    rel_gain_decrease = 1.0 - output_photon_counts[-1] / output_photon_counts[0]
     if not quiet:
         if params.graphs:
             print "generating output"
@@ -365,7 +365,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
             output.plot_beam(ref_pulse_dir, beam_profile, Rho, Phi, ref_output_fluence)
             output.plot_train(dirname, beam_profile, active_medium, output_photon_counts)
     
-    return max_output_fluence, output_photon_counts, train_output_energy, rel_gain_reduction
+    return max_output_fluence, output_photon_counts, train_output_energy, rel_gain_decrease
 
 def validate():
     def validate_param_bounds(name, value):
@@ -459,7 +459,7 @@ def validate():
     
     train_duration = params.train_pulse_period * (params.train_pulse_count - 1) + params.pulse_duration
     if not train_duration <= params.dopant_upper_lifetime / 10.0:
-        warnings.warn("approximation validity condition violated: pulse train duration is not much shorter than upper state (fluorescence) lifetime", stacklevel=2)
+        warnings.warn("approximation validity condition violated: signal duration is not much shorter than upper state (fluorescence) lifetime", stacklevel=2)
 
 def compute_energy_rel_error(ref_inversion, ref_inversion_rel_error, rel_errors):
     (time_trunc_rel_error,) = rel_errors
@@ -468,7 +468,7 @@ def compute_energy_rel_error(ref_inversion, ref_inversion_rel_error, rel_errors)
     energy_rel_error = rel_error_inversion + rel_error_energy
     return energy_rel_error
 
-def report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_reduction, inversion_rel_error, energy_rel_error):
+def report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, inversion_rel_error, energy_rel_error):
     print output.div_line
     print "results:"
     
@@ -502,9 +502,9 @@ def report_output_characteristics(ref_inversion, max_output_fluence, output_phot
     
     photon_count_first, photon_count_last = output_photon_counts[0], output_photon_counts[-1]
     photon_count_first_abs_error, photon_count_last_abs_error = photon_count_first * energy_rel_error, photon_count_last * energy_rel_error
-    rel_gain_reduction_abs_error = 0.0
+    rel_gain_decrease_abs_error = 0.0
     if params.train_pulse_count > 1:
-        rel_gain_reduction_abs_error = (photon_count_last + photon_count_last_abs_error) / max(photon_count_first - photon_count_first_abs_error, 0.0) - photon_count_last / photon_count_first
+        rel_gain_decrease_abs_error = (photon_count_last + photon_count_last_abs_error) / max(photon_count_first - photon_count_first_abs_error, 0.0) - photon_count_last / photon_count_first
     
     unitconv.print_result("input energy [{}]: {}", ("mJ",), (input_energy,))
     unitconv.print_result("output energy [{}]: {} ~ {}", ("mJ",), (output_energy, output_energy_abs_error))
@@ -512,4 +512,4 @@ def report_output_characteristics(ref_inversion, max_output_fluence, output_phot
     unitconv.print_result("extraction efficiency [{}]: {} ~ {}", ("%",), (extraction_eff, extraction_eff_abs_error))
     unitconv.print_result("opt-opt efficiency [{}]: {} ~ {}", ("%",), (total_eff, total_eff_abs_error))
     unitconv.print_result("max output fluence [{}]: {} ~ {}", ("J/cm^2",), (max_output_fluence, max_output_fluence_abs_error))
-    unitconv.print_result("rel gain reduction [{}]: {} ~ {}", ("%",), (rel_gain_reduction, rel_gain_reduction_abs_error))
+    unitconv.print_result("rel gain decrease [{}]: {} ~ {}", ("%",), (rel_gain_decrease, rel_gain_decrease_abs_error))
