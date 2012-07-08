@@ -441,18 +441,18 @@ def validate():
     input_beam = create_beam()
     ref_pulse = create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref)
     
-    if not (params.train_pulse_period >= ref_pulse.duration or params.train_pulse_count == 1):
-        raise ConfigurationError("invalid parameters: pulse repetition period is less than (extended) pulse duration")
-    
-    if not params.pump_wavelen < params.lasing_wavelen:
+    if not (params.pump_wavelen < params.lasing_wavelen or params.initial_inversion):
         warnings.warn("pump wavelength is not less than lasing wavelength", stacklevel=2)
     
-    if not params.dopant_lower_lifetime <= params.dopant_upper_lifetime / 10.0:
+    if not (params.dopant_lower_lifetime <= params.dopant_upper_lifetime / 10.0 or params.initial_inversion):
         warnings.warn("approximation validity condition violated: lower state lifetime is not much shorter than upper state (fluorescence) lifetime", stacklevel=2)
     
-    train_duration = params.train_pulse_period * (params.train_pulse_count - 1) + params.pulse_duration
-    if not train_duration <= params.dopant_upper_lifetime / 10.0:
+    train_duration = params.pulse_duration + (params.train_pulse_count - 1) * params.train_pulse_period
+    if not (train_duration <= params.dopant_upper_lifetime / 10.0 or not params.amplification):
         warnings.warn("approximation validity condition violated: signal duration is not much shorter than upper state (fluorescence) lifetime", stacklevel=2)
+    
+    if not (params.train_pulse_period >= ref_pulse.duration or params.train_pulse_count == 1 or not params.amplification):
+        raise ConfigurationError("invalid parameters: pulse repetition period is less than (extended) pulse duration")
 
 def report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, inversion_rel_error, rel_errors):
     print output.div_line
