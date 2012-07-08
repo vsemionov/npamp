@@ -161,7 +161,7 @@ def run(conf_path, output_path, definitions):
         
         numerics = None
         if params.amplification:
-            numerics, rel_errors = core.setup_methods((int_types, amp_types), ref_inversion, ret_rel_errors=True)
+            numerics, rel_errors = core.select_methods((int_types, amp_types), ref_inversion, ret_rel_errors=True)
             num_types, counts = numerics
             core.amplify_ref_pulse(dirname, num_types, counts, ref_inversion)
             max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease = core.amplify_train(dirname, num_types, counts, ref_inversion)

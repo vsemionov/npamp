@@ -129,7 +129,7 @@ def compute_inversion(dirname):
         if rate_rel_stddev > 10.0e-2:
             warnings.warn("uniform ASE-induced depopulation rate approximation is invalid", stacklevel=2)
     
-    if issubclass(inv.depop_model, model.depop.NumericalDepopulationModel):
+    if isinstance(inv.depop_model, model.depop.NumericalDepopulationModel):
         print "perturbing population inversion"
         perturb_depop_model = model.depop.PerturbedDepopulationModel(inv.depop_model)
         perturb_inv = params.inverter_class(active_medium, pump_system, perturb_depop_model)
