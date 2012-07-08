@@ -277,6 +277,11 @@ def min_amplification_steps(amp_type, active_medium, ref_pulse, decay, (min_coun
     
     return data
 
+def perturbed_inversion_rel_error(ref_inversion, perturb_ref_inversion, inversion_rtol):
+    abs_error = abs(perturb_ref_inversion - ref_inversion) + (ref_inversion + perturb_ref_inversion) * inversion_rtol
+    rel_error = abs_error / ref_inversion
+    return rel_error
+
 def energy_rel_error(active_medium, ref_inversion_rel_error, (time_trunc_rel_error, amp_rtol, energy_rtol)):
     rel_error_inversion = math.exp(active_medium.doping_agent.xsection * ref_inversion_rel_error * active_medium.initial_inversion.ref_inversion * active_medium.length) - 1.0
     rel_error_energy = time_trunc_rel_error + amp_rtol + energy_rtol

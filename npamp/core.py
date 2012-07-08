@@ -123,19 +123,18 @@ def compute_inversion(dirname):
     
     if params.inversion_validate:
         print "validating uniform ASE-induced depopulation rate approximation"
-        ross_num_model = inv.depop_model if isinstance(inv.depop_model, model.depop.RossNumericalASEModel) else model.depop.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.depop_rate_rtol, params.depop_rate_min_samples)
+        ross_num_model = depop_model if isinstance(depop_model, model.depop.RossNumericalASEModel) else model.depop.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.depop_rate_rtol, params.depop_rate_min_samples)
         rate_rel_stddev = ross_num_model.rate_rel_stddev(ref_inversion)
         unitconv.print_result("depopulation rate rel. std. deviation [{}]: {}", ("%",), (rate_rel_stddev,))
         if rate_rel_stddev > 10.0e-2:
             warnings.warn("uniform ASE-induced depopulation rate approximation is invalid", stacklevel=2)
     
-    if isinstance(inv.depop_model, model.depop.NumericalDepopulationModel):
+    if isinstance(depop_model, model.depop.NumericalDepopulationModel):
         print "perturbing population inversion"
-        perturb_depop_model = model.depop.PerturbedDepopulationModel(inv.depop_model)
+        perturb_depop_model = model.depop.PerturbedDepopulationModel(depop_model)
         perturb_inv = params.inverter_class(active_medium, pump_system, perturb_depop_model)
         perturb_ref_inversion = perturb_inv.invert(params.inversion_rtol, params.inversion_min_count_t)
-        abs_error = abs(perturb_ref_inversion - ref_inversion) + (ref_inversion + perturb_ref_inversion) * params.inversion_rtol
-        rel_error = abs_error / ref_inversion
+        rel_error = model.error.perturbed_inversion_rel_error(ref_inversion, perturb_ref_inversion, params.inversion_rtol)
     else:
         rel_error = params.inversion_rtol
     
