@@ -98,7 +98,7 @@ def plot_inversion(dirname, inv):
     tlim = (T[0], T[-1])
     plot.plot_data(filename("inversion_evo"), "Population Inversion Evolution", (T, None, tlim, t_pump_label), (inversion, None, None, inversion_abs_label))
 
-def plot_output(dirname, beam_profile, input_pulse, fwhm, amp, fluences, exact_density_out=None, exact_population_final=None):
+def plot_output(dirname, input_beam, input_pulse, fwhm, amp, fluences, exact_density_out=None, exact_population_final=None):
     filename = lambda name: os.path.join(dirname, name)
     
     density = amp.density
@@ -151,30 +151,30 @@ def plot_output(dirname, beam_profile, input_pulse, fwhm, amp, fluences, exact_d
             plot.plot_error(filename("upper_err"), "Upper State Population Relative Error", (Z, None, zlim, z_label), ((exact_population_final[0], upper.T[-1]), None, None, error_label))
             plot.plot_error(filename("lower_err"), "Lower State Population Relative Error", (Z, None, zlim, z_label), ((exact_population_final[1], lower.T[-1]), None, None, error_label))
     
-    norm_fluences = fluences / beam_profile.ref_fluence
+    norm_fluences = fluences / input_beam.ref_fluence
     plot.plot_data(filename("fluence"), "Fluence Evolution", (Z, None, zlim, z_label), (norm_fluences, None, None, fluence_rel_label))
 
-def plot_train(dirname, beam_profile, active_medium, output_photon_counts):
+def plot_train(dirname, input_beam, active_medium, output_photon_counts):
     filename = lambda name: os.path.join(dirname, name)
     
     pulse_count = len(output_photon_counts)
     pulse_nums = np.arange(1, pulse_count + 1)
     nlim = (pulse_nums[0] - 1, pulse_nums[-1] + 1)
     extra_args = dict(style="o", vlines=True, grid="y") if pulse_count <= 32 else {}
-    input_photon_count = beam_profile.fluence_integral(active_medium.radius)
+    input_photon_count = input_beam.fluence_integral(active_medium.radius)
     plot.plot_data(filename("pulse_energy_gain"), "Pulse Energy Gain", (pulse_nums, None, nlim, i_label), (output_photon_counts/input_photon_count, None, None, energy_rel_label), **extra_args)
 
-def plot_beam(dirname, beam_profile, Rho, Phi, ref_output_fluence):
+def plot_beam(dirname, input_beam, Rho, Phi, ref_output_fluence):
     filename = lambda name: os.path.join(dirname, name)
     
     ref_input_fluence = np.empty(ref_output_fluence.shape)
     for m, rho in enumerate(Rho):
         for n, phi in enumerate(Phi):
-            ref_input_fluence[m, n] = beam_profile.fluence(rho, phi)
+            ref_input_fluence[m, n] = input_beam.fluence(rho, phi)
     FR, RF = np.meshgrid(Phi, Rho)
     XY, YX = RF * np.cos(FR), RF * np.sin(FR)
-    norm_input_fluence = ref_input_fluence / beam_profile.ref_fluence
-    norm_output_fluence = ref_output_fluence / beam_profile.ref_fluence
+    norm_input_fluence = ref_input_fluence / input_beam.ref_fluence
+    norm_output_fluence = ref_output_fluence / input_beam.ref_fluence
     scale = np.amax(norm_output_fluence)
     stride_rho = max(len(Rho) // params.out_rho_steps_divisor, 1)
     stride_phi = max(len(Phi) // params.out_phi_steps_divisor, 1)
@@ -183,7 +183,7 @@ def plot_beam(dirname, beam_profile, Rho, Phi, ref_output_fluence):
     
     n_ref = -1
     for n, phi in enumerate(Phi):
-        if n_ref < 0 or abs(phi - beam_profile.phi_ref) < abs(Phi[n_ref] - beam_profile.phi_ref):
+        if n_ref < 0 or abs(phi - input_beam.phi_ref) < abs(Phi[n_ref] - input_beam.phi_ref):
             n_ref = n
     rholim = (Rho[0], Rho[-1])
     plot.plot_data(filename("fluences"), "Input and Output Fluence", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref]), None, None, fluence_rel_label), ("input beam", "output beam"))

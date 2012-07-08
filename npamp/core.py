@@ -52,6 +52,20 @@ class ComputationError(Exception):
 
 copy_conf = lambda conf: {k: v for k, v in conf.items() if not k.startswith('_') and type(v) is not types.ModuleType}
 
+def create_medium(ref_inversion):
+    initial_inversion = None
+    if ref_inversion is not None:
+        initial_inversion = initial_inversion = model.inversion.UniformInversion(ref_inversion)
+    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    medium = model.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    return medium
+
+def create_beam():
+    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
+    ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
+    beam = params.beam_class(params.beam_radius, ref_fluence)
+    return beam
+
 def create_pulse(active_medium, beam, rho, phi, ret_time_trunc_rel_error=False):
     fluence = beam.fluence(rho, phi)
     ref_density = params.pulse_class.ref_density(active_medium.light_speed, params.pulse_duration, fluence)
@@ -83,8 +97,7 @@ def compute_inversion(dirname):
     print "computing population inversion"
     
     is_numerical = issubclass(params.depop_model_class, model.depop.NumericalDepopulationModel)
-    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    active_medium = create_medium(None)
     pump_system = model.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
     depop_model_kwargs = dict(rtol=params.depop_rate_rtol) if is_numerical else {}
     if is_numerical:
@@ -139,8 +152,8 @@ def compute_inversion(dirname):
     
     return ref_inversion, rel_error
 
-def get_decay(active_medium, pulse):
-    separation = params.train_pulse_period - pulse.duration
+def get_decay(active_medium, input_pulse):
+    separation = params.train_pulse_period - input_pulse.duration
     lower_lifetime = active_medium.doping_agent.lower_lifetime
     if lower_lifetime == 0.0:
         decay = 0.0
@@ -152,7 +165,7 @@ def get_decay(active_medium, pulse):
         decay = math.exp(- separation / lower_lifetime)
     return decay
 
-def most_efficient_method((int_types, amp_types), active_medium, beam_profile, ref_pulse, quiet=False):
+def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref_pulse, quiet=False):
     if not quiet:
         print output.div_line
     if not quiet or params.verbose:
@@ -168,7 +181,7 @@ def most_efficient_method((int_types, amp_types), active_medium, beam_profile, r
             print int_name
         integrator = model.integrator.DomainIntegrator(int_type, active_medium)
         try:
-            count_rho, count_phi, min_count_z, min_count_t = model.error.min_integration_steps(integrator, beam_profile, (ref_pulse,), params.energy_rtol, params.fluence_rtol)
+            count_rho, count_phi, min_count_z, min_count_t = model.error.min_integration_steps(integrator, input_beam, (ref_pulse,), params.energy_rtol, params.fluence_rtol)
         except size_exc_types:
             traceback.print_exc()
             print "attempting to recover"
@@ -215,19 +228,12 @@ def most_efficient_method((int_types, amp_types), active_medium, beam_profile, r
     
     return (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
 
-def setup_methods((int_types, amp_types), ref_inversion, ret_rel_errors=False, quiet=False):
-    initial_inversion = model.inversion.UniformInversion(ref_inversion)
+def select_methods((int_types, amp_types), ref_inversion, ret_rel_errors=False, quiet=False):
+    active_medium = create_medium(ref_inversion)
+    input_beam = create_beam()
+    ref_pulse, time_trunc_rel_error = create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref, ret_time_trunc_rel_error=True)
     
-    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = model.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
-    
-    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
-    ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
-    beam_profile = params.beam_class(params.beam_radius, ref_fluence)
-    
-    ref_pulse, time_trunc_rel_error = create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref, ret_time_trunc_rel_error=True)
-    
-    (int_type, amp_type), (count_rho, count_phi, count_z, count_t) = most_efficient_method((int_types, amp_types), active_medium, beam_profile, ref_pulse, quiet)
+    (int_type, amp_type), (count_rho, count_phi, count_z, count_t) = most_efficient_method((int_types, amp_types), active_medium, input_beam, ref_pulse, quiet)
     
     if params.verbose:
         print "int_type: %s; amp_type: %s" % (int_type.__name__, amp_type.__name__, )
@@ -235,7 +241,7 @@ def setup_methods((int_types, amp_types), ref_inversion, ret_rel_errors=False, q
         print "count_z: %d; count_t: %d" % (count_z, count_t)
     
     numerics = (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
-    rel_errors = (time_trunc_rel_error,)
+    rel_errors = (time_trunc_rel_error, params.amp_rtol, params.energy_rtol)
     return (numerics, rel_errors) if ret_rel_errors else numerics
 
 def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
@@ -246,16 +252,9 @@ def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
     
     (int_type, amp_type), (_, _, count_z, count_t) = num_types, counts
     
-    initial_inversion = model.inversion.UniformInversion(ref_inversion)
-    
-    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = model.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
-    
-    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
-    ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
-    beam_profile = params.beam_class(params.beam_radius, ref_fluence)
-    
-    ref_pulse = create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
+    active_medium = create_medium(ref_inversion)
+    input_beam = create_beam()
+    ref_pulse = create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref)
     
     integrator = model.integrator.DomainIntegrator(int_type, active_medium)
     amp = amp_type(active_medium, count_z)
@@ -269,7 +268,7 @@ def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
         exact_density_out, exact_population_out = None, None
     
     fluence_out = integrator.integrate(amp.T, num_density_out) * active_medium.light_speed
-    fluence_gain = fluence_out / ref_fluence
+    fluence_gain = fluence_out / input_beam.ref_fluence
     unitconv.print_result("fluence gain: {}", (), (fluence_gain,))
     
     if params.graphs:
@@ -279,24 +278,17 @@ def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
             fluences[l] = integrator.integrate(amp.T, amp.density[l]) * active_medium.light_speed
         print "generating output"
         dirname = output.init_dir(dirname)
-        output.plot_output(dirname, beam_profile, ref_pulse, params.pulse_duration, amp, fluences, exact_density_out, exact_population_out)
+        output.plot_output(dirname, input_beam, ref_pulse, params.pulse_duration, amp, fluences, exact_density_out, exact_population_out)
 
 def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     if not quiet:
         print output.div_line
     if not quiet or params.verbose:
-        print "amplifying pulse train"
+        print "amplifying input_pulse train"
     
-    initial_inversion = model.inversion.UniformInversion(ref_inversion)
-    
-    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = model.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
-    
-    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
-    ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
-    beam_profile = params.beam_class(params.beam_radius, ref_fluence)
-    
-    ref_pulse = create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
+    active_medium = create_medium(ref_inversion)
+    input_beam = create_beam()
+    ref_pulse = create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref)
     
     int_type, amp_type = num_types
     count_rho, count_phi, count_z, count_t = counts
@@ -311,15 +303,15 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     output_photon_counts = np.empty(params.train_pulse_count)
     
     empty_mdlist = [[None for n in range(count_phi)] for m in range(count_rho)]
-    population = copy.deepcopy(empty_mdlist)
-    pulses = copy.deepcopy(empty_mdlist)
+    populations = copy.deepcopy(empty_mdlist)
+    input_pulses = copy.deepcopy(empty_mdlist)
     for m, rho in enumerate(Rho):
         for n, phi in enumerate(Phi):
             upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
             lower = np.zeros(count_z)
-            population[m][n] = (upper, lower)
-            pulse = create_pulse(active_medium, beam_profile, rho, phi)
-            pulses[m][n] = pulse
+            populations[m][n] = (upper, lower)
+            input_pulse = create_pulse(active_medium, input_beam, rho, phi)
+            input_pulses[m][n] = input_pulse
     
     decay = get_decay(active_medium, ref_pulse)
     
@@ -330,12 +322,12 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
         
         for m, rho in enumerate(Rho):
             for n, phi in enumerate(Phi):
-                pulse = pulses[m][n]
-                density_out, population_final = amp.amplify(rho, phi, pulse, count_t, initial_population=population[m][n])
+                input_pulse = input_pulses[m][n]
+                density_out, population_final = amp.amplify(rho, phi, input_pulse, count_t, initial_population=populations[m][n])
                 
                 upper = np.copy(population_final[0])
                 lower = population_final[1] * decay
-                population[m][n] = (upper, lower)
+                populations[m][n] = (upper, lower)
                 
                 fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
                 output_fluence[m, n] = fluence_out
@@ -362,8 +354,8 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
             ref_pulse_dir = os.path.join(dirname, output.ref_pulse_rel_path)
             dirname = output.init_dir(dirname)
             ref_pulse_dir = output.init_dir(ref_pulse_dir)
-            output.plot_beam(ref_pulse_dir, beam_profile, Rho, Phi, ref_output_fluence)
-            output.plot_train(dirname, beam_profile, active_medium, output_photon_counts)
+            output.plot_beam(ref_pulse_dir, input_beam, Rho, Phi, ref_output_fluence)
+            output.plot_train(dirname, input_beam, active_medium, output_photon_counts)
     
     return max_output_fluence, output_photon_counts, train_output_energy, rel_gain_decrease
 
@@ -439,14 +431,9 @@ def validate():
         values = conf[parameter]
         validate_interval(parameter, values)
     
-    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
-    
-    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
-    ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
-    beam_profile = params.beam_class(params.beam_radius, ref_fluence)
-    
-    ref_pulse = create_pulse(active_medium, beam_profile, beam_profile.rho_ref, beam_profile.phi_ref)
+    active_medium = create_medium(None)
+    input_beam = create_beam()
+    ref_pulse = create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref)
     
     if not (params.train_pulse_period >= ref_pulse.duration or params.train_pulse_count == 1):
         raise ConfigurationError("invalid parameters: pulse repetition period is less than (extended) pulse duration")
@@ -461,28 +448,20 @@ def validate():
     if not train_duration <= params.dopant_upper_lifetime / 10.0:
         warnings.warn("approximation validity condition violated: signal duration is not much shorter than upper state (fluorescence) lifetime", stacklevel=2)
 
-def compute_energy_rel_error(ref_inversion, ref_inversion_rel_error, rel_errors):
-    (time_trunc_rel_error,) = rel_errors
-    rel_error_inversion = math.exp(params.dopant_xsection * ref_inversion_rel_error * ref_inversion * params.medium_length) - 1.0
-    rel_error_energy = time_trunc_rel_error + params.amp_rtol + params.energy_rtol
-    energy_rel_error = rel_error_inversion + rel_error_energy
-    return energy_rel_error
-
-def report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, inversion_rel_error, energy_rel_error):
+def report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, inversion_rel_error, rel_errors):
     print output.div_line
     print "results:"
     
-    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
-    active_medium = model.medium.ActiveMedium(None, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
+    active_medium = create_medium(ref_inversion)
+    
+    energy_rel_error = model.error.energy_rel_error(active_medium, inversion_rel_error, rel_errors)
     
     pump_energy = params.pump_duration * params.pump_power
     stored_energy = model.energy.energy(params.lasing_wavelen, ref_inversion * active_medium.volume)
     
-    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
-    ref_fluence = params.beam_class.ref_fluence(params.beam_radius, pulse_photon_count)
-    beam_profile = params.beam_class(params.beam_radius, ref_fluence)
+    input_beam = create_beam()
     
-    input_photon_count = beam_profile.fluence_integral(active_medium.radius)
+    input_photon_count = input_beam.fluence_integral(active_medium.radius)
     input_energy = model.energy.energy(params.lasing_wavelen, input_photon_count)
     input_energy *= params.train_pulse_count
     

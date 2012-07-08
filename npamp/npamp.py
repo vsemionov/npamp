@@ -155,18 +155,17 @@ def run(conf_path, output_path, definitions):
         print "executing"
         
         if not params.initial_inversion:
-            ref_inversion, ref_inversion_rel_error = core.compute_inversion(dirname)
+            ref_inversion, inversion_rel_error = core.compute_inversion(dirname)
         else:
-            ref_inversion, ref_inversion_rel_error = params.initial_inversion, 0.0
+            ref_inversion, inversion_rel_error = params.initial_inversion, 0.0
         
         numerics = None
         if params.amplification:
             numerics, rel_errors = core.setup_methods((int_types, amp_types), ref_inversion, ret_rel_errors=True)
             num_types, counts = numerics
             core.amplify_ref_pulse(dirname, num_types, counts, ref_inversion)
-            energy_rel_error = core.compute_energy_rel_error(ref_inversion, ref_inversion_rel_error, rel_errors)
             max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease = core.amplify_train(dirname, num_types, counts, ref_inversion)
-            core.report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, ref_inversion_rel_error, energy_rel_error)
+            core.report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, inversion_rel_error, rel_errors)
         
         if params.extended_mode:
             ext.extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), numerics)
