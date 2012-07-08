@@ -35,7 +35,11 @@ import native
 def lower_state_decay(active_medium, pulse_train):
     separation = pulse_train.period - pulse_train.pulse.duration
     lower_lifetime = active_medium.doping_agent.lower_lifetime
-    if lower_lifetime == 0.0 or pulse_train.count == 1:
+    if lower_lifetime == 0.0:
+        decay = 0.0
+    elif math.isinf(lower_lifetime):
+        decay = 1.0
+    elif pulse_train.count == 1:
         decay = 0.0
     else:
         decay = math.exp(- separation / lower_lifetime)
