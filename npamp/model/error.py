@@ -235,12 +235,12 @@ def min_integration_steps(integrator, input_beam, single_pulses, energy_rtol, fl
     
     return steps_rho, steps_phi, steps_z, steps_t
 
-def min_amplification_steps(amp_type, active_medium, ref_pulse, decay, (min_count_z, min_count_t), integrator, fluence_rtol, amp_rtol, ret_extra=False):
+def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, min_count_t), integrator, fluence_rtol, amp_rtol, ret_extra=False):
     def compute_rdiff((num_Z, num_T, num_density_out, num_population_final), (exact_Z, exact_T, exact_density_out, exact_population_final)):
         num_upper_final, num_lower_final = num_population_final
         exact_upper_final, exact_lower_final = exact_population_final
-        num_inversion = num_upper_final - num_lower_final * decay
-        exact_inversion = exact_upper_final - exact_lower_final * decay
+        num_inversion = num_upper_final - num_lower_final * lower_decay
+        exact_inversion = exact_upper_final - exact_lower_final * lower_decay
         num_density_integral = integrator.integrate(num_T, num_density_out)
         exact_density_integral = integrator.integrate(exact_T, exact_density_out)
         rel_error_density = abs((num_density_integral - exact_density_integral) / exact_density_integral)
@@ -270,6 +270,9 @@ def min_amplification_steps(amp_type, active_medium, ref_pulse, decay, (min_coun
         num_density_out, num_population_final = amp.amplify(0.0, 0.0, ref_pulse, count_t)
         results = amp.Z, amp.T, np.copy(num_density_out), tuple(np.copy(state) for state in num_population_final)
         return results, rel_error
+    
+    ref_pulse = pulse_train.pulse
+    lower_decay = amplifier.lower_state_decay(active_medium, pulse_train)
     
     min_count_z = max(min_count_z, 3)
     min_count_t = max(min_count_t, 3)

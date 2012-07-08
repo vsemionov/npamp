@@ -217,7 +217,7 @@ def compute_inversion_geom_dependence_task(i, rm, pump_system, (depop_model_clas
         inversion_rdiff = abs((inversion1 - inversion2) / min(inversion1, inversion2))
         gain_rdiff = abs((gain1 - gain2) / min(gain1, gain2))
     finally:
-        set_geom(orig_geom)
+        set_geom(*orig_geom)
     
     return inversion1, inversion2, gain1, gain2, stored_energy1, stored_energy2, inversion_rdiff, gain_rdiff
 
@@ -264,7 +264,7 @@ def compute_inversion_geom_dependence(task_pool, dirname):
     
     return inversions1, inversion_rdiffs
 
-def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_medium, (rho, phi), (int_type, amp_type), (count_z, count_t), ref_pulse, decay):
+def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_medium, (rho, phi), (int_type, amp_type), (count_z, count_t), ref_pulse, lower_decay):
     output.show_status((i, j), params.extended_status_strides, False)
     
     initial_inversion = model.inversion.UniformInversion(inversion)
@@ -283,7 +283,7 @@ def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_m
         density_out, population_final = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
         
         upper = np.copy(population_final[0])
-        lower = population_final[1] * decay
+        lower = population_final[1] * lower_decay
         population = (upper, lower)
         
         fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
@@ -302,8 +302,9 @@ def compute_fluence_pump_dependence(task_pool, dirname, inversions, (int_type, a
     active_medium = core.create_medium(None)
     input_beam = core.create_beam()
     ref_pulse = core.create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref)
+    pulse_train = core.create_train(ref_pulse)
     
-    decay = core.get_decay(active_medium, ref_pulse)
+    lower_decay = model.amplifier.lower_state_decay(active_medium, pulse_train)
     
     count_tau = params.ext_opt_pump_resolution[0]
     count_pwr = params.ext_opt_pump_resolution[1]
@@ -312,7 +313,7 @@ def compute_fluence_pump_dependence(task_pool, dirname, inversions, (int_type, a
     Pwr = np.linspace(params.ext_opt_pump_power[0], params.ext_opt_pump_power[1], count_pwr)
     
     rho, phi = input_beam.rho_ref, input_beam.phi_ref
-    fluences = task_pool.parallel_task(compute_fluence_pump_dependence_task, (Tau, Pwr), (inversions,), (active_medium, (rho, phi), (int_type, amp_type), (count_z, count_t), ref_pulse, decay))
+    fluences = task_pool.parallel_task(compute_fluence_pump_dependence_task, (Tau, Pwr), (inversions,), (active_medium, (rho, phi), (int_type, amp_type), (count_z, count_t), ref_pulse, lower_decay))
     
     output.show_status((count_tau, count_pwr), params.extended_status_strides, True)
     
@@ -341,8 +342,9 @@ def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, (int_type,
         input_beam = core.create_beam()
         rho, phi = input_beam.rho_ref, input_beam.phi_ref
         ref_pulse = core.create_pulse(active_medium, input_beam, rho, phi)
+        pulse_train = core.create_train(ref_pulse)
         
-        decay = core.get_decay(active_medium, ref_pulse)
+        lower_decay = model.amplifier.lower_state_decay(active_medium, pulse_train)
         
         integrator = model.integrator.DomainIntegrator(int_type, active_medium)
         amp = amp_type(active_medium, count_z)
@@ -357,7 +359,7 @@ def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, (int_type,
             density_out, population_final = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
             
             upper = np.copy(population_final[0])
-            lower = population_final[1] * decay
+            lower = population_final[1] * lower_decay
             population = (upper, lower)
             
             fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
@@ -366,7 +368,7 @@ def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, (int_type,
         fluence_out = pulse_fluences[::-1].sum()
         fluence_out = model.energy.energy(params.lasing_wavelen, fluence_out)
     finally:
-        set_geom(orig_geom)
+        set_geom(*orig_geom)
     
     return fluence_out
 
@@ -606,7 +608,7 @@ def compute_energy_geom_dependence_task((i, j), (rm, rb), inversion, num_types, 
         
         _, _, output_energy, rel_gain_decrease = core.amplify_train(None, num_types, counts, inversion, quiet=True)
     finally:
-        set_geom(orig_geom)
+        set_geom(*orig_geom)
     
     return stored_energy, input_energy, output_energy, rel_gain_decrease
 
@@ -779,7 +781,7 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), num
                 num_types_geom, counts_geom = core.select_methods((int_types, amp_types), max_inversion_geom, quiet=True)
                 _, _, count_z_geom, count_t_geom = counts_geom
             finally:
-                set_geom(orig_geom)
+                set_geom(*orig_geom)
             
             max_fluences_pump = compute_fluence_pump_dependence(task_pool, dirname, inversions_pump, num_types_pump, (count_z_pump, count_t_pump))
             max_fluences_geom = compute_fluence_geom_dependence(task_pool, dirname, inversions_geom, num_types_geom, (count_z_geom, count_t_geom))

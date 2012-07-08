@@ -52,6 +52,15 @@ class ComputationError(Exception):
 
 copy_conf = lambda conf: {k: v for k, v in conf.items() if not k.startswith('_') and type(v) is not types.ModuleType}
 
+
+class PulseTrainMock(object):
+    
+    def __init__(self, pulse, count, period):
+        self.pulse = pulse
+        self.count = count
+        self.period = period
+
+
 def create_medium(ref_inversion):
     initial_inversion = None
     if ref_inversion is not None:
@@ -74,6 +83,10 @@ def create_pulse(active_medium, beam, rho, phi, ret_time_trunc_rel_error=False):
     pulse = model.pulse.ExtendedPulse(pulse, scale)
     pulse = model.pulse.TruncatedPulse(pulse)
     return (pulse, time_trunc_rel_error) if ret_time_trunc_rel_error else pulse
+
+def create_train(pulse):
+    train = PulseTrainMock(pulse, params.train_pulse_count, params.train_pulse_period)
+    return train
 
 def create_depop_model(active_medium, depop_model_class):
     is_numerical = issubclass(depop_model_class, model.depop.NumericalDepopulationModel)
@@ -157,26 +170,13 @@ def compute_inversion(dirname):
     
     return ref_inversion, rel_error
 
-def get_decay(active_medium, input_pulse):
-    separation = params.train_pulse_period - input_pulse.duration
-    lower_lifetime = active_medium.doping_agent.lower_lifetime
-    if lower_lifetime == 0.0:
-        decay = 0.0
-    elif math.isinf(lower_lifetime):
-        decay = 1.0
-    elif params.train_pulse_count == 1:
-        decay = 0.0
-    else:
-        decay = math.exp(- separation / lower_lifetime)
-    return decay
-
 def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref_pulse, quiet=False):
     if not quiet:
         print output.div_line
     if not quiet or params.verbose:
         print "determining most efficient method combination"
     
-    decay = get_decay(active_medium, ref_pulse)
+    pulse_train = create_train(ref_pulse)
     
     size_exc_types = (ValueError, MemoryError)
     best_method = None
@@ -203,7 +203,7 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
             test_min_count_z = max(min_count_z, amp_type.min_steps_z(active_medium))
             test_min_count_t = max(min_count_t, amp_type(active_medium, test_min_count_z).min_steps_t(ref_pulse))
             try:
-                data = model.error.min_amplification_steps(amp_type, active_medium, ref_pulse, decay, (test_min_count_z, test_min_count_t), integrator, params.fluence_rtol, params.amp_rtol, ret_extra=True)
+                data = model.error.min_amplification_steps(amp_type, active_medium, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.fluence_rtol, params.amp_rtol, ret_extra=True)
             except size_exc_types:
                 traceback.print_exc()
                 print "attempting to recover"
@@ -294,6 +294,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     active_medium = create_medium(ref_inversion)
     input_beam = create_beam()
     ref_pulse = create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref)
+    pulse_train = create_train(ref_pulse)
     
     int_type, amp_type = num_types
     count_rho, count_phi, count_z, count_t = counts
@@ -318,7 +319,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
             input_pulse = create_pulse(active_medium, input_beam, rho, phi)
             input_pulses[m][n] = input_pulse
     
-    decay = get_decay(active_medium, ref_pulse)
+    lower_decay = model.amplifier.lower_state_decay(active_medium, pulse_train)
     
     pulse_num_stride = params.pulse_num_stride
     for pnum in range(params.train_pulse_count):
@@ -331,7 +332,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
                 density_out, population_final = amp.amplify(rho, phi, input_pulse, count_t, initial_population=populations[m][n])
                 
                 upper = np.copy(population_final[0])
-                lower = population_final[1] * decay
+                lower = population_final[1] * lower_decay
                 populations[m][n] = (upper, lower)
                 
                 fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
