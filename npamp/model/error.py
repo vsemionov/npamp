@@ -87,7 +87,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, ret_ext
     
     while True:
         last_counts, last_result, last_rel_error = counts, result, rel_error
-        last_divs_x, last_divs_y = divs_x, divs_x
+        last_divs_x, last_divs_y = divs_x, divs_y
         count_x, count_y = counts
         
         if var_x:
