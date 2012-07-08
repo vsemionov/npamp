@@ -62,6 +62,8 @@ def compare_depop_models(dirname):
     pump_system = model.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
     data = []
     for depop_model_class in params.ext_depop_models:
+        depop_model_label = depop_model_class.descr
+        print depop_model_label
         depop_model = core.create_depop_model(active_medium, depop_model_class)
         inv = params.inverter_class(active_medium, pump_system, depop_model)
         inv.invert(params.inversion_rtol, params.inversion_min_count_t)
