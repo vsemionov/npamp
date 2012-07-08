@@ -1,4 +1,6 @@
 import model
+version = 1.0
+
 amp_rtol = 0.02
 amplification = False
 amplifier_classes = [model.amplifier.HybridAmplifier, model.amplifier.NSFDAmplifier]

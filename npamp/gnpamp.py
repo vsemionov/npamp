@@ -48,7 +48,7 @@ import outwin
 
 old_excepthook = None
 
-defaults = npamp.core.copy_conf(npamp.params.__dict__)
+defaults = npamp.load_conf(npamp.params.__dict__, None)
 
 
 def boot_excepthook(exc_type, value, traceback):
@@ -61,14 +61,14 @@ def repr_classless(v):
     return re.sub("<class '([^']+?)'>", "\\1", repr(v))
 
 def file2conf(path):
-    conf = defaults.copy()
-    execfile(path, conf)
-    conf = npamp.core.copy_conf(conf)
+    conf = npamp.load_conf(defaults, path)
     return conf
 
 def conf2file(conf, path):
     with open(path, "w") as fp:
         fp.write("import model\n")
+        fp.write("%s = %s\n" % ("version", npamp.params.version))
+        fp.write("\n")
         for param, value in sorted(conf.items()):
             fp.write("%s = %s\n" % (param, repr_classless(value)))
 

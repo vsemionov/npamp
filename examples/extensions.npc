@@ -1,4 +1,6 @@
 import model
+version = 1.0
+
 graphs = True
 beam_class = model.beam.TopHatBeam
 pulse_class = model.pulse.SawtoothPulse

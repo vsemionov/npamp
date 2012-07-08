@@ -101,6 +101,17 @@ def print_extensions(extensions):
             name, doc = extension.__name__, extension.__doc__
             print "%s: %s" % (name, doc)
 
+def load_conf(defaults, path):
+    conf = defaults.copy()
+    diff = dict()
+    if path:
+        execfile(path, diff)
+    conf.update(diff)
+    if conf.pop("version", params.version) != params.version:
+        raise core.ConfigurationError("unsupported configuration file format version")
+    conf = core.copy_conf(conf)
+    return conf
+
 def run(conf_path, output_path, definitions):
     start_time = time.time()
     
@@ -108,7 +119,10 @@ def run(conf_path, output_path, definitions):
     if conf_path is not None:
         if params.verbose:
             print "reading configuration from:", conf_path
-        execfile(conf_path, params.__dict__)
+        
+        conf = load_conf(params.__dict__, conf_path)
+        params.__dict__.update(conf)
+    
     if definitions is not None:
         for definition in definitions:
             exec definition in params.__dict__
@@ -116,9 +130,8 @@ def run(conf_path, output_path, definitions):
     print "validating"
     core.validate()
     
-    output.output_dir = output_path
     if params.graphs:
-        if not output.output_dir:
+        if not output_path:
             raise InvocationError("no output directory")
         if params.verbose:
             print "graphs will be written to:", output_path
@@ -126,6 +139,7 @@ def run(conf_path, output_path, definitions):
         if params.verbose:
             print "graphs will not be written"
     
+    output.output_dir = output_path
     dirname = "."
     
     int_types = params.integrator_classes

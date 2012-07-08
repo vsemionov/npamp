@@ -28,6 +28,9 @@
 import model
 
 
+version = 1.0
+
+
 # physical parameters:
 
 lasing_wavelen = 1064.0e-9
