@@ -122,7 +122,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, ret_ext
         return last_counts, rdiff, last_result
     return last_counts
 
-def min_integration_steps(integrator, input_beam, single_pulses, energy_rtol, fluence_rtol):
+def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_rtol):
     def converge_steps(func, a, b):
         max_divs = 12
         divs = 1
@@ -206,13 +206,13 @@ def min_integration_steps(integrator, input_beam, single_pulses, energy_rtol, fl
     
     rtol = fluence_rtol
     steps_t = 0
-    for single_pulse in single_pulses:
-        t0 = single_pulse.t0
-        T = single_pulse.duration
-        exact_amp_3.input_pulse = single_pulse
-        exact_amp_4.input_pulse = single_pulse
-        density_in = lambda t: single_pulse.density(t)
-        density_out = lambda t: single_pulse.density(t) * gain
+    for pulse in pulses:
+        t0 = pulse.t0
+        T = pulse.duration
+        exact_amp_3.input_pulse = pulse
+        exact_amp_4.input_pulse = pulse
+        density_in = lambda t: pulse.density(t)
+        density_out = lambda t: pulse.density(t) * gain
         density_out_3 = lambda t: exact_amp_3.exact_density(L, t)
         density_out_4 = lambda t: exact_amp_4.exact_density(L, t)
         steps_t_0 = converge_steps(density_in, t0, t0 + T)
@@ -224,10 +224,10 @@ def min_integration_steps(integrator, input_beam, single_pulses, energy_rtol, fl
     rtol = fluence_rtol
     population_inversion = lambda population: population[0] - population[1]
     steps_z = 0
-    for single_pulse in single_pulses:
-        T = single_pulse.duration
-        exact_amp_3.input_pulse = single_pulse
-        exact_amp_4.input_pulse = single_pulse
+    for pulse in pulses:
+        T = pulse.duration
+        exact_amp_3.input_pulse = pulse
+        exact_amp_4.input_pulse = pulse
         inversion_out_3 = lambda z: population_inversion(exact_amp_3.exact_population(z, T))
         inversion_out_4 = lambda z: population_inversion(exact_amp_4.exact_population(z, T))
         steps_z_3 = converge_steps(inversion_out_3, 0.0, L)
