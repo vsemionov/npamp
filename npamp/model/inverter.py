@@ -106,10 +106,10 @@ class PopulationInverter(object):
                     break
             if is_last_try:
                 if diff is not None:
-                    warnings.warn("max divs (%d) exceeded; latest difference: %f (current: %f; last: %f)" % (max_divs, diff, res, last_res), stacklevel=2)
+                    warnings.warn("max. divs (%d) exceeded; latest difference: %f (current: %f; last: %f)" % (max_divs, diff, res, last_res), stacklevel=2)
                     break
                 else:
-                    raise ValueError("max divs (%d) exceeded" % max_divs)
+                    raise ValueError("max. divs (%d) exceeded" % max_divs)
             last_res = res
         return res
 

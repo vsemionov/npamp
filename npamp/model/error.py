@@ -139,10 +139,10 @@ def min_integration_steps(integrator, beam_profile, single_pulses, energy_rtol, 
             divs += 1
             if divs > max_divs:
                 if diff is not None:
-                    warnings.warn("max divs (%d) exceeded; latest difference: %f (current: %f; last: %f)" % (max_divs, diff, res, last_res), stacklevel=3)
+                    warnings.warn("max. divs (%d) exceeded; latest difference: %f (current: %f; last: %f)" % (max_divs, diff, res, last_res), stacklevel=3)
                     break
                 else:
-                    raise ValueError("max divs (%d) exceeded" % max_divs)
+                    raise ValueError("max. divs (%d) exceeded" % max_divs)
             last_res = res
         return steps
     def fluence_integrals(steps_rho, steps_phi):
