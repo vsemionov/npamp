@@ -28,6 +28,7 @@
 import copy
 
 import math
+import functools
 import warnings
 
 import numpy as np
@@ -236,7 +237,7 @@ def min_integration_steps(integrator, input_beam, single_pulses, energy_rtol, fl
     return steps_rho, steps_phi, steps_z, steps_t
 
 def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, min_count_t), integrator, fluence_rtol, amp_rtol, ret_extra=False):
-    def compute_rdiff((num_Z, num_T, num_density_out, num_population_final), (exact_Z, exact_T, exact_density_out, exact_population_final)):
+    def compute_rel_error(lower_decay, (num_Z, num_T, num_density_out, num_population_final), (exact_Z, exact_T, exact_density_out, exact_population_final)):
         num_upper_final, num_lower_final = num_population_final
         exact_upper_final, exact_lower_final = exact_population_final
         num_inversion = num_upper_final - num_lower_final * lower_decay
@@ -256,13 +257,14 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
         for lower_lifetime in amplifier.ExactAmplifier.analytical_lower_lifetimes:
             test_active_medium = copy.deepcopy(active_medium)
             test_active_medium.doping_agent.lower_lifetime = lower_lifetime
+            lower_decay = amplifier.lower_state_decay(test_active_medium, pulse_train)
             amp = amp_type(test_active_medium, count_z)
             num_density_out, num_population_final = amp.amplify(0.0, 0.0, ref_pulse, count_t)
             num_Z, num_T, num_density_out, num_population_final = amp.Z, amp.T, np.copy(num_density_out), tuple(np.copy(state) for state in num_population_final)
             del amp
             exact = amplifier.ExactOutputAmplifier(test_active_medium, count_z)
             exact_density_out, exact_population_final = exact.amplify(0.0, 0.0, ref_pulse, count_t)
-            test_rel_error = compute_rdiff((num_Z, num_T, num_density_out, num_population_final), (exact.Z, exact.T, exact_density_out, exact_population_final))
+            test_rel_error = compute_rel_error(lower_decay, (num_Z, num_T, num_density_out, num_population_final), (exact.Z, exact.T, exact_density_out, exact_population_final))
             del exact
             del num_density_out, num_population_final, exact_density_out, exact_population_final
             rel_error = max(test_rel_error, rel_error)
@@ -276,6 +278,7 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
     
     min_count_z = max(min_count_z, 3)
     min_count_t = max(min_count_t, 3)
+    compute_rdiff = functools.partial(compute_rel_error, lower_decay)
     data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_pulse, compute_rdiff, ret_extra)
     
     return data
