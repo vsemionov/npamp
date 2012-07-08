@@ -88,7 +88,7 @@ def compute_inversion(dirname):
     pump_system = model.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
     depop_model_kwargs = dict(rtol=params.depop_rate_rtol) if is_numerical else {}
     if is_numerical:
-        depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count)
+        depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_samples=params.depop_rate_min_samples)
     else:
         depop_model_kwargs = {}
     depop_model_kwargs.update(params.depop_model_extra_args)
@@ -105,7 +105,7 @@ def compute_inversion(dirname):
     
     if params.inversion_validate:
         print "validating uniform ASE-induced depopulation rate approximation"
-        ross_num_model = depop_model if isinstance(depop_model, model.depop.RossNumericalASEModel) else model.depop.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.depop_rate_rtol, params.depop_rate_min_count)
+        ross_num_model = depop_model if isinstance(depop_model, model.depop.RossNumericalASEModel) else model.depop.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.depop_rate_rtol, params.depop_rate_min_samples)
         rate_rel_stddev = ross_num_model.rate_rel_stddev(ref_inversion)
         unitconv.print_result("depopulation rate rel. std. deviation [{}]: {}", ("%",), (rate_rel_stddev,))
         if rate_rel_stddev > 10.0e-2:
@@ -412,7 +412,7 @@ def validate():
     ])
     param_bounds = {
         "train_pulse_count": (1, None),
-        "depop_rate_min_count": (16, None),
+        "depop_rate_min_samples": (16, None),
         "out_markers_step_divisor": (1, None),
         "out_rho_steps_divisor": (1, None),
         "out_phi_steps_divisor": (1, None),

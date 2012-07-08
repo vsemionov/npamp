@@ -75,11 +75,11 @@ class ExactDepopulationModel(DepopulationModel):
 class NumericalDepopulationModel(DepopulationModel):
     descr = "numerical depopulation model"
     
-    def __init__(self, active_medium, wavelen, rtol, min_count):
+    def __init__(self, active_medium, wavelen, rtol, min_samples):
         super(NumericalDepopulationModel, self).__init__(active_medium, wavelen)
         
         self.rtol = rtol
-        self.min_count = min_count
+        self.min_samples = min_samples
 
 class PerturbedDepopulationModel(DepopulationModel):
     descr = "perturbed depopulation model"
@@ -171,17 +171,17 @@ class RossNumericalASEModel(NumericalDepopulationModel):
     
     _integrate_B = lambda self, *args: native._ross_ase_model_integrate_B(self, *args)
     
-    def __init__(self, active_medium, wavelen, rtol, min_count, sample_count_multiplier=16):
-        super(RossNumericalASEModel, self).__init__(active_medium, wavelen, rtol, min_count)
+    def __init__(self, active_medium, wavelen, rtol, min_samples, sample_count_multiplier=16):
+        super(RossNumericalASEModel, self).__init__(active_medium, wavelen, rtol, min_samples)
         
         self.sample_count_multiplier = sample_count_multiplier
         
-        self.max_nsamples = 16 * 1024**2
+        self.max_samples = 16 * 1024**2
     
     def _rate_coef(self, inversion):
-        if self.min_count > self.max_nsamples:
-            raise exc.ModelError("min. sample count (%d) is greater than max. number of samples (%d)" % (self.min_count, self.max_nsamples))
-        nsamples = self.min_count
+        if self.min_samples > self.max_samples:
+            raise exc.ModelError("min. sample count (%d) is greater than max. sample count (%d)" % (self.min_samples, self.max_samples))
+        nsamples = self.min_samples
         while True:
             B, B_rel_error = self._integrate_B(inversion, nsamples)
             B_abs_error = B_rel_error * B
@@ -190,8 +190,8 @@ class RossNumericalASEModel(NumericalDepopulationModel):
             if rate_rel_error < self.rtol:
                 break
             nsamples *= self.sample_count_multiplier
-            if nsamples > self.max_nsamples:
-                warnings.warn("max_nsamples (%d) exceeded; latest rel. error: %f" % (self.max_nsamples, rate_rel_error), stacklevel=2)
+            if nsamples > self.max_samples:
+                warnings.warn("max. sample count (%d) exceeded; latest rel. error: %f" % (self.max_samples, rate_rel_error), stacklevel=2)
                 break
         return rate_coef
     
@@ -202,8 +202,8 @@ class RossNumericalASEModel(NumericalDepopulationModel):
         return rate
     
     def rate_rel_stddev(self, inversion):
-        nsamples = nsubsamples = int(math.ceil(math.sqrt(self.max_nsamples)))
-        B, _ = self._integrate_B(inversion, self.max_nsamples)
+        nsamples = nsubsamples = int(math.ceil(math.sqrt(self.max_samples)))
+        B, _ = self._integrate_B(inversion, self.max_samples)
         B_stddev = native._ross_ase_model_B_stddev(self, inversion, nsamples, nsubsamples)
         rate_coef = 1.0 + B
         rate_rel_stddev = B_stddev / rate_coef
@@ -215,9 +215,9 @@ class RossHybridASEModel(RossNumericalASEModel):
     
     _integrate_B = lambda self, *args: native._ross_ase_model_integrate_BP(self, 0.0, 0.0, self.z_rel * self.active_medium.length, *args)
     
-    def __init__(self, active_medium, wavelen, rtol, min_count, sample_count_multiplier=16, z_rel=0.0):
+    def __init__(self, active_medium, wavelen, rtol, min_samples, sample_count_multiplier=16, z_rel=0.0):
         assert 0.0 <= z_rel <= 1.0, "z_rel is not in the interval [0.0, 1.0]"
         
-        super(RossHybridASEModel, self).__init__(active_medium, wavelen, rtol, min_count, sample_count_multiplier)
+        super(RossHybridASEModel, self).__init__(active_medium, wavelen, rtol, min_samples, sample_count_multiplier)
         
         self.z_rel = z_rel

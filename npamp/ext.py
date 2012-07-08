@@ -56,7 +56,7 @@ def compare_depop_models(dirname):
     for depop_model_class in params.ext_depop_models:
         depop_model_label = depop_model_class.descr
         print depop_model_label
-        depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count) if issubclass(depop_model_class, model.depop.NumericalDepopulationModel) else {}
+        depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_samples=params.depop_rate_min_samples) if issubclass(depop_model_class, model.depop.NumericalDepopulationModel) else {}
         if depop_model_class is params.depop_model_class:
             depop_model_kwargs.update(params.depop_model_extra_args)
         depop_model = depop_model_class(active_medium, params.lasing_wavelen, **depop_model_kwargs)
@@ -139,7 +139,7 @@ def compute_inversion_pump_dependence(task_pool, dirname):
     Tau = np.linspace(params.ext_opt_pump_duration[0], params.ext_opt_pump_duration[1], count_tau)
     Pwr = np.linspace(params.ext_opt_pump_power[0], params.ext_opt_pump_power[1], count_pwr)
     
-    num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count)
+    num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_samples=params.depop_rate_min_samples)
     depop_model_class1 = params.depop_model_class
     depop_model_class2 = params.ext_alt_depop_model
     depop_model_kwargs1 = num_model_kwargs if issubclass(depop_model_class1, model.depop.NumericalDepopulationModel) else {}
@@ -222,7 +222,7 @@ def compute_inversion_geom_dependence(task_pool, dirname):
     
     Rm = np.linspace(min_medium_radius, params.ext_opt_geom_mediumradius[1], count_rm)
     
-    num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_count=params.depop_rate_min_count)
+    num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_samples=params.depop_rate_min_samples)
     depop_model_class1 = params.depop_model_class
     depop_model_class2 = params.ext_alt_depop_model
     depop_model_kwargs1 = num_model_kwargs if issubclass(depop_model_class1, model.depop.NumericalDepopulationModel) else {}

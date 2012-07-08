@@ -864,14 +864,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="label_depop_rate_min_count">
+             <widget class="QLabel" name="label_depop_rate_min_samples">
               <property name="text">
-               <string>depop. rate minimum evaluation count:</string>
+               <string>depop. rate minimum sample count:</string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSpinBox" name="spinBox_depop_rate_min_count">
+             <widget class="QSpinBox" name="spinBox_depop_rate_min_samples">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>

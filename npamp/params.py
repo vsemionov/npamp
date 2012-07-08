@@ -68,7 +68,7 @@ train_pulse_period = 1.0e-9
 # numerical parameters:
 
 depop_rate_rtol = 5.0e-2
-depop_rate_min_count = 4096
+depop_rate_min_samples = 4096
 depop_model_extra_args = {}
 
 inverter_class = model.inverter.RungeKuttaInverter # RungeKuttaInverter usually makes fewer derivative evaluations for RossNumericalASEModel; for other depopulation models EulerInverter seems faster
