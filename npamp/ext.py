@@ -40,6 +40,15 @@ import output
 import unitconv
 
 
+def set_geom(rm, rb):
+    old_geom = params.medium_radius, params.medium_length
+    try:
+        params.medium_radius, params.medium_length = rm, rb
+        return old_geom
+    except:
+        params.medium_radius, params.medium_length = old_geom
+        raise
+
 def compare_depop_models(dirname):
     filename = lambda name: os.path.join(dirname, name)
     
@@ -53,17 +62,13 @@ def compare_depop_models(dirname):
     pump_system = model.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
     data = []
     for depop_model_class in params.ext_depop_models:
-        depop_model_label = depop_model_class.descr
-        print depop_model_label
-        depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_samples=params.depop_rate_min_samples) if issubclass(depop_model_class, model.depop.NumericalDepopulationModel) else {}
-        if depop_model_class is params.depop_model_class:
-            depop_model_kwargs.update(params.depop_model_extra_args)
-        depop_model = depop_model_class(active_medium, params.lasing_wavelen, **depop_model_kwargs)
+        depop_model = core.create_depop_model(active_medium, depop_model_class)
         inv = params.inverter_class(active_medium, pump_system, depop_model)
         inv.invert(params.inversion_rtol, params.inversion_min_count_t)
         depop_rate = np.vectorize(depop_model.rate)(inv.inversion) / active_medium.volume
-        data.append((inv.T, inv.inversion, depop_rate, depop_model_label, depop_model_class))
+        data.append((inv.T, inv.inversion, depop_rate, depop_model_class.descr, depop_model_class))
         ref_inversion = inv.inversion[-1]
+        
         unitconv.print_result("population inversion [{}]: {}", ("cm^-3",), (ref_inversion,))
         unitconv.print_result("depopulation rate [{}]: {}", ("cm^-3 s^-1",), (depop_rate[-1],))
     
@@ -110,17 +115,24 @@ def compare_depop_models(dirname):
 
 def compute_inversion_pump_dependence_task((i, j), (tau, pwr), active_medium, (depop_model1, depop_model2)):
     output.show_status((i, j), params.extended_status_strides, False)
+    
     pump_system = model.pump.PumpSystem(params.pump_wavelen, tau, pwr, params.pump_efficiency)
+    
     inv1 = params.inverter_class(active_medium, pump_system, depop_model1)
     inv2 = params.inverter_class(active_medium, pump_system, depop_model2)
+    
     inversion1 = inv1.invert(params.inversion_rtol, params.inversion_min_count_t)
     inversion2 = inv2.invert(params.inversion_rtol, params.inversion_min_count_t)
+    
     gain_coef1 = inversion1 * active_medium.doping_agent.xsection
     gain_coef2 = inversion2 * active_medium.doping_agent.xsection
+    
     gain1 = math.exp(gain_coef1 * active_medium.length)
     gain2 = math.exp(gain_coef2 * active_medium.length)
+    
     inversion_rdiff = abs((inversion1 - inversion2) / min(inversion1, inversion2))
     gain_rdiff = abs((gain1 - gain2) / min(gain1, gain2))
+    
     return inversion1, inversion2, gain1, gain2, inversion_rdiff, gain_rdiff
 
 def compute_inversion_pump_dependence(task_pool, dirname):
@@ -137,17 +149,11 @@ def compute_inversion_pump_dependence(task_pool, dirname):
     Tau = np.linspace(params.ext_opt_pump_duration[0], params.ext_opt_pump_duration[1], count_tau)
     Pwr = np.linspace(params.ext_opt_pump_power[0], params.ext_opt_pump_power[1], count_pwr)
     
-    num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_samples=params.depop_rate_min_samples)
     depop_model_class1 = params.depop_model_class
     depop_model_class2 = params.ext_alt_depop_model
-    depop_model_kwargs1 = num_model_kwargs if issubclass(depop_model_class1, model.depop.NumericalDepopulationModel) else {}
-    depop_model_kwargs2 = num_model_kwargs if issubclass(depop_model_class2, model.depop.NumericalDepopulationModel) else {}
-    if depop_model_class1 is params.depop_model_class:
-        depop_model_kwargs1.update(params.depop_model_extra_args)
-    if depop_model_class2 is params.depop_model_class:
-        depop_model_kwargs2.update(params.depop_model_extra_args)
-    depop_model1 = depop_model_class1(active_medium, params.lasing_wavelen, **depop_model_kwargs1)
-    depop_model2 = depop_model_class2(active_medium, params.lasing_wavelen, **depop_model_kwargs2)
+    
+    depop_model1 = core.create_depop_model(active_medium, params.depop_model_class)
+    depop_model2 = core.create_depop_model(active_medium, params.ext_alt_depop_model)
     
     inversions1, inversions2, gains1, gains2, inversion_rdiffs, gain_rdiffs = task_pool.parallel_task(compute_inversion_pump_dependence_task, (Tau, Pwr), (), (active_medium, (depop_model1, depop_model2)))
     
@@ -183,27 +189,36 @@ def compute_inversion_pump_dependence(task_pool, dirname):
     
     return inversions1, inversion_rdiffs
 
-def compute_inversion_geom_dependence_task(i, rm, (depop_model_class1, depop_model_class2), (depop_model_kwargs1, depop_model_kwargs2)):
+def compute_inversion_geom_dependence_task(i, rm, pump_system, (depop_model_class1, depop_model_class2)):
     output.show_status((i, None), params.extended_status_strides, False)
-    medium_radius_orig = params.medium_radius
-    params.medium_radius = rm
-    active_medium = core.create_medium(None)
-    depop_model1 = depop_model_class1(active_medium, params.lasing_wavelen, **depop_model_kwargs1)
-    depop_model2 = depop_model_class2(active_medium, params.lasing_wavelen, **depop_model_kwargs2)
-    pump_system = model.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
-    inv1 = params.inverter_class(active_medium, pump_system, depop_model1)
-    inv2 = params.inverter_class(active_medium, pump_system, depop_model2)
-    inversion1 = inv1.invert(params.inversion_rtol, params.inversion_min_count_t)
-    inversion2 = inv2.invert(params.inversion_rtol, params.inversion_min_count_t)
-    gain_coef1 = inversion1 * active_medium.doping_agent.xsection
-    gain_coef2 = inversion2 * active_medium.doping_agent.xsection
-    gain1 = math.exp(gain_coef1 * active_medium.length)
-    gain2 = math.exp(gain_coef2 * active_medium.length)
-    stored_energy1 = model.energy.energy(params.lasing_wavelen, inversion1 * active_medium.volume)
-    stored_energy2 = model.energy.energy(params.lasing_wavelen, inversion2 * active_medium.volume)
-    inversion_rdiff = abs((inversion1 - inversion2) / min(inversion1, inversion2))
-    gain_rdiff = abs((gain1 - gain2) / min(gain1, gain2))
-    params.medium_radius = medium_radius_orig
+    
+    orig_geom = set_geom(rm, params.beam_radius)
+    try:
+        active_medium = core.create_medium(None)
+        
+        depop_model1 = core.create_depop_model(active_medium, depop_model_class1)
+        depop_model2 = core.create_depop_model(active_medium, depop_model_class2)
+        
+        inv1 = params.inverter_class(active_medium, pump_system, depop_model1)
+        inv2 = params.inverter_class(active_medium, pump_system, depop_model2)
+        
+        inversion1 = inv1.invert(params.inversion_rtol, params.inversion_min_count_t)
+        inversion2 = inv2.invert(params.inversion_rtol, params.inversion_min_count_t)
+        
+        gain_coef1 = inversion1 * active_medium.doping_agent.xsection
+        gain_coef2 = inversion2 * active_medium.doping_agent.xsection
+        
+        gain1 = math.exp(gain_coef1 * active_medium.length)
+        gain2 = math.exp(gain_coef2 * active_medium.length)
+        
+        stored_energy1 = model.energy.energy(params.lasing_wavelen, inversion1 * active_medium.volume)
+        stored_energy2 = model.energy.energy(params.lasing_wavelen, inversion2 * active_medium.volume)
+        
+        inversion_rdiff = abs((inversion1 - inversion2) / min(inversion1, inversion2))
+        gain_rdiff = abs((gain1 - gain2) / min(gain1, gain2))
+    finally:
+        set_geom(orig_geom)
+    
     return inversion1, inversion2, gain1, gain2, stored_energy1, stored_energy2, inversion_rdiff, gain_rdiff
 
 def compute_inversion_geom_dependence(task_pool, dirname):
@@ -212,23 +227,18 @@ def compute_inversion_geom_dependence(task_pool, dirname):
     print output.div_line
     print "computing inversion dependence on geometry parameters"
     
+    pump_system = model.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
+    
     min_medium_radius = params.ext_opt_geom_mediumradius[0]
     
     count_rm = params.ext_opt_geom_resolution[0]
     
     Rm = np.linspace(min_medium_radius, params.ext_opt_geom_mediumradius[1], count_rm)
     
-    num_model_kwargs = dict(rtol=params.depop_rate_rtol, min_samples=params.depop_rate_min_samples)
     depop_model_class1 = params.depop_model_class
     depop_model_class2 = params.ext_alt_depop_model
-    depop_model_kwargs1 = num_model_kwargs if issubclass(depop_model_class1, model.depop.NumericalDepopulationModel) else {}
-    depop_model_kwargs2 = num_model_kwargs if issubclass(depop_model_class2, model.depop.NumericalDepopulationModel) else {}
-    if depop_model_class1 is params.depop_model_class:
-        depop_model_kwargs1.update(params.depop_model_extra_args)
-    if depop_model_class2 is params.depop_model_class:
-        depop_model_kwargs2.update(params.depop_model_extra_args)
     
-    inversions1, inversions2, gains1, gains2, stored_energies1, stored_energies2, inversion_rdiffs, gain_rdiffs = task_pool.parallel_task(compute_inversion_geom_dependence_task, (Rm,), (), ((depop_model_class1, depop_model_class2), (depop_model_kwargs1, depop_model_kwargs2)))
+    inversions1, inversions2, gains1, gains2, stored_energies1, stored_energies2, inversion_rdiffs, gain_rdiffs = task_pool.parallel_task(compute_inversion_geom_dependence_task, (Rm,), (), (pump_system, (depop_model_class1, depop_model_class2)))
     
     output.show_status((count_rm, None), params.extended_status_strides, True)
     
@@ -254,11 +264,14 @@ def compute_inversion_geom_dependence(task_pool, dirname):
     
     return inversions1, inversion_rdiffs
 
-def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_medium, (rho, phi), integrator, amp, (count_z, count_t), ref_pulse, decay):
+def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_medium, (rho, phi), (int_type, amp_type), (count_z, count_t), ref_pulse, decay):
     output.show_status((i, j), params.extended_status_strides, False)
     
     initial_inversion = model.inversion.UniformInversion(inversion)
     active_medium.initial_inversion = initial_inversion
+    
+    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
+    amp = amp_type(active_medium, count_z)
     
     upper = np.vectorize(initial_inversion.inversion)(rho, phi, amp.Z)
     lower = np.zeros(count_z)
@@ -280,7 +293,7 @@ def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_m
     fluence_out = model.energy.energy(params.lasing_wavelen, fluence_out)
     return fluence_out
 
-def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions, (int_type, amp_type), (count_z, count_t)):
+def compute_fluence_pump_dependence(task_pool, dirname, inversions, (int_type, amp_type), (count_z, count_t)):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
@@ -292,9 +305,6 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     
     decay = core.get_decay(active_medium, ref_pulse)
     
-    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
-    amp = amp_type(active_medium, count_z)
-    
     count_tau = params.ext_opt_pump_resolution[0]
     count_pwr = params.ext_opt_pump_resolution[1]
     
@@ -302,7 +312,7 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
     Pwr = np.linspace(params.ext_opt_pump_power[0], params.ext_opt_pump_power[1], count_pwr)
     
     rho, phi = input_beam.rho_ref, input_beam.phi_ref
-    fluences = task_pool.parallel_task(compute_fluence_pump_dependence_task, (Tau, Pwr), (inversions,), (active_medium, (rho, phi), integrator, amp, (count_z, count_t), ref_pulse, decay))
+    fluences = task_pool.parallel_task(compute_fluence_pump_dependence_task, (Tau, Pwr), (inversions,), (active_medium, (rho, phi), (int_type, amp_type), (count_z, count_t), ref_pulse, decay))
     
     output.show_status((count_tau, count_pwr), params.extended_status_strides, True)
     
@@ -325,46 +335,42 @@ def compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), 
 def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, (int_type, amp_type), (count_z, count_t)):
     output.show_status((i, j), params.extended_status_strides, False)
     
-    medium_radius_orig = params.medium_radius
-    beam_radius_orig = params.beam_radius
-    params.medium_radius = rm
-    params.beam_radius = rb
-    
-    active_medium = core.create_medium(inversion)
-    input_beam = core.create_beam()
-    rho, phi = input_beam.rho_ref, input_beam.phi_ref
-    ref_pulse = core.create_pulse(active_medium, input_beam, rho, phi)
-    
-    decay = core.get_decay(active_medium, ref_pulse)
-    
-    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
-    amp = amp_type(active_medium, count_z)
-    
-    upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
-    lower = np.zeros(count_z)
-    population = (upper, lower)
-    
-    pulse_fluences = np.empty(params.train_pulse_count)
-    
-    for pnum in range(params.train_pulse_count):
-        density_out, population_final = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
+    orig_geom = set_geom(rm, rb)
+    try:
+        active_medium = core.create_medium(inversion)
+        input_beam = core.create_beam()
+        rho, phi = input_beam.rho_ref, input_beam.phi_ref
+        ref_pulse = core.create_pulse(active_medium, input_beam, rho, phi)
         
-        upper = np.copy(population_final[0])
-        lower = population_final[1] * decay
+        decay = core.get_decay(active_medium, ref_pulse)
+        
+        integrator = model.integrator.DomainIntegrator(int_type, active_medium)
+        amp = amp_type(active_medium, count_z)
+        
+        upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
+        lower = np.zeros(count_z)
         population = (upper, lower)
         
-        fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
-        pulse_fluences[pnum] = fluence_out
-    
-    fluence_out = pulse_fluences[::-1].sum()
-    fluence_out = model.energy.energy(params.lasing_wavelen, fluence_out)
-    
-    params.medium_radius = medium_radius_orig
-    params.beam_radius = beam_radius_orig
+        pulse_fluences = np.empty(params.train_pulse_count)
+        
+        for pnum in range(params.train_pulse_count):
+            density_out, population_final = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
+            
+            upper = np.copy(population_final[0])
+            lower = population_final[1] * decay
+            population = (upper, lower)
+            
+            fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
+            pulse_fluences[pnum] = fluence_out
+        
+        fluence_out = pulse_fluences[::-1].sum()
+        fluence_out = model.energy.energy(params.lasing_wavelen, fluence_out)
+    finally:
+        set_geom(orig_geom)
     
     return fluence_out
 
-def compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions, (int_type, amp_type), (count_z, count_t)):
+def compute_fluence_geom_dependence(task_pool, dirname, inversions, (int_type, amp_type), (count_z, count_t)):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
@@ -379,8 +385,8 @@ def compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), 
     Rm = np.linspace(min_medium_radius, params.ext_opt_geom_mediumradius[1], count_rm)
     Rb = np.linspace(min_beam_radius, params.ext_opt_geom_beamradius[1], count_rb)
     
-    inversions2d = np.meshgrid(inversions, Rb)[0].T
-    fluences = task_pool.parallel_task(compute_fluence_geom_dependence_task, (Rm, Rb), (inversions2d,), ((int_type, amp_type), (count_z, count_t)))
+    inversions = np.meshgrid(inversions, Rb)[0].T
+    fluences = task_pool.parallel_task(compute_fluence_geom_dependence_task, (Rm, Rb), (inversions,), ((int_type, amp_type), (count_z, count_t)))
     
     output.show_status((count_rm, count_rb), params.extended_status_strides, True)
     
@@ -509,7 +515,7 @@ def compute_energy_pump_dependence_task((i, j), (tau, pwr), inversion, num_types
     _, _, output_energy, rel_gain_decrease = core.amplify_train(None, num_types, counts, inversion, quiet=True)
     return output_energy, rel_gain_decrease
 
-def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions, constraints, num_types, counts):
+def compute_energy_pump_dependence(task_pool, dirname, inversions, constraints, num_types, counts):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
@@ -586,30 +592,29 @@ def compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), i
             if params.train_pulse_count > 1:
                 plot.plot_color(filename("gain_decrease"), "Gain decrease", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (rel_gain_decreases.T, None, output.rel_gain_decrease_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
 
-def compute_energy_geom_dependence_task((i, j), (rm, rb), inversion, pulse_photon_count, num_types, counts):
+def compute_energy_geom_dependence_task((i, j), (rm, rb), inversion, num_types, counts):
     output.show_status((i, j), params.extended_status_strides, False)
-    medium_radius_orig = params.medium_radius
-    beam_radius_orig = params.beam_radius
-    params.medium_radius = rm
-    params.beam_radius = rb
-    active_medium = core.create_medium(None)
-    stored_energy = model.energy.energy(params.lasing_wavelen, inversion * active_medium.volume)
-    input_beam = core.create_beam()
-    input_photon_count = input_beam.fluence_integral(active_medium.radius)
-    input_energy = model.energy.energy(params.lasing_wavelen, input_photon_count)
-    input_energy *= params.train_pulse_count
-    _, _, output_energy, rel_gain_decrease = core.amplify_train(None, num_types, counts, inversion, quiet=True)
-    params.medium_radius = medium_radius_orig
-    params.beam_radius = beam_radius_orig
+    
+    orig_geom = set_geom(rm, rb)
+    try:
+        active_medium = core.create_medium(None)
+        input_beam = core.create_beam()
+        stored_energy = model.energy.energy(params.lasing_wavelen, inversion * active_medium.volume)
+        input_photon_count = input_beam.fluence_integral(active_medium.radius)
+        input_energy = model.energy.energy(params.lasing_wavelen, input_photon_count)
+        input_energy *= params.train_pulse_count
+        
+        _, _, output_energy, rel_gain_decrease = core.amplify_train(None, num_types, counts, inversion, quiet=True)
+    finally:
+        set_geom(orig_geom)
+    
     return stored_energy, input_energy, output_energy, rel_gain_decrease
 
-def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions, constraints, num_types, counts):
+def compute_energy_geom_dependence(task_pool, dirname, inversions, constraints, num_types, counts):
     filename = lambda name: os.path.join(dirname, name)
     
     print output.div_line
     print "computing energy dependence on geometry parameters"
-    
-    pulse_photon_count = model.energy.photon_count(params.lasing_wavelen, params.pulse_energy)
     
     min_medium_radius = params.ext_opt_geom_mediumradius[0]
     min_beam_radius = params.ext_opt_geom_beamradius[0]
@@ -620,8 +625,8 @@ def compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), i
     Rm = np.linspace(min_medium_radius, params.ext_opt_geom_mediumradius[1], count_rm)
     Rb = np.linspace(min_beam_radius, params.ext_opt_geom_beamradius[1], count_rb)
     
-    inversions2d = np.meshgrid(inversions, Rb)[0].T
-    stored_energies, input_energies, output_energies, rel_gain_decreases = task_pool.parallel_task(compute_energy_geom_dependence_task, (Rm, Rb), (inversions2d,), (pulse_photon_count, num_types, counts))
+    inversions = np.meshgrid(inversions, Rb)[0].T
+    stored_energies, input_energies, output_energies, rel_gain_decreases = task_pool.parallel_task(compute_energy_geom_dependence_task, (Rm, Rb), (inversions,), (num_types, counts))
     
     output.show_status((count_rm, count_rb), params.extended_status_strides, True)
     
@@ -767,19 +772,20 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), num
             print "geometry"
             min_medium_radius = params.ext_opt_geom_mediumradius[0]
             min_beam_radius = params.ext_opt_geom_beamradius[0]
-            medium_radius_orig = params.medium_radius
-            beam_radius_orig = params.beam_radius
-            params.medium_radius = min_medium_radius
-            params.beam_radius = min_beam_radius
-            max_inversion_geom = inversions_geom[0]
-            num_types_geom, counts_geom = core.select_methods((int_types, amp_types), max_inversion_geom, quiet=True)
-            _, _, count_z_geom, count_t_geom = counts_geom
-            params.medium_radius = medium_radius_orig
-            params.beam_radius = beam_radius_orig
             
-            max_fluences_pump = compute_fluence_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions_pump, num_types_pump, (count_z_pump, count_t_pump))
-            max_fluences_geom = compute_fluence_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions_geom, num_types_geom, (count_z_geom, count_t_geom))
+            orig_geom = set_geom(min_medium_radius, min_beam_radius)
+            try:
+                max_inversion_geom = inversions_geom[0]
+                num_types_geom, counts_geom = core.select_methods((int_types, amp_types), max_inversion_geom, quiet=True)
+                _, _, count_z_geom, count_t_geom = counts_geom
+            finally:
+                set_geom(orig_geom)
+            
+            max_fluences_pump = compute_fluence_pump_dependence(task_pool, dirname, inversions_pump, num_types_pump, (count_z_pump, count_t_pump))
+            max_fluences_geom = compute_fluence_geom_dependence(task_pool, dirname, inversions_geom, num_types_geom, (count_z_geom, count_t_geom))
+            
             pump_constraints = output_pump_constraints(dirname, inversion_rdiffs_pump, max_fluences_pump)
             geom_constraints = output_geom_constraints(dirname, inversion_rdiffs_geom, max_fluences_geom)
-            compute_energy_pump_dependence(task_pool, dirname, (int_types, amp_types), inversions_pump, pump_constraints, num_types_pump, counts_pump)
-            compute_energy_geom_dependence(task_pool, dirname, (int_types, amp_types), inversions_geom, geom_constraints, num_types_geom, counts_geom)
+            
+            compute_energy_pump_dependence(task_pool, dirname, inversions_pump, pump_constraints, num_types_pump, counts_pump)
+            compute_energy_geom_dependence(task_pool, dirname, inversions_geom, geom_constraints, num_types_geom, counts_geom)

@@ -75,6 +75,17 @@ def create_pulse(active_medium, beam, rho, phi, ret_time_trunc_rel_error=False):
     pulse = model.pulse.TruncatedPulse(pulse)
     return (pulse, time_trunc_rel_error) if ret_time_trunc_rel_error else pulse
 
+def create_depop_model(active_medium, depop_model_class):
+    is_numerical = issubclass(depop_model_class, model.depop.NumericalDepopulationModel)
+    if is_numerical:
+        depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_samples=params.depop_rate_min_samples)
+    else:
+        depop_model_kwargs = {}
+    if depop_model_class is params.depop_model_class:
+        depop_model_kwargs.update(params.depop_model_extra_args)
+    depop_model = depop_model_class(active_medium, params.lasing_wavelen, **depop_model_kwargs)
+    return depop_model
+
 def mangle_count_z(count_z):
     count_z = max(count_z, 3)
     count_z = model.util.steps(model.util.divs(count_z))
@@ -96,17 +107,11 @@ def compute_inversion(dirname):
     print output.div_line
     print "computing population inversion"
     
-    is_numerical = issubclass(params.depop_model_class, model.depop.NumericalDepopulationModel)
     active_medium = create_medium(None)
     pump_system = model.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
-    depop_model_kwargs = dict(rtol=params.depop_rate_rtol) if is_numerical else {}
-    if is_numerical:
-        depop_model_kwargs = dict(rtol=params.depop_rate_rtol, min_samples=params.depop_rate_min_samples)
-    else:
-        depop_model_kwargs = {}
-    depop_model_kwargs.update(params.depop_model_extra_args)
-    depop_model = params.depop_model_class(active_medium, params.lasing_wavelen, **depop_model_kwargs)
+    depop_model = create_depop_model(active_medium, params.depop_model_class)
     inv = params.inverter_class(active_medium, pump_system, depop_model)
+    
     ref_inversion = inv.invert(params.inversion_rtol, params.inversion_min_count_t)
     rate_evals = (len(inv.inversion) - 1) * inv.evals_per_step
     pump_energy = params.pump_duration * params.pump_power
@@ -114,19 +119,19 @@ def compute_inversion(dirname):
     
     if params.verbose:
         print "count_t:", len(inv.T)
-        print "number of depopulation rate evaluations:", rate_evals
+        print "population rate evaluation count:", rate_evals
     
     if params.inversion_validate:
         print "validating uniform ASE-induced depopulation rate approximation"
-        ross_num_model = depop_model if isinstance(depop_model, model.depop.RossNumericalASEModel) else model.depop.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.depop_rate_rtol, params.depop_rate_min_samples)
+        ross_num_model = inv.depop_model if isinstance(inv.depop_model, model.depop.RossNumericalASEModel) else model.depop.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.depop_rate_rtol, params.depop_rate_min_samples)
         rate_rel_stddev = ross_num_model.rate_rel_stddev(ref_inversion)
         unitconv.print_result("depopulation rate rel. std. deviation [{}]: {}", ("%",), (rate_rel_stddev,))
         if rate_rel_stddev > 10.0e-2:
             warnings.warn("uniform ASE-induced depopulation rate approximation is invalid", stacklevel=2)
     
-    if is_numerical:
+    if issubclass(inv.depop_model, model.depop.NumericalDepopulationModel):
         print "perturbing population inversion"
-        perturb_depop_model = model.depop.PerturbedDepopulationModel(depop_model)
+        perturb_depop_model = model.depop.PerturbedDepopulationModel(inv.depop_model)
         perturb_inv = params.inverter_class(active_medium, pump_system, perturb_depop_model)
         perturb_ref_inversion = perturb_inv.invert(params.inversion_rtol, params.inversion_min_count_t)
         abs_error = abs(perturb_ref_inversion - ref_inversion) + (ref_inversion + perturb_ref_inversion) * params.inversion_rtol
@@ -145,6 +150,7 @@ def compute_inversion(dirname):
     unitconv.print_result("population inversion [{}]: {} ~ {}", ("cm^-3",), (ref_inversion, ref_inversion_atol))
     unitconv.print_result("small signal gain: {} ~ {}", (), (gain, gain_atol))
     unitconv.print_result("stored energy [{}]: {} ~ {}", ("mJ",), (stored_energy, stored_energy_atol))
+    
     if params.graphs:
         print "generating output"
         dirname = output.init_dir(dirname)
