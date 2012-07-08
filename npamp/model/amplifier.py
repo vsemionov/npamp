@@ -54,7 +54,7 @@ class PulseAmplifier(object):
         self.population = None
     
     @staticmethod
-    def min_steps_z(cls, active_medium):
+    def min_steps_z(active_medium):
         raise NotImplementedError()
     
     def min_steps_t(self, input_pulse):
