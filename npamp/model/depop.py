@@ -39,7 +39,7 @@ import exc
 # Having these in mind, the depopulation rate functions, as per these ASE models, are only defined in the domain of non-negative inversions.
 
 
-def decay_rate(inversion, volume, probability):
+def inversion_decay_rate(inversion, volume, probability):
     rate = inversion * volume * probability
     return rate
 
@@ -107,7 +107,7 @@ class FluorescenceModel(ExactDepopulationModel):
     descr = "fluorescence"
     
     def calc_rate(self, inversion):
-        rate = decay_rate(inversion, self.active_medium.volume, self.upper_probability)
+        rate = inversion_decay_rate(inversion, self.active_medium.volume, self.upper_probability)
         return rate
 
 @concrete
@@ -125,9 +125,9 @@ class LinfordASEModel(ExactDepopulationModel):
         power = 2.0 * active_medium.aperture * intensity
         rate = energy.photon_count(self.wavelen, power)
         # fluorescence in directions outside of the two active solid angles:
-        rate += (1.0 - 2.0 * self.active_solid_angle / (4.0 * math.pi)) * decay_rate(inversion, active_medium.volume, self.radiative_probability)
+        rate += (1.0 - 2.0 * self.active_solid_angle / (4.0 * math.pi)) * inversion_decay_rate(inversion, active_medium.volume, self.radiative_probability)
         # fluorescence to other states:
-        rate += decay_rate(inversion, active_medium.volume, self.nonradiative_probability)
+        rate += inversion_decay_rate(inversion, active_medium.volume, self.nonradiative_probability)
         return rate
 
 @concrete
