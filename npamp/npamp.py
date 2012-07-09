@@ -29,19 +29,20 @@
 import sys
 import os
 
+import time
 import glob
 import getopt
-import time
 
 import signal
 import multiprocessing
 
 import meta
 import params
-import core
-import mp
 import output
+import core
 import ext
+import cfg
+import mp
 import svc
 
 
@@ -101,17 +102,6 @@ def print_extensions(extensions):
             name, doc = extension.__name__, extension.__doc__
             print "%s: %s" % (name, doc)
 
-def load_conf(defaults, path):
-    conf = defaults.copy()
-    diff = dict()
-    if path:
-        execfile(path, diff)
-    conf.update(diff)
-    if conf.pop("version", params.version) != params.version:
-        raise core.ConfigurationError("unsupported configuration file format version")
-    conf = core.copy_conf(conf)
-    return conf
-
 def run(conf_path, output_path, definitions):
     start_time = time.time()
     
@@ -120,7 +110,7 @@ def run(conf_path, output_path, definitions):
         if params.verbose:
             print "reading configuration from:", conf_path
         
-        conf = load_conf(params.__dict__, conf_path)
+        conf = cfg.load_conf(params.__dict__, conf_path)
         params.__dict__.update(conf)
     
     if definitions is not None:
@@ -128,7 +118,7 @@ def run(conf_path, output_path, definitions):
             exec definition in params.__dict__
     
     print "validating"
-    core.validate()
+    cfg.validate()
     
     if params.graphs:
         if not output_path:

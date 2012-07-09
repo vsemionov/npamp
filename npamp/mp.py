@@ -35,7 +35,7 @@ import multiprocessing
 import numpy as np
 
 import params
-import core
+import cfg
 
 
 # The MP IO subsystem is flawed and needs to be redesigned.
@@ -99,7 +99,7 @@ class TaskPool(object):
         self.pool = None
         self.num_tasks = num_tasks or multiprocessing.cpu_count()
         if num_tasks != 1:
-            conf = core.copy_conf(task_params)
+            conf = cfg.copy_conf(task_params)
             self.io_queue = multiprocessing.Queue()
             self.oldfiles = sys.stdout, sys.stderr
             self.input_thread = threading.Thread(target=input_thread, args=(self.io_queue, sys.stdout, self.oldfiles))

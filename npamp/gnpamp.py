@@ -48,7 +48,7 @@ import outwin
 
 old_excepthook = None
 
-defaults = npamp.load_conf(npamp.params.__dict__, None)
+defaults = npamp.cfg.load_conf(npamp.params.__dict__, None)
 
 
 def boot_excepthook(exc_type, value, traceback):
@@ -61,7 +61,7 @@ def repr_classless(v):
     return re.sub("<class '([^']+?)'>", "\\1", repr(v))
 
 def file2conf(path):
-    conf = npamp.load_conf(defaults, path)
+    conf = npamp.cfg.load_conf(defaults, path)
     return conf
 
 def conf2file(conf, path):
@@ -85,7 +85,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         self.monitor_pipe = multiprocessing.Pipe(False)
         self.old_excepthook = None
         self.widget_module_map = dict()
-        self.working_conf = npamp.core.copy_conf(defaults)
+        self.working_conf = npamp.cfg.copy_conf(defaults)
         self.working_path = None
         self.output_path = None
         self.setupUi(self)
@@ -184,7 +184,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             set_widget_value(labels[0], widgets[0], value)
         
         if self.gui2conf() != conf:
-            raise npamp.core.ConfigurationError("invalid parameter value(s)")
+            raise npamp.cfg.ConfigurationError("invalid parameter value(s)")
     
     def gui2conf(self):
         def get_widget_value(label, widget, defval):
@@ -284,7 +284,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     def onNew(self):
         if self.confirmProceed():
             self.conf2gui(defaults)
-            self.working_conf = npamp.core.copy_conf(defaults)
+            self.working_conf = npamp.cfg.copy_conf(defaults)
             self.working_path = None
             self.output_path = None
             self.updateUI()

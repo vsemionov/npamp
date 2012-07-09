@@ -34,8 +34,8 @@ import numpy as np
 
 import params
 import model
-import plot
 import core
+import plot
 import output
 import unitconv
 
