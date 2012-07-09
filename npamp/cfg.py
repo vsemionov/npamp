@@ -41,6 +41,14 @@ class ConfigurationError(Exception):
 copy_conf = lambda conf: {k: v for k, v in conf.items() if not k.startswith('_') and type(v) is not types.ModuleType}
 
 
+def check_conf(defaults, conf):
+    unrecognized = []
+    for parameter in conf:
+        if parameter not in defaults:
+            unrecognized.append(parameter)
+    if unrecognized:
+        raise ConfigurationError("unrecognized parameter(s): %s" % ", ".join(unrecognized))
+
 def load_conf(defaults, path):
     conf = defaults.copy()
     
@@ -54,12 +62,7 @@ def load_conf(defaults, path):
     
     conf = copy_conf(conf)
     
-    unrecognized = []
-    for parameter in conf.keys():
-        if parameter not in defaults:
-            unrecognized.append(parameter)
-    if unrecognized:
-        raise ConfigurationError("unrecognized parameter(s): %s" % ", ".join(unrecognized))
+    check_conf(defaults, conf)
     
     return conf
 

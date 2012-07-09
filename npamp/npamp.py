@@ -125,8 +125,13 @@ def run(conf_path, output_path, definitions):
         conf = cfg.load_conf(params.__dict__, conf_path)
         params.__dict__.update(conf)
     if definitions is not None:
+        diff = dict()
         for definition in definitions:
-            exec definition in params.__dict__
+            exec definition in diff
+        defaults = cfg.copy_conf(params.__dict__)
+        diff = cfg.copy_conf(diff)
+        cfg.check_conf(defaults, diff)
+        params.__dict__.update(diff)
     
     if params.verbose:
         print "verbose output enabled"
