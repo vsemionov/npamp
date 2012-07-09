@@ -147,7 +147,7 @@ def compute_inversion(dirname):
     unitconv.print_result("stored energy [{}]: {} ~ {}", ("mJ",), (stored_energy, stored_energy_atol))
     
     if params.graphs:
-        print "generating output"
+        print output.status_writing
         dirname = output.init_dir(dirname)
         output.plot_inversion(dirname, inv)
     
@@ -263,7 +263,7 @@ def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
         fluences = np.empty(amp.count_z)
         for l in range(amp.count_z):
             fluences[l] = integrator.integrate(amp.T, amp.density[l]) * active_medium.light_speed
-        print "generating output"
+        print output.status_writing
         dirname = output.init_dir(dirname)
         output.plot_output(dirname, input_beam, ref_pulse, params.pulse_duration, amp, fluences, exact_density_out, exact_population_out)
 
@@ -338,7 +338,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     rel_gain_decrease = 1.0 - output_photon_counts[-1] / output_photon_counts[0]
     if not quiet:
         if params.graphs:
-            print "generating output"
+            print output.status_writing
             ref_pulse_dir = os.path.join(dirname, output.ref_pulse_rel_path)
             dirname = output.init_dir(dirname)
             ref_pulse_dir = output.init_dir(ref_pulse_dir)

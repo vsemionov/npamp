@@ -75,7 +75,7 @@ def compare_depop_models(dirname):
         unitconv.print_result("depopulation rate [{}]: {}", ("cm^-3 s^-1",), (depop_rate[-1],))
     
     if params.graphs:
-        print "generating output"
+        print output.status_writing
         dirname = os.path.join(dirname, output.models_rel_path)
         dirname = output.init_dir(dirname)
         data.sort(key = lambda x: x[1][-1], reverse=True)
@@ -166,7 +166,7 @@ def compute_inversion_pump_dependence(task_pool, dirname):
     stored_energies2 = model.energy.energy(params.lasing_wavelen, inversions2 * active_medium.volume)
     
     if params.graphs:
-        print "generating output"
+        print output.status_writing
         dirname = os.path.join(dirname, output.opt_pump_rel_path)
         inversion_rdiff_max = params.ext_opt_inversion_rdiff_max
         zlim = None #(0.0, inversion_rdiff_max)
@@ -245,7 +245,7 @@ def compute_inversion_geom_dependence(task_pool, dirname):
     output.show_status((count_rm, None), params.extended_status_strides, True)
     
     if params.graphs:
-        print "generating output"
+        print output.status_writing
         dirname = os.path.join(dirname, output.opt_geom_rel_path)
         dirname = output.init_dir(dirname)
         inversion_rdiff_max = params.ext_opt_inversion_rdiff_max
@@ -320,7 +320,7 @@ def compute_fluence_pump_dependence(task_pool, dirname, inversions, (int_type, a
     output.show_status((count_tau, count_pwr), params.extended_status_strides, True)
     
     if params.graphs:
-        print "generating output"
+        print output.status_writing
         dirname = os.path.join(dirname, output.opt_pump_rel_path)
         fluence_max = params.ext_opt_fluence_max
         zlim = None #(0.0, fluence_max)
@@ -395,7 +395,7 @@ def compute_fluence_geom_dependence(task_pool, dirname, inversions, (int_type, a
     output.show_status((count_rm, count_rb), params.extended_status_strides, True)
     
     if params.graphs:
-        print "generating output"
+        print output.status_writing
         dirname = os.path.join(dirname, output.opt_geom_rel_path)
         dirname = output.init_dir(dirname)
         fluence_max = params.ext_opt_fluence_max
@@ -428,7 +428,7 @@ def output_pump_constraints(dirname, inversion_rdiffs, max_fluences):
     contour_comps = [1.0, 1.0]
     
     if params.graphs:
-        print "generating output"
+        print output.status_writing
         dirname = os.path.join(dirname, output.opt_pump_rel_path)
         graph_types = [
             (dirname, Pwr,output. pump_power_label),
@@ -464,7 +464,7 @@ def output_geom_constraints(dirname, inversion_rdiffs, max_fluences):
     xval_comps = [-1.0]
     
     if params.graphs:
-        print "generating output"
+        print output.status_writing
         dirname = os.path.join(dirname, output.opt_geom_rel_path)
         dirname = output.init_dir(dirname)
         plot.plot_contour(filename("constraints"), "Geometry Parameters Domain Constraints", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), contours, xvals=xvals)
@@ -580,7 +580,7 @@ def compute_energy_pump_dependence(task_pool, dirname, inversions, constraints, 
     unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), rel_gain_decrease_optimum_params)
     
     if params.graphs:
-        print "generating output"
+        print output.status_writing
         extra_contours, xvals, yvals = limits
         dirname = os.path.join(dirname, output.opt_pump_rel_path)
         graph_types = [
@@ -669,7 +669,7 @@ def compute_energy_geom_dependence(task_pool, dirname, inversions, constraints, 
     unitconv.print_result("optimum geometry parameters (medium diameter [{}], beam diameter [{}]): ({}, {})", ("mm", "mm"), rel_gain_decrease_optimum_params)
     
     if params.graphs:
-        print "generating output"
+        print output.status_writing
         extra_contours, xvals, yvals = limits
         dirname = os.path.join(dirname, output.opt_geom_rel_path)
         dirname = output.init_dir(dirname)
@@ -736,7 +736,7 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
     unitconv.print_result("fluence gain: {}", (), (fluence_gain_3,))
     
     if params.graphs:
-        print "generating output"
+        print output.status_writing
         dirname = os.path.join(dirname, output.ref_pulse_rel_path)
         dirname = output.init_dir(dirname)
         T = amp.T

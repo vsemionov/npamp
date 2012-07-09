@@ -34,6 +34,7 @@ import plot
 
 
 div_line = "=" * 32
+status_writing = "generating output"
 
 output_dir = None
 models_rel_path = "pumping"
