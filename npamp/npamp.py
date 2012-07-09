@@ -124,15 +124,12 @@ def run(conf_path, output_path, definitions):
     if conf_path is not None:
         conf = cfg.load_conf(params.__dict__, conf_path)
         params.__dict__.update(conf)
+    if definitions is not None:
+        for definition in definitions:
+            exec definition in params.__dict__
     
     if params.verbose:
         print "verbose output enabled"
-    
-    if definitions is not None:
-        if params.verbose:
-            print "processing additional definitions"
-        for definition in definitions:
-            exec definition in params.__dict__
     
     if params.lower_process_priority:
         if params.verbose:
