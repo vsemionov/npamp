@@ -106,9 +106,10 @@ def execute(task_pool):
     else:
         ref_inversion, inversion_rel_error = params.initial_inversion, 0.0
     
+    int_types, amp_types = params.integrator_classes, params.amplifier_classes
+    
     numerics = None
     if params.amplification:
-        int_types, amp_types = params.integrator_classes, params.amplifier_classes
         numerics, rel_errors = core.select_methods((int_types, amp_types), ref_inversion, ret_rel_errors=True)
         num_types, counts = numerics
         core.amplify_ref_pulse(dirname, num_types, counts, ref_inversion)
