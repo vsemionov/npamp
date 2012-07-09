@@ -146,6 +146,7 @@ def run(conf_path, output_path, definitions):
     if params.graphs:
         if not output_path:
             raise InvocationError("no output directory")
+        output_path = os.path.normpath(output_path)
         if params.verbose:
             print "graphs will be written to:", output_path
     output.output_dir = output_path
