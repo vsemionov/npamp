@@ -255,21 +255,8 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
         del exact_inversion_final
         
         inversion_abs_error = abs(num_inversion_integral - exact_inversion_integral) + fluence_rtol * (num_inversion_integral + exact_inversion_integral)
-        
-        if lower_decay != 0.0:
-            num_inversion_final_alt = num_upper_final
-            exact_inversion_final_alt = exact_upper_final
-            
-            num_inversion_integral_alt = integrator.integrate(num_Z, num_inversion_final_alt)
-            del num_inversion_final_alt
-            exact_inversion_integral_alt = integrator.integrate(exact_Z, exact_inversion_final_alt)
-            del  exact_inversion_final_alt
-            
-            inversion_abs_error_alt = abs(num_inversion_integral_alt - exact_inversion_integral_alt) + fluence_rtol * (num_inversion_integral_alt + exact_inversion_integral_alt)
-            
-            inversion_abs_error = max(inversion_abs_error, inversion_abs_error_alt)
-        
         rel_error_inversion = math.exp(active_medium.doping_agent.xsection * inversion_abs_error) - 1.0
+        
         rel_error = rel_error_density + rel_error_inversion
         return rel_error
     def amplify_pulse(count_z, count_t):
