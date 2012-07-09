@@ -39,7 +39,8 @@ import multiprocessing
 import meta
 import params
 import output
-import ctrl
+import core
+import ext
 import cfg
 import mp
 import svc
@@ -97,6 +98,26 @@ def load_extensions():
         extensions.append(extension)
     return extensions
 
+def execute(task_pool):
+    dirname = "."
+    
+    if not params.initial_inversion:
+        ref_inversion, inversion_rel_error = core.compute_inversion(dirname)
+    else:
+        ref_inversion, inversion_rel_error = params.initial_inversion, 0.0
+    
+    numerics = None
+    if params.amplification:
+        int_types, amp_types = params.integrator_classes, params.amplifier_classes
+        numerics, rel_errors = core.select_methods((int_types, amp_types), ref_inversion, ret_rel_errors=True)
+        num_types, counts = numerics
+        core.amplify_ref_pulse(dirname, num_types, counts, ref_inversion)
+        max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease = core.amplify_train(dirname, num_types, counts, ref_inversion)
+        core.report_results(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, inversion_rel_error, rel_errors)
+    
+    if params.extended_mode:
+        ext.extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), numerics)
+
 def run(conf_path, output_path, definitions):
     print "configuring"
     if conf_path is not None:
@@ -136,7 +157,7 @@ def run(conf_path, output_path, definitions):
             print "number of parallel tasks:", task_pool.num_tasks
         
         start_time = time.time()
-        ctrl.execute(task_pool)
+        execute(task_pool)
         end_time = time.time()
         elapsed_time = end_time - start_time
         
