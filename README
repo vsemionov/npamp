@@ -41,7 +41,7 @@ Implementation Features
 * Generates publication-quality figures.
 * Simple graphical user interface.
 * Command-line interface, facilitating the automation of research.
-* Extensible through Python modules.
+* Extensible by means of Python modules.
 * Freely distributable under the terms of the BSD license.
 
 
@@ -234,7 +234,7 @@ In cases when examination of the temporal or spatial evolution of the computed q
 Extensions
 ==========
 
-NPAmp is extensible through Python modules. To install an extension module:
+NPAmp is extensible by means of Python modules. To install an extension module:
 
 1. Create the <home>/.npamp/extensions directory, if it doesn't exist, where <home> denotes the path to the user's home directory.
 2. Copy the extension module to the above directory.
