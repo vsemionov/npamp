@@ -28,8 +28,6 @@
 import sys
 import os
 
-import output
-
 
 # http://code.activestate.com/recipes/496767/
 def win32_setpriority(pid=None,priority=1):
@@ -52,10 +50,11 @@ def win32_setpriority(pid=None,priority=1):
     # vsemionov: close the process handle
     win32api.CloseHandle(handle)
 
-def lower_process_priority():
+def reduce_process_priority():
     if os.name == "posix":
         os.nice(10)
     elif os.name == "nt":
         win32_setpriority(None, 1)
     else:
-        output.warn("unable to reduce process priority: unsupported platform / operating system (%s/%s)" % (sys.platform, os.name))
+        warning = "unable to reduce process priority: unsupported platform / operating system (%s/%s)" % (sys.platform, os.name)
+        return warning

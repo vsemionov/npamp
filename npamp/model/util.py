@@ -29,4 +29,4 @@ import sys
 
 
 def warn(message, *args, **kwargs):
-    print >>sys.stderr, message
+    print >>sys.stderr, "warning:", message

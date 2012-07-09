@@ -86,7 +86,7 @@ lower_lifetime_unit = "ns"
 
 
 def warn(message):
-    print >>sys.stderr, message
+    print >>sys.stderr, "warning:", message
 
 def show_status((i, j), (si, sj), done):
     def print_status():

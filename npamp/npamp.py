@@ -100,36 +100,40 @@ def load_extensions():
 def run(conf_path, output_path, definitions):
     print "configuring"
     if conf_path is not None:
-        if params.verbose:
-            print "reading configuration from:", conf_path
         conf = cfg.load_conf(params.__dict__, conf_path)
         params.__dict__.update(conf)
     
+    if params.verbose:
+        print "verbose output enabled"
+    
     if definitions is not None:
+        if params.verbose:
+            print "processing additional definitions"
         for definition in definitions:
             exec definition in params.__dict__
     
-    print "validating"
-    cfg.validate()
+    if params.lower_process_priority:
+        if params.verbose:
+            print "reducing process priority"
+        warning = svc.reduce_process_priority()
+        if warning:
+            output.warn(warning)
     
     if params.graphs:
         if not output_path:
             raise InvocationError("no output directory")
         if params.verbose:
             print "graphs will be written to:", output_path
-    else:
-        if params.verbose:
-            print "graphs will not be written"
     output.output_dir = output_path
     
-    if params.lower_process_priority:
-        svc.lower_process_priority()
+    print "validating"
+    cfg.validate()
     
     with mp.TaskPool(params.num_tasks, params.extended_mode, params.__dict__) as task_pool:
+        print "executing"
+        
         if params.verbose:
             print "number of parallel tasks:", task_pool.num_tasks
-        
-        print "executing"
         
         start_time = time.time()
         ctrl.execute(task_pool)
