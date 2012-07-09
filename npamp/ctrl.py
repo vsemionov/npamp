@@ -46,7 +46,7 @@ def execute(task_pool):
         num_types, counts = numerics
         core.amplify_ref_pulse(dirname, num_types, counts, ref_inversion)
         max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease = core.amplify_train(dirname, num_types, counts, ref_inversion)
-        core.report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, inversion_rel_error, rel_errors)
+        core.report_results(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, inversion_rel_error, rel_errors)
     
     if params.extended_mode:
         ext.extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), numerics)

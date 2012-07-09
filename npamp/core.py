@@ -340,7 +340,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     
     return max_output_fluence, output_photon_counts, train_output_energy, rel_gain_decrease
 
-def report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, inversion_rel_error, rel_errors):
+def report_results(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, inversion_rel_error, rel_errors):
     print output.div_line
     print "results:"
     
