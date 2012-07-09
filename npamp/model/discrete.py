@@ -25,8 +25,20 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import sys
+import math
 
 
-def warn(message, *args, **kwargs):
-    print >>sys.stderr, message
+def steps(divs):
+    steps = 2**divs + 1
+    return steps
+
+def divs(min_steps):
+    divs = int(math.ceil(math.log(min_steps - 1, 2.0)))
+    return divs
+
+def mangle_count_tv(count_tv):
+    count_tv = max(count_tv, 1)
+    if count_tv > 1:
+        count_tv = max(count_tv, 3)
+        count_tv = steps(divs(count_tv))
+    return count_tv

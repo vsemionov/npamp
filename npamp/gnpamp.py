@@ -37,8 +37,9 @@ import multiprocessing
 
 from PySide import QtCore, QtGui
 
-import meta
 import model
+
+import meta
 import npamp
 import unitconv
 

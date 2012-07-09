@@ -25,15 +25,15 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import copy
-
 import math
 import functools
-import warnings
+
+import copy
 
 import numpy as np
 
 import amplifier
+import discrete
 import util
 
 
@@ -52,7 +52,7 @@ def pulse_scale(pulse, trunc_rtol):
         scale *= 2.0
     return scale, trunc_rel_error
 
-def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, ret_extra=False):
+def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname, varnames, ret_extra=False):
     min_count_x, min_count_y = min_counts
     var_x, var_y = varspace
     
@@ -65,20 +65,20 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, ret_ext
         count_x = 1
     else:
         min_count_x = max(min_count_x, 3)
-        divs_x = util.divs(min_count_x)
-        count_x = util.steps(divs_x)
+        divs_x = discrete.divs(min_count_x)
+        count_x = discrete.steps(divs_x)
     if not var_y and min_count_y == 1:
         divs_y = 0
         count_y = 1
     else:
         min_count_y = max(min_count_y, 3)
-        divs_y = util.divs(min_count_y)
-        count_y = util.steps(divs_y)
+        divs_y = discrete.divs(min_count_y)
+        count_y = discrete.steps(divs_y)
     
     counts = count_x, count_y
     
     if divs_x + divs_y > max_divs_sum:
-        warnings.warn("min. step counts (%d, %d) and corresponding min. divs (%d, %d) too large; max. divs sum: %d" % (count_x, count_y, divs_x, divs_y, max_divs_sum), stacklevel=2)
+        util.warn("min. %s %s step counts (%d, %d) and corresponding min. divs (%d, %d) too large; max. divs sum: %d" % (opname, varnames, count_x, count_y, divs_x, divs_y, max_divs_sum), stacklevel=2)
         return None
     
     result, rel_error = compute_result(*counts)
@@ -91,11 +91,11 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, ret_ext
         count_x, count_y = counts
         
         if var_x:
-            counts_x = util.steps(divs_x+1), count_y
+            counts_x = discrete.steps(divs_x+1), count_y
             result_x, rel_error_x = compute_result(*counts_x)
             rdiff_x = compute_rdiff(result, result_x)
         if var_y:
-            counts_y = count_x, util.steps(divs_y+1)
+            counts_y = count_x, discrete.steps(divs_y+1)
             result_y, rel_error_y = compute_result(*counts_y)
             rdiff_y = compute_rdiff(result, result_y)
         
@@ -115,7 +115,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, ret_ext
         if max(rdiff, last_rel_error) < rtol:
             break
         elif divs_x + divs_y > max_divs_sum or math.isinf(rdiff):
-            warnings.warn("unable to reach rtol (%f); latest counts: (%d, %d); latest divs: (%d, %d); max. divs sum: %d; latest rel. error: %f, latest rel. difference: %f" % (rtol, count_x, count_y, last_divs_x, last_divs_y, max_divs_sum, rel_error, rdiff), stacklevel=2)
+            util.warn("max. %s %s divs sum (%d) exceeded; rtol: %f; latest counts: (%d, %d); latest divs: (%d, %d); latest rel. error: %f, latest rel. difference: %f" % (opname, varnames, max_divs_sum, rtol, count_x, count_y, last_divs_x, last_divs_y, rel_error, rdiff), stacklevel=2)
             break
     
     if ret_extra:
@@ -123,12 +123,12 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, ret_ext
     return last_counts
 
 def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_rtol):
-    def converge_steps(func, a, b):
+    def converge_steps(func, a, b, varname):
         max_divs = 12
         divs = 1
         last_res = None
         while True:
-            steps = util.steps(divs)
+            steps = discrete.steps(divs)
             X = np.linspace(a, b, steps)
             Y = np.vectorize(func)(X)
             res = integrator.integrate(X, Y)
@@ -140,10 +140,10 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
             divs += 1
             if divs > max_divs:
                 if diff is not None:
-                    warnings.warn("max. divs (%d) exceeded; latest difference: %f (current: %f; last: %f)" % (max_divs, diff, res, last_res), stacklevel=3)
+                    util.warn("max. integration %s divs (%d) exceeded; rtol: %f; latest step count: %d; latest difference: %f (current: %f; last: %f)" % (varname, max_divs, rtol, steps, diff, res, last_res), stacklevel=3)
                     break
                 else:
-                    raise ValueError("max. divs (%d) exceeded" % max_divs)
+                    raise ValueError("max. integration %s divs (%d) exceeded; rtol: %f; latest step count: %d" % (varname, max_divs, rtol, steps))
             last_res = res
         return steps
     def fluence_integrals(steps_rho, steps_phi):
@@ -190,7 +190,7 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
         steps_phi = 1
     else:
         compute_rdiff = lambda last_res, res: max([abs((res[i] - last_res[i]) / res[i]) for i in range(len(res))])
-        steps_rho, steps_phi = min_steps((1, 1), (beam_rho, beam_phi), rtol, fluence_integrals, compute_rdiff)
+        steps_rho, steps_phi = min_steps((1, 1), (beam_rho, beam_phi), rtol, fluence_integrals, compute_rdiff, "integration", "(rho, phi)")
     
     active_medium_3 = copy.deepcopy(active_medium)
     active_medium_3.doping_agent.lower_lifetime = float("inf")
@@ -215,10 +215,11 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
         density_out = lambda t: pulse.density(t) * gain
         density_out_3 = lambda t: exact_amp_3.exact_density(L, t)
         density_out_4 = lambda t: exact_amp_4.exact_density(L, t)
-        steps_t_0 = converge_steps(density_in, t0, t0 + T)
-        steps_t_1 = converge_steps(density_out, t0, t0 + T)
-        steps_t_3 = converge_steps(density_out_3, t0, t0 + T)
-        steps_t_4 = converge_steps(density_out_4, t0, t0 + T)
+        timename = "time"
+        steps_t_0 = converge_steps(density_in, t0, t0 + T, timename)
+        steps_t_1 = converge_steps(density_out, t0, t0 + T, timename)
+        steps_t_3 = converge_steps(density_out_3, t0, t0 + T, timename)
+        steps_t_4 = converge_steps(density_out_4, t0, t0 + T, timename)
         steps_t = max(steps_t, steps_t_0, steps_t_1, steps_t_3, steps_t_4)
     
     rtol = fluence_rtol
@@ -230,8 +231,9 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
         exact_amp_4.input_pulse = pulse
         inversion_out_3 = lambda z: population_inversion(exact_amp_3.exact_population(z, T))
         inversion_out_4 = lambda z: population_inversion(exact_amp_4.exact_population(z, T))
-        steps_z_3 = converge_steps(inversion_out_3, 0.0, L)
-        steps_z_4 = converge_steps(inversion_out_4, 0.0, L)
+        zname = "z"
+        steps_z_3 = converge_steps(inversion_out_3, 0.0, L, zname)
+        steps_z_4 = converge_steps(inversion_out_4, 0.0, L, zname)
         steps_z = max(steps_z, steps_z_3, steps_z_4)
     
     return steps_rho, steps_phi, steps_z, steps_t
@@ -293,7 +295,7 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
     lower_decay = amplifier.lower_state_decay(active_medium, pulse_train)
     
     compute_rdiff = functools.partial(compute_rel_error, lower_decay)
-    data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_pulse, compute_rdiff, ret_extra)
+    data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_pulse, compute_rdiff, "amplification", "(z, t)", ret_extra)
     
     return data
 

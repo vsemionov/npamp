@@ -26,10 +26,10 @@
 
 
 import math
-import warnings
 
 import native
 import energy
+import util
 import exc
 
 
@@ -180,7 +180,7 @@ class RossNumericalASEModel(NumericalDepopulationModel):
     
     def _rate_coef(self, inversion):
         if self.min_samples > self.max_samples:
-            raise exc.ModelError("min. sample count (%d) is greater than max. sample count (%d)" % (self.min_samples, self.max_samples))
+            raise exc.ModelError("min. depop. rate sample count (%d) is greater than max. sample count (%d)" % (self.min_samples, self.max_samples))
         nsamples = self.min_samples
         while True:
             B, B_rel_error = self._integrate_B(inversion, nsamples)
@@ -191,7 +191,7 @@ class RossNumericalASEModel(NumericalDepopulationModel):
                 break
             nsamples *= self.sample_count_multiplier
             if nsamples > self.max_samples:
-                warnings.warn("max. sample count (%d) exceeded; latest rel. error: %f" % (self.max_samples, rate_rel_error), stacklevel=2)
+                util.warn("max. depop. rate sample count (%d) exceeded; latest rel. error: %f" % (self.max_samples, rate_rel_error), stacklevel=2)
                 break
         return rate_coef
     

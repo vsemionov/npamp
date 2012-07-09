@@ -29,14 +29,15 @@ import sys
 import os
 
 import math
+
 import copy
-import warnings
 import traceback
 
 import numpy as np
 
-import params
 import model
+
+import params
 import output
 import unitconv
 
@@ -115,7 +116,7 @@ def compute_inversion(dirname):
         rate_rel_stddev = ross_num_model.rate_rel_stddev(ref_inversion)
         unitconv.print_result("depopulation rate rel. std. deviation [{}]: {}", ("%",), (rate_rel_stddev,))
         if rate_rel_stddev > 10.0e-2:
-            warnings.warn("uniform ASE-induced depopulation rate approximation is invalid", stacklevel=2)
+            output.warn("uniform ASE-induced depopulation rate approximation is invalid")
     
     if isinstance(depop_model, model.depop.NumericalDepopulationModel):
         print "perturbing population inversion"
@@ -167,8 +168,8 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
             print "attempting to recover"
             sys.exc_clear()
             continue
-        count_rho = max(count_rho, model.util.mangle_count_tv(params.min_count_rho))
-        count_phi = max(count_phi, model.util.mangle_count_tv(params.min_count_phi))
+        count_rho = max(count_rho, model.discrete.mangle_count_tv(params.min_count_rho))
+        count_phi = max(count_phi, model.discrete.mangle_count_tv(params.min_count_phi))
         min_count_z = max(min_count_z, params.min_count_z)
         min_count_t = max(min_count_t, params.min_count_t)
         for amp_type in amp_types:

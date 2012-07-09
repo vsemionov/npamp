@@ -25,9 +25,10 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import sys
 import os
 
-import warnings
+import output
 
 
 # http://code.activestate.com/recipes/496767/
@@ -57,4 +58,4 @@ def lower_process_priority():
     elif os.name == "nt":
         win32_setpriority(None, 1)
     else:
-        warnings.warn("unable to reduce process priority: unsupported operating system", stacklevel=2)
+        output.warn("unable to reduce process priority: unsupported platform / operating system (%s/%s)" % (sys.platform, os.name))

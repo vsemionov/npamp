@@ -30,8 +30,8 @@ import math
 import numpy as np
 
 cimport cython
-cimport numpy as np
 cimport libc.math
+cimport numpy as np
 
 cimport randomkit
 

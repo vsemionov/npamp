@@ -25,6 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import sys
 import os
 
 import numpy as np
@@ -82,6 +83,31 @@ total_eff_label = "optical to optical efficiency [%]"
 
 lower_lifetime_legend = r"$\tau_1 \, = \, %s$"
 lower_lifetime_unit = "ns"
+
+
+def warn(message):
+    print >>sys.stderr, message
+
+def show_status((i, j), (si, sj), done):
+    def print_status():
+        if j is not None:
+            print "%d, %d" % (i, j)
+        else:
+            print i
+    if si != 0:
+        if done:
+            print_status()
+        else:
+            if i % si == 0:
+                if j is None:
+                    print_status()
+                else:
+                    if sj == 0:
+                        if j == 0:
+                            print_status()
+                    else:
+                        if j % sj == 0:
+                            print_status()
 
 
 def init_dir(name):
@@ -189,25 +215,3 @@ def plot_beam(dirname, input_beam, Rho, Phi, ref_output_fluence):
     rholim = (Rho[0], Rho[-1])
     plot.plot_data(filename("fluences"), "Input and Output Fluence", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref]), None, None, fluence_rel_label), ("input beam", "output beam"))
     plot.plot_data(filename("fluences_norm"), "Normalized Input and Output Fluence", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref] / scale), None, None, fluence_norm_rel_label), ("input beam", "output beam"))
-
-
-def show_status((i, j), (si, sj), done):
-    def print_status():
-        if j is not None:
-            print "%d, %d" % (i, j)
-        else:
-            print i
-    if si != 0:
-        if done:
-            print_status()
-        else:
-            if i % si == 0:
-                if j is None:
-                    print_status()
-                else:
-                    if sj == 0:
-                        if j == 0:
-                            print_status()
-                    else:
-                        if j % sj == 0:
-                            print_status()

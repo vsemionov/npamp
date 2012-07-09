@@ -27,10 +27,9 @@
 
 import sys
 
-import warnings
-
 import numpy as np
 
+import discrete
 import util
 
 
@@ -91,11 +90,11 @@ class PopulationInverter(object):
     def invert(self, rtol, min_count_t):
         max_divs = 15
         min_count_t = max(min_count_t, 2)
-        divs = util.divs(min_count_t)
+        divs = discrete.divs(min_count_t)
         divs = max(divs-1, 0)
         last_res = None
         while True:
-            count_t = util.steps(divs)
+            count_t = discrete.steps(divs)
             divs += 1
             is_last_try = divs > max_divs
             res = self._integrate(rtol, count_t, not is_last_try)
@@ -106,10 +105,10 @@ class PopulationInverter(object):
                     break
             if is_last_try:
                 if diff is not None:
-                    warnings.warn("max. divs (%d) exceeded; latest difference: %f (current: %f; last: %f)" % (max_divs, diff, res, last_res), stacklevel=2)
+                    util.warn("max. inversion time divs (%d) exceeded; rtol: %f; latest step count: %d; latest difference: %f (current: %f; last: %f)" % (max_divs, rtol, count_t, diff, res, last_res), stacklevel=2)
                     break
                 else:
-                    raise ValueError("max. divs (%d) exceeded" % max_divs)
+                    raise ValueError("max. inversion time divs (%d) exceeded; rtol: %f; latest step count: %d" % (max_divs, rtol, count_t))
             last_res = res
         return res
 

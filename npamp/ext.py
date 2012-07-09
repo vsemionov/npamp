@@ -28,12 +28,14 @@
 import os
 
 import math
+
 import copy
 
 import numpy as np
 
-import params
 import model
+
+import params
 import core
 import plot
 import output

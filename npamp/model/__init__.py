@@ -26,6 +26,7 @@
 
 
 from . import exc
+from . import util
 from . import beam
 from . import pulse
 from . import const
@@ -34,8 +35,9 @@ from . import dopant
 from . import inversion
 from . import medium
 from . import pump
+#from . import native
 from . import depop
-from . import util
+from . import discrete
 from . import inverter
 from . import integrator
 from . import amplifier

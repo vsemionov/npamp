@@ -26,11 +26,11 @@
 
 
 import math
-import warnings
 
 import types
 
 import params
+import output
 import core
 
 
@@ -130,14 +130,14 @@ def validate():
     ref_pulse = core.create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref)
     
     if not (params.pump_wavelen < params.lasing_wavelen or params.initial_inversion):
-        warnings.warn("pump wavelength is not less than lasing wavelength", stacklevel=2)
+        output.warn("pump wavelength is not less than lasing wavelength")
     
     if not (params.dopant_lower_lifetime <= params.dopant_upper_lifetime / 10.0 or params.initial_inversion):
-        warnings.warn("approximation validity condition violated: lower state lifetime is not much shorter than upper state (fluorescence) lifetime", stacklevel=2)
+        output.warn("approximation validity condition violated: lower state lifetime is not much shorter than upper state (fluorescence) lifetime")
     
     train_duration = params.pulse_duration + (params.train_pulse_count - 1) * params.train_pulse_period
     if not (train_duration <= params.dopant_upper_lifetime / 10.0 or not params.amplification):
-        warnings.warn("approximation validity condition violated: signal duration is not much shorter than upper state (fluorescence) lifetime", stacklevel=2)
+        output.warn("approximation validity condition violated: signal duration is not much shorter than upper state (fluorescence) lifetime")
     
     if not (params.train_pulse_period >= ref_pulse.duration or params.train_pulse_count == 1 or not params.amplification):
         raise ConfigurationError("invalid parameters: pulse repetition period is less than (extended) pulse duration")
