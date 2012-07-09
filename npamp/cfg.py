@@ -43,13 +43,24 @@ copy_conf = lambda conf: {k: v for k, v in conf.items() if not k.startswith('_')
 
 def load_conf(defaults, path):
     conf = defaults.copy()
+    
     diff = dict()
     if path:
         execfile(path, diff)
     conf.update(diff)
+    
     if conf.pop("version", params.version) != params.version:
         raise ConfigurationError("unsupported configuration file format version")
+    
     conf = copy_conf(conf)
+    
+    unrecognized = []
+    for parameter in conf.keys():
+        if parameter not in defaults:
+            unrecognized.append(parameter)
+    if unrecognized:
+        raise ConfigurationError("unrecognized parameter(s): %s" % ", ".join(unrecognized))
+    
     return conf
 
 
