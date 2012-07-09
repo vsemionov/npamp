@@ -292,9 +292,6 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
     ref_pulse = pulse_train.pulse
     lower_decay = amplifier.lower_state_decay(active_medium, pulse_train)
     
-    min_count_z = max(min_count_z, 3)
-    min_count_t = max(min_count_t, 3)
-    
     compute_rdiff = functools.partial(compute_rel_error, lower_decay)
     data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_pulse, compute_rdiff, ret_extra)
     

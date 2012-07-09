@@ -99,23 +99,6 @@ def create_depop_model(active_medium, depop_model_class):
     depop_model = depop_model_class(active_medium, params.lasing_wavelen, **depop_model_kwargs)
     return depop_model
 
-def mangle_count_z(count_z):
-    count_z = max(count_z, 3)
-    count_z = model.util.steps(model.util.divs(count_z))
-    return count_z
-
-def mangle_count_t(count_t):
-    count_t = max(count_t, 3)
-    count_t = model.util.steps(model.util.divs(count_t))
-    return count_t
-
-def mangle_count_cyl(count_cyl):
-    count_cyl = max(count_cyl, 1)
-    if count_cyl > 1:
-        count_cyl = max(count_cyl, 3)
-        count_cyl = model.util.steps(model.util.divs(count_cyl))
-    return count_cyl
-
 def compute_inversion(dirname):
     print output.div_line
     print "computing population inversion"
@@ -192,10 +175,10 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
             print "attempting to recover"
             sys.exc_clear()
             continue
-        count_rho = max(count_rho, mangle_count_cyl(params.min_count_rho))
-        count_phi = max(count_phi, mangle_count_cyl(params.min_count_phi))
-        min_count_z = max(min_count_z, mangle_count_z(params.min_count_z))
-        min_count_t = max(min_count_t, mangle_count_t(params.min_count_t))
+        count_rho = max(count_rho, model.util.mangle_count_tv(params.min_count_rho))
+        count_phi = max(count_phi, model.util.mangle_count_tv(params.min_count_phi))
+        min_count_z = max(min_count_z, params.min_count_z)
+        min_count_t = max(min_count_t, params.min_count_t)
         for amp_type in amp_types:
             amp_name = amp_type.__name__
             if params.verbose:
@@ -212,7 +195,6 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
             if data is None:
                 continue
             (count_z, count_t), rel_error, results = data
-            count_z, count_t = mangle_count_z(count_z), mangle_count_t(count_t)
             count = count_rho * count_phi * count_z * count_t
             is_best = False
             if best_method is None:
