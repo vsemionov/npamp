@@ -38,8 +38,8 @@ import params
 import cfg
 
 
-# The MP IO subsystem is flawed and needs to be redesigned.
-# It contains some concurrency issues (race conditions on errors) and is not completely reliable.
+# The MP IO subsystem has some flaws and needs to be redesigned.
+# It contains some concurrency issues (race conditions after the occurrence of errors) and is not completely reliable.
 # As a workaround for any eventual issues, use the command-line interface (as opposed to the GUI).
 
 
