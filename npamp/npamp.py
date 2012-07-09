@@ -39,12 +39,10 @@ import multiprocessing
 import meta
 import params
 import output
-import core
-import ext
+import ctrl
 import cfg
 import mp
 import svc
-
 
 
 usage_help = \
@@ -60,24 +58,8 @@ Options:
 help_hint = "Try \"{app_name} -h\" for more information.".format(app_name=meta.app_name)
 
 
-
 class InvocationError(Exception):
     pass
-
-
-def load_extensions():
-    extension_path = os.path.normpath(os.path.expanduser("~/.%s/extensions" % meta.app_name.lower()))
-    sys.path.append(extension_path)
-    extension_pathnames = glob.glob(os.path.join(extension_path, "*.py"))
-    extensions = []
-    for pathname in extension_pathnames:
-        _, name = os.path.split(pathname)
-        name, _ = os.path.splitext(name)
-        print "loading extension \"%s\"" % name
-        extension = __import__(name)
-        extensions.append(extension)
-    return extensions
-
 
 def print_help():
     print usage_help
@@ -102,14 +84,24 @@ def print_extensions(extensions):
             name, doc = extension.__name__, extension.__doc__
             print "%s: %s" % (name, doc)
 
+def load_extensions():
+    extension_path = os.path.normpath(os.path.expanduser("~/.%s/extensions" % meta.app_name.lower()))
+    sys.path.append(extension_path)
+    extension_pathnames = glob.glob(os.path.join(extension_path, "*.py"))
+    extensions = []
+    for pathname in extension_pathnames:
+        _, name = os.path.split(pathname)
+        name, _ = os.path.splitext(name)
+        print "loading extension \"%s\"" % name
+        extension = __import__(name)
+        extensions.append(extension)
+    return extensions
+
 def run(conf_path, output_path, definitions):
-    start_time = time.time()
-    
     print "configuring"
     if conf_path is not None:
         if params.verbose:
             print "reading configuration from:", conf_path
-        
         conf = cfg.load_conf(params.__dict__, conf_path)
         params.__dict__.update(conf)
     
@@ -128,12 +120,7 @@ def run(conf_path, output_path, definitions):
     else:
         if params.verbose:
             print "graphs will not be written"
-    
     output.output_dir = output_path
-    dirname = "."
-    
-    int_types = params.integrator_classes
-    amp_types = params.amplifier_classes
     
     if params.lower_process_priority:
         svc.lower_process_priority()
@@ -144,29 +131,16 @@ def run(conf_path, output_path, definitions):
         
         print "executing"
         
-        if not params.initial_inversion:
-            ref_inversion, inversion_rel_error = core.compute_inversion(dirname)
-        else:
-            ref_inversion, inversion_rel_error = params.initial_inversion, 0.0
+        start_time = time.time()
+        ctrl.execute(task_pool)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
         
-        numerics = None
-        if params.amplification:
-            numerics, rel_errors = core.select_methods((int_types, amp_types), ref_inversion, ret_rel_errors=True)
-            num_types, counts = numerics
-            core.amplify_ref_pulse(dirname, num_types, counts, ref_inversion)
-            max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease = core.amplify_train(dirname, num_types, counts, ref_inversion)
-            core.report_output_characteristics(ref_inversion, max_output_fluence, output_photon_counts, output_energy, rel_gain_decrease, inversion_rel_error, rel_errors)
+        print output.div_line
+        print "done"
         
-        if params.extended_mode:
-            ext.extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), numerics)
-    
-    print output.div_line
-    print "done"
-    
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    if params.verbose:
-        print "finished in %.2f s" % elapsed_time
+        if params.verbose:
+            print "finished in %.2f s" % elapsed_time
 
 def process(extensions):
     try:
