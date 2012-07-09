@@ -271,7 +271,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     if not quiet:
         print output.div_line
     if not quiet or params.verbose:
-        print "amplifying input_pulse train"
+        print "amplifying pulse train"
     
     active_medium = create_medium(ref_inversion)
     input_beam = create_beam()
@@ -477,6 +477,6 @@ def report_output_characteristics(ref_inversion, max_output_fluence, output_phot
     unitconv.print_result("output energy [{}]: {} ~ {}", ("mJ",), (output_energy, output_energy_abs_error))
     unitconv.print_result("energy gain: {} ~ {}", (), (energy_gain, energy_gain_abs_error))
     unitconv.print_result("extraction efficiency [{}]: {} ~ {}", ("%",), (extraction_eff, extraction_eff_abs_error))
-    unitconv.print_result("opt-opt efficiency [{}]: {} ~ {}", ("%",), (total_eff, total_eff_abs_error))
-    unitconv.print_result("max output fluence [{}]: {} ~ {}", ("J/cm^2",), (max_output_fluence, max_output_fluence_abs_error))
-    unitconv.print_result("rel gain decrease [{}]: {} ~ {}", ("%",), (rel_gain_decrease, rel_gain_decrease_abs_error))
+    unitconv.print_result("opt.-opt. efficiency [{}]: {} ~ {}", ("%",), (total_eff, total_eff_abs_error))
+    unitconv.print_result("max. output fluence [{}]: {} ~ {}", ("J/cm^2",), (max_output_fluence, max_output_fluence_abs_error))
+    unitconv.print_result("rel. gain decrease [{}]: {} ~ {}", ("%",), (rel_gain_decrease, rel_gain_decrease_abs_error))

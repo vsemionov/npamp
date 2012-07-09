@@ -556,27 +556,27 @@ def compute_energy_pump_dependence(task_pool, dirname, inversions, constraints, 
     
     optimum = optimize_output((Tau, Pwr), output_energies, limits, comparisons, price)
     output_energy_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("max output energy [{}]: {}", ("mJ",), (output_energies[optimum] if optimum else None,))
+    unitconv.print_result("max. output energy [{}]: {}", ("mJ",), (output_energies[optimum] if optimum else None,))
     unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), output_energy_optimum_params)
     
     optimum = optimize_output((Tau, Pwr), energy_gains, limits, comparisons, price)
     energy_gain_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("max energy gain: {}", (), (energy_gains[optimum] if optimum else None,))
+    unitconv.print_result("max. energy gain: {}", (), (energy_gains[optimum] if optimum else None,))
     unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), energy_gain_optimum_params)
     
     optimum = optimize_output((Tau, Pwr), extraction_effs, limits, comparisons, price)
     extraction_eff_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("max extraction efficiency [{}]: {}", ("%",), (extraction_effs[optimum] if optimum else None,))
+    unitconv.print_result("max. extraction efficiency [{}]: {}", ("%",), (extraction_effs[optimum] if optimum else None,))
     unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), extraction_eff_optimum_params)
     
     optimum = optimize_output((Tau, Pwr), total_effs, limits, comparisons, price)
     total_eff_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("max opt-opt efficiency [{}]: {}", ("%",), (total_effs[optimum] if optimum else None,))
+    unitconv.print_result("max. opt.-opt. efficiency [{}]: {}", ("%",), (total_effs[optimum] if optimum else None,))
     unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), total_eff_optimum_params)
     
     optimum = optimize_output((Tau, Pwr), -rel_gain_decreases, limits, comparisons, price)
     rel_gain_decrease_optimum_params = (Tau[optimum[0]], Pwr[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("min rel gain decrease [{}]: {}", ("%",), (rel_gain_decreases[optimum] if optimum else None,))
+    unitconv.print_result("min. rel. gain decrease [{}]: {}", ("%",), (rel_gain_decreases[optimum] if optimum else None,))
     unitconv.print_result("optimum pumping parameters (duration [{}], power [{}]): ({}, {})", ("us", "W"), rel_gain_decrease_optimum_params)
     
     if params.graphs:
@@ -645,27 +645,27 @@ def compute_energy_geom_dependence(task_pool, dirname, inversions, constraints, 
     
     optimum = optimize_output((Rm, Rb), output_energies, limits, comparisons, price)
     output_energy_optimum_params = (Rm[optimum[0]], Rb[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("max output energy [{}]: {}", ("mJ",), (output_energies[optimum] if optimum else None,))
+    unitconv.print_result("max. output energy [{}]: {}", ("mJ",), (output_energies[optimum] if optimum else None,))
     unitconv.print_result("optimum geometry parameters (medium diameter [{}], beam diameter [{}]): ({}, {})", ("mm", "mm"), output_energy_optimum_params)
     
     optimum = optimize_output((Rm, Rb), energy_gains, limits, comparisons, price)
     energy_gain_optimum_params = (Rm[optimum[0]], Rb[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("max energy gain: {}", (), (energy_gains[optimum] if optimum else None,))
+    unitconv.print_result("max. energy gain: {}", (), (energy_gains[optimum] if optimum else None,))
     unitconv.print_result("optimum geometry parameters (medium diameter [{}], beam diameter [{}]): ({}, {})", ("mm", "mm"), energy_gain_optimum_params)
     
     optimum = optimize_output((Rm, Rb), extraction_effs, limits, comparisons, price)
     extraction_eff_optimum_params = (Rm[optimum[0]], Rb[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("max extraction efficiency [{}]: {}", ("%",), (extraction_effs[optimum] if optimum else None,))
+    unitconv.print_result("max. extraction efficiency [{}]: {}", ("%",), (extraction_effs[optimum] if optimum else None,))
     unitconv.print_result("optimum geometry parameters (medium diameter [{}], beam diameter [{}]): ({}, {})", ("mm", "mm"), extraction_eff_optimum_params)
     
     optimum = optimize_output((Rm, Rb), total_effs, limits, comparisons, price)
     total_eff_optimum_params = (Rm[optimum[0]], Rb[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("max opt-opt efficiency [{}]: {}", ("%",), (total_effs[optimum] if optimum else None,))
+    unitconv.print_result("max. opt.-opt. efficiency [{}]: {}", ("%",), (total_effs[optimum] if optimum else None,))
     unitconv.print_result("optimum geometry parameters (medium diameter [{}], beam diameter [{}]): ({}, {})", ("mm", "mm"), total_eff_optimum_params)
     
     optimum = optimize_output((Rm, Rb), -rel_gain_decreases, limits, comparisons, price)
     rel_gain_decrease_optimum_params = (Rm[optimum[0]], Rb[optimum[1]]) if optimum else (None, None)
-    unitconv.print_result("min rel gain decrease [{}]: {}", ("%",), (rel_gain_decreases[optimum] if optimum else None,))
+    unitconv.print_result("min. rel. gain decrease [{}]: {}", ("%",), (rel_gain_decreases[optimum] if optimum else None,))
     unitconv.print_result("optimum geometry parameters (medium diameter [{}], beam diameter [{}]): ({}, {})", ("mm", "mm"), rel_gain_decrease_optimum_params)
     
     if params.graphs:
