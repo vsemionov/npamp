@@ -217,8 +217,18 @@ def _nsfd_amplifier_calc_output(self):
                             density[0, k] = input_pulse.density(T[k])
 
 
+
+
 cdef randomkit.rk_state _rk_state
-randomkit.rk_randomseed(&_rk_state)
+
+def _seed_prng(seed):
+    if seed < 0:
+        randomkit.rk_randomseed(&_rk_state)
+    else:
+        randomkit.rk_seed(seed, &_rk_state)
+
+_seed_prng(-1)
+
 
 @cython.cdivision(True)
 @cython.boundscheck(False)

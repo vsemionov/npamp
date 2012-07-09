@@ -30,5 +30,6 @@ cdef extern from "randomkit.h":
         pass
     ctypedef enum rk_error:
         pass
+    void rk_seed(unsigned long seed, rk_state *state) nogil
     rk_error rk_randomseed(rk_state *state) nogil
     double rk_double(rk_state *state) nogil

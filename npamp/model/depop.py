@@ -75,11 +75,14 @@ class ExactDepopulationModel(DepopulationModel):
 class NumericalDepopulationModel(DepopulationModel):
     descr = "numerical depopulation model"
     
-    def __init__(self, active_medium, wavelen, rtol, min_samples):
+    def __init__(self, active_medium, wavelen, rtol, min_samples, prng_seed=-1):
         super(NumericalDepopulationModel, self).__init__(active_medium, wavelen)
         
         self.rtol = rtol
         self.min_samples = min_samples
+        self.prng_seed = prng_seed
+        
+        native._seed_prng(prng_seed)
 
 class PerturbedDepopulationModel(DepopulationModel):
     descr = "perturbed depopulation model"
@@ -171,8 +174,8 @@ class RossNumericalASEModel(NumericalDepopulationModel):
     
     _integrate_B = lambda self, *args: native._ross_ase_model_integrate_B(self, *args)
     
-    def __init__(self, active_medium, wavelen, rtol, min_samples, sample_count_multiplier=16):
-        super(RossNumericalASEModel, self).__init__(active_medium, wavelen, rtol, min_samples)
+    def __init__(self, active_medium, wavelen, rtol, min_samples, prng_seed=-1, sample_count_multiplier=16):
+        super(RossNumericalASEModel, self).__init__(active_medium, wavelen, rtol, min_samples, prng_seed)
         
         self.sample_count_multiplier = sample_count_multiplier
         
@@ -215,9 +218,9 @@ class RossHybridASEModel(RossNumericalASEModel):
     
     _integrate_B = lambda self, *args: native._ross_ase_model_integrate_BP(self, 0.0, 0.0, self.z_rel * self.active_medium.length, *args)
     
-    def __init__(self, active_medium, wavelen, rtol, min_samples, sample_count_multiplier=16, z_rel=0.0):
+    def __init__(self, active_medium, wavelen, rtol, min_samples, prng_seed=-1, sample_count_multiplier=16, z_rel=0.0):
         assert 0.0 <= z_rel <= 1.0, "z_rel is not in the interval [0.0, 1.0]"
         
-        super(RossHybridASEModel, self).__init__(active_medium, wavelen, rtol, min_samples, sample_count_multiplier)
+        super(RossHybridASEModel, self).__init__(active_medium, wavelen, rtol, min_samples, prng_seed, sample_count_multiplier)
         
         self.z_rel = z_rel
