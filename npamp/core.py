@@ -372,8 +372,8 @@ def validate():
                 validate_param_bounds(name, element)
     
     def validate_interval(name, values):
-        if values[0] > values[1]:
-            raise ConfigurationError("parameter \"%s\" has a lower bound greater than its upper bound" % name)
+        if values[0] >= values[1]:
+            raise ConfigurationError("parameter \"%s\" has an upper bound not greater than its lower bound" % name)
     
     def validate_list_uniques(name, values):
         if len(values) != len(set(values)):
