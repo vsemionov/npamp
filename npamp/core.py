@@ -203,7 +203,7 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
                 best_method = ((int_type, amp_type), (count_rho, count_phi, count_z, count_t), results, count, rel_error)
     
     if best_method is None:
-        raise ComputationError("no suitable method combination found")
+        raise ComputationError("no suitable numerical method combination found")
     (int_type, amp_type), (count_rho, count_phi, count_z, count_t), results, _, _ = best_method
     
     return (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
