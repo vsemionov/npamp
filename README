@@ -281,11 +281,15 @@ Victor Semionov <vsemionov@gmail.com>
 Examples
 ========
 
+The following are example results of research, conducted with NPAmp.
+
 
 ASE
 ---
 
 See examples/ase.npc in the installation directory.
+
+.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/ase/pumping/inversions_evo.png
 
 
 Gain Saturation
@@ -293,11 +297,15 @@ Gain Saturation
 
 See examples/gain_saturation.npc in the installation directory.
 
+.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/gain_saturation/ref_pulse/densities.png
+
 
 Lower State Lifetime
 --------------------
 
 See examples/lower_state_lifetime.npc in the installation directory.
+
+.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/lower_state_lifetime/ref_pulse/lsl_effects.png
 
 
 Optimization
@@ -305,8 +313,12 @@ Optimization
 
 See examples/optimization.npc in the installation directory.
 
+.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/optimization/optimization/geometry/energy_out.png
+
 
 Pulse Train
 -----------
 
 See examples/pulse_train.npc in the installation directory.
+
+.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/pulse_train/pulse_energy_gain.png
