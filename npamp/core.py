@@ -179,7 +179,7 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
             test_min_count_z = max(min_count_z, amp_type.min_steps_z(active_medium))
             test_min_count_t = max(min_count_t, amp_type(active_medium, test_min_count_z).min_steps_t(ref_pulse))
             try:
-                data = model.error.min_amplification_steps(amp_type, active_medium, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.fluence_rtol, params.amp_rtol, ret_extra=True)
+                data = model.error.min_amplification_steps(amp_type, active_medium, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.amp_rtol, ret_extra=True)
             except size_exc_types:
                 output.print_exception()
                 print "attempting to recover"
@@ -221,7 +221,7 @@ def select_methods((int_types, amp_types), ref_inversion, ret_rel_errors=False, 
         print "count_z: %d; count_t: %d" % (count_z, count_t)
     
     numerics = (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
-    rel_errors = (time_trunc_rel_error, params.amp_rtol, params.energy_rtol)
+    rel_errors = (time_trunc_rel_error, params.fluence_rtol, params.amp_rtol, params.energy_rtol)
     return (numerics, rel_errors) if ret_rel_errors else numerics
 
 def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):

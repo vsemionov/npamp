@@ -240,13 +240,12 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
     
     return steps_rho, steps_phi, steps_z, steps_t
 
-def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, min_count_t), integrator, fluence_rtol, amp_rtol, ret_extra=False):
+def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, min_count_t), integrator, amp_rtol, ret_extra=False):
     def compute_rel_error(lower_decay, (num_Z, num_T, num_density_out, num_population_final), (exact_Z, exact_T, exact_density_out, exact_population_final)):
         num_density_integral = integrator.integrate(num_T, num_density_out)
         exact_density_integral = integrator.integrate(exact_T, exact_density_out)
         
         rel_error_density = abs((num_density_integral - exact_density_integral) / exact_density_integral)
-        rel_error_density += fluence_rtol * (1.0 + num_density_integral / exact_density_integral)
         
         num_upper_final, num_lower_final = num_population_final
         num_inversion_final = num_upper_final - num_lower_final * lower_decay
@@ -259,7 +258,6 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
         del exact_inversion_final
         
         inversion_abs_error = abs(num_inversion_integral - exact_inversion_integral)
-        inversion_abs_error += fluence_rtol * (num_inversion_integral + exact_inversion_integral)
         rel_error_inversion = math.exp(active_medium.doping_agent.xsection * inversion_abs_error) - 1.0
         
         rel_error = rel_error_density + rel_error_inversion
@@ -307,8 +305,8 @@ def perturbed_inversion_rel_error(ref_inversion, perturb_ref_inversion, inversio
     rel_error = abs_error / ref_inversion
     return rel_error
 
-def energy_rel_error(active_medium, ref_inversion_rel_error, (time_trunc_rel_error, amp_rtol, energy_rtol)):
+def energy_rel_error(active_medium, ref_inversion_rel_error, (time_trunc_rel_error, fluence_rtol, amp_rtol, energy_rtol)):
     rel_error_inversion = math.exp(active_medium.doping_agent.xsection * ref_inversion_rel_error * active_medium.initial_inversion.ref_inversion * active_medium.length) - 1.0
-    rel_error_energy = time_trunc_rel_error + amp_rtol + energy_rtol
+    rel_error_energy = time_trunc_rel_error + fluence_rtol + amp_rtol + energy_rtol
     energy_rel_error = rel_error_inversion + rel_error_energy
     return energy_rel_error

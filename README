@@ -232,11 +232,9 @@ Generally, it is advisable to select both amplification methods, since each one 
 
 Numerical Parameters
 --------------------
-In many cases, the default values of the numerical parameters (in the Numerics tab of the graphical interface) are an acceptable compromise between accuracy and efficiency. In the absence of specific requirements, these parameters do not need to be modified.
+In most cases, the default values of the numerical parameters (in the Numerics tab of the graphical interface) are an acceptable compromise between accuracy and efficiency. In the absence of specific requirements, these parameters do not need to be modified.
 
 In cases when examination of the temporal or spatial evolution of the computed quantities is required, the minimum numbers of discretization steps may need adjustment in order to increase the smoothness of the generated graphs.
-
-Note: Due to specifics of the estimation of numerical error, increasing the "fluence relative tolerance" parameter may cause an increase of the total number of discretization steps, as opposed to decreasing it. On the other hand, small values have the same effect. Therefore, this parameter has an optimal value, which is difficult to estimate a priori.
 
 
 Extensions
