@@ -15,27 +15,37 @@ The following are example results of research, conducted with NPAmp.
 Effects of ASE
 --------------
 See examples/ase.npc in the installation directory.
+
 .. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/ase/pumping/inversions_evo.png
+
 
 Effects of Gain Saturation
 --------------------------
 See examples/gain_saturation.npc in the installation directory.
+
 .. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/gain_saturation/ref_pulse/densities.png
+
 
 Effects of Lower State Lifetime
 -------------------------------
 See examples/lower_state_lifetime.npc in the installation directory.
+
 .. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/lower_state_lifetime/ref_pulse/lsl_effects.png
+
 
 Laser Amplifier Optimization
 ----------------------------
 See examples/optimization.npc in the installation directory.
+
 .. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/optimization/optimization/geometry/energy_out.png
+
 
 Pulse Train Amplification
 -------------------------
 See examples/pulse_train.npc in the installation directory.
+
 .. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/pulse_train/pulse_energy_gain.png
+
 
 
 Overview
@@ -106,6 +116,7 @@ On Unix, NPAmp needs to be built from source. First, the required build and runt
 * C compiler (gcc 4.6.3)
 
 Next, extract the source archive into the target directory, and execute ``make`` inside that directory. The executables are <target>/npamp/npamp.py and <target>/npamp/gnpamp.py, where <target> denotes the path to the target directory.
+
 
 
 Operation
