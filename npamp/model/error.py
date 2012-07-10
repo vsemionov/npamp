@@ -79,7 +79,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname,
     counts = count_x, count_y
     
     if divs_x + divs_y > max_divs_sum:
-        util.warn("min. %s %s step counts (%g, %g) and corresponding min. divs (%g, %g) too large; max. divs sum: %g" % (opname, varnames, count_x, count_y, divs_x, divs_y, max_divs_sum), stacklevel=2)
+        util.warn("min. %s %s step counts (%s, %s) and corresponding min. divs (%s, %s) too large; max. divs sum: %s" % (opname, varnames, count_x, count_y, divs_x, divs_y, max_divs_sum), stacklevel=2)
         return None
     
     result, rel_error = compute_result(*counts)
@@ -116,7 +116,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname,
         if max(rdiff, last_rel_error) < rtol:
             break
         elif divs_x + divs_y > max_divs_sum or math.isinf(rdiff):
-            util.warn("max. %s %s divs sum (%g) exceeded; rtol: %g; latest counts: (%g, %g); latest divs: (%g, %g); latest rel. error: %g, latest rel. difference: %g" % (opname, varnames, max_divs_sum, rtol, count_x, count_y, last_divs_x, last_divs_y, rel_error, rdiff), stacklevel=2)
+            util.warn("max. %s %s divs sum (%s) exceeded; rtol: %s; latest counts: (%s, %s); latest divs: (%s, %s); latest rel. error: %s, latest rel. difference: %s" % (opname, varnames, max_divs_sum, rtol, count_x, count_y, last_divs_x, last_divs_y, rel_error, rdiff), stacklevel=2)
             break
     
     if ret_extra:
@@ -141,9 +141,9 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
             divs += 1
             if divs > max_divs:
                 if diff is not None:
-                    util.warn("max. integration %s divs (%g) exceeded; rtol: %g; latest step count: %g; latest difference: %g (current: %g; last: %g)" % (varname, max_divs, rtol, steps, diff, res, last_res), stacklevel=3)
+                    util.warn("max. integration %s divs (%s) exceeded; rtol: %s; latest step count: %s; latest difference: %s (current: %s; last: %s)" % (varname, max_divs, rtol, steps, diff, res, last_res), stacklevel=3)
                 else:
-                    util.warn("max. integration %s divs (%g) exceeded; rtol: %g; latest step count: %g" % (varname, max_divs, rtol, steps))
+                    util.warn("max. integration %s divs (%s) exceeded; rtol: %s; latest step count: %s" % (varname, max_divs, rtol, steps))
                 break
             last_res = res
         return steps

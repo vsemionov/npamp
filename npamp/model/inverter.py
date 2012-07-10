@@ -99,10 +99,10 @@ class PopulationInverter(object):
             divs += 1
             if divs > max_divs:
                 if diff is not None:
-                    util.warn("max. inversion time divs (%g) exceeded; rtol: %g; latest step count: %g; latest difference: %g (current: %g; last: %g)" % (max_divs, rtol, count_t, diff, res, last_res), stacklevel=2)
+                    util.warn("max. inversion time divs (%s) exceeded; rtol: %s; latest step count: %s; latest difference: %s (current: %s; last: %s)" % (max_divs, rtol, count_t, diff, res, last_res), stacklevel=2)
                     break
                 else:
-                    msg = "max. inversion time divs (%g) exceeded; rtol: %g; latest step count: %g" % (max_divs, rtol, count_t)
+                    msg = "max. inversion time divs (%s) exceeded; rtol: %s; latest step count: %s" % (max_divs, rtol, count_t)
                     if res is not None:
                         util.warn(msg)
                         break
