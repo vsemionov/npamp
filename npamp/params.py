@@ -118,13 +118,13 @@ lower_process_priority = True
 pulse_num_stride = 100
 extended_status_strides = (4, 0)
 
-out_markers_step_divisor = 5
-out_rho_steps_divisor = 33
-out_phi_steps_divisor = 65
-out_z_steps_divisor = 33
-out_t_steps_divisor = 33
+out_num_markers = 5
+out_count_rho = 33
+out_count_phi = 33
+out_count_z = 25
+out_count_t = 33
 
-num_auto_contours = 5
+out_num_auto_contours = 5
 
 output_rel_time = False
 output_color = True

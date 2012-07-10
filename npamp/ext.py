@@ -182,15 +182,15 @@ def compute_inversion_pump_dependence(task_pool, dirname):
         ]
         for dirname, Y, ylabel in graph_types:
             dirname = output.init_dir(dirname)
-            plot.plot_color(filename("energy_pump"), "Pump Energy", (Tau, None, None, output. pump_duration_label), (Y, None, None, ylabel), (pump_energies.T, None, output.energy_abs_pump_label), params.num_auto_contours)
-            plot.plot_color(filename("inversion"), "Inversion (%s)" % depop_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversions1.T, None, output.inversion_abs_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("inversion_alt"), "Inversion (%s)" % depop_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversions2.T, None, output.inversion_abs_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("ss_gain"), "Small Signal Gain (%s)" % depop_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gains1.T, None, output.gain_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("ss_gain_alt"), "Small Signal Gain (%s)" % depop_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gains2.T, None, output.gain_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("energy_stored"), "Stored Energy (%s)" % depop_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (stored_energies1.T, None, output.energy_abs_stored_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("energy_stored_alt"), "Stored Energy (%s)" % depop_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (stored_energies2.T, None, output.energy_abs_stored_label), params.num_auto_contours, extra_contours=ref_pump_contours)
-            plot.plot_color(filename("inversion_rdiff"), "Inversion Relative Difference", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversion_rdiffs.T, zlim, output.inversion_rdiff_label), params.num_auto_contours, depop_contours)
-            plot.plot_color(filename("ss_gain_rdiff"), "Small Signal Gain Relative Difference", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gain_rdiffs.T, zlim, output.gain_rdiff_label), params.num_auto_contours, depop_contours)
+            plot.plot_color(filename("energy_pump"), "Pump Energy", (Tau, None, None, output. pump_duration_label), (Y, None, None, ylabel), (pump_energies.T, None, output.energy_abs_pump_label), params.out_num_auto_contours)
+            plot.plot_color(filename("inversion"), "Inversion (%s)" % depop_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversions1.T, None, output.inversion_abs_label), params.out_num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("inversion_alt"), "Inversion (%s)" % depop_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversions2.T, None, output.inversion_abs_label), params.out_num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("ss_gain"), "Small Signal Gain (%s)" % depop_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gains1.T, None, output.gain_label), params.out_num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("ss_gain_alt"), "Small Signal Gain (%s)" % depop_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gains2.T, None, output.gain_label), params.out_num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("energy_stored"), "Stored Energy (%s)" % depop_model_class1.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (stored_energies1.T, None, output.energy_abs_stored_label), params.out_num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("energy_stored_alt"), "Stored Energy (%s)" % depop_model_class2.descr, (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (stored_energies2.T, None, output.energy_abs_stored_label), params.out_num_auto_contours, extra_contours=ref_pump_contours)
+            plot.plot_color(filename("inversion_rdiff"), "Inversion Relative Difference", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (inversion_rdiffs.T, zlim, output.inversion_rdiff_label), params.out_num_auto_contours, depop_contours)
+            plot.plot_color(filename("ss_gain_rdiff"), "Small Signal Gain Relative Difference", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (gain_rdiffs.T, zlim, output.gain_rdiff_label), params.out_num_auto_contours, depop_contours)
     
     return inversions1, inversion_rdiffs
 
@@ -334,7 +334,7 @@ def compute_fluence_pump_dependence(task_pool, dirname, inversions, (int_type, a
         ]
         for dirname, Y, ylabel in graph_types:
             dirname = output.init_dir(dirname)
-            plot.plot_color(filename("fluence_out_max"), "Maximum Output Fluence", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (fluences.T, zlim, output.fluence_abs_label_energy), params.num_auto_contours, contours)
+            plot.plot_color(filename("fluence_out_max"), "Maximum Output Fluence", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (fluences.T, zlim, output.fluence_abs_label_energy), params.out_num_auto_contours, contours)
     
     return fluences
 
@@ -404,7 +404,7 @@ def compute_fluence_geom_dependence(task_pool, dirname, inversions, (int_type, a
         fluence_max = params.ext_opt_fluence_max
         zlim = None #(0.0, fluence_max)
         contours = [fluence_max]
-        plot.plot_color(filename("fluence_out_max"), "Maximum Output Fluence", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (fluences.T, zlim, output.fluence_abs_label_energy), params.num_auto_contours, contours)
+        plot.plot_color(filename("fluence_out_max"), "Maximum Output Fluence", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (fluences.T, zlim, output.fluence_abs_label_energy), params.out_num_auto_contours, contours)
     
     return fluences
 
@@ -592,12 +592,12 @@ def compute_energy_pump_dependence(task_pool, dirname, inversions, constraints, 
         ]
         for dirname, Y, ylabel in graph_types:
             dirname = output.init_dir(dirname)
-            plot.plot_color(filename("energy_out"), "Output Energy", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (output_energies.T, None, output.energy_abs_pulse_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
-            plot.plot_color(filename("energy_gain"), "Energy Gain", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (energy_gains.T, None, output.energy_rel_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
-            plot.plot_color(filename("efficiency_extr"), "Extraction Efficiency", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (extraction_effs.T, None, output.extraction_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
-            plot.plot_color(filename("efficiency_opt2"), "Optical to Optical Efficiency", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (total_effs.T, None, output.total_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+            plot.plot_color(filename("energy_out"), "Output Energy", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (output_energies.T, None, output.energy_abs_pulse_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+            plot.plot_color(filename("energy_gain"), "Energy Gain", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (energy_gains.T, None, output.energy_rel_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+            plot.plot_color(filename("efficiency_extr"), "Extraction Efficiency", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (extraction_effs.T, None, output.extraction_eff_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+            plot.plot_color(filename("efficiency_opt2"), "Optical to Optical Efficiency", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (total_effs.T, None, output.total_eff_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
             if params.train_pulse_count > 1:
-                plot.plot_color(filename("gain_decrease"), "Gain decrease", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (rel_gain_decreases.T, None, output.rel_gain_decrease_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+                plot.plot_color(filename("gain_decrease"), "Gain decrease", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (rel_gain_decreases.T, None, output.rel_gain_decrease_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
 
 def compute_energy_geom_dependence_task((i, j), (rm, rb), inversion, num_types, counts):
     output.show_status((i, j), params.extended_status_strides, False)
@@ -676,13 +676,13 @@ def compute_energy_geom_dependence(task_pool, dirname, inversions, constraints, 
         extra_contours, xvals, yvals = limits
         dirname = os.path.join(dirname, output.opt_geom_rel_path)
         dirname = output.init_dir(dirname)
-        plot.plot_color(filename("energy_in"), "Input Energy", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (input_energies.T, None, output.energy_abs_pulse_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
-        plot.plot_color(filename("energy_out"), "Output Energy", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (output_energies.T, None, output.energy_abs_pulse_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
-        plot.plot_color(filename("energy_gain"), "Energy Gain", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (energy_gains.T, None, output.energy_rel_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
-        plot.plot_color(filename("efficiency_extr"), "Extraction Efficiency", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (extraction_effs.T, None, output.extraction_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
-        plot.plot_color(filename("efficiency_opt2"), "Optical to Optical Efficiency", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (total_effs.T, None, output.total_eff_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+        plot.plot_color(filename("energy_in"), "Input Energy", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (input_energies.T, None, output.energy_abs_pulse_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+        plot.plot_color(filename("energy_out"), "Output Energy", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (output_energies.T, None, output.energy_abs_pulse_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+        plot.plot_color(filename("energy_gain"), "Energy Gain", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (energy_gains.T, None, output.energy_rel_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+        plot.plot_color(filename("efficiency_extr"), "Extraction Efficiency", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (extraction_effs.T, None, output.extraction_eff_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+        plot.plot_color(filename("efficiency_opt2"), "Optical to Optical Efficiency", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (total_effs.T, None, output.total_eff_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
         if params.train_pulse_count > 1:
-            plot.plot_color(filename("gain_decrease"), "Gain decrease", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (rel_gain_decreases.T, None, output.rel_gain_decrease_label), params.num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+            plot.plot_color(filename("gain_decrease"), "Gain decrease", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (rel_gain_decreases.T, None, output.rel_gain_decrease_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
 
 def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), numerics):
     filename = lambda name: os.path.join(dirname, name)

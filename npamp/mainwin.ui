@@ -1226,14 +1226,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="6" column="0">
-             <widget class="QLabel" name="label_out_markers_step_divisor">
+             <widget class="QLabel" name="label_out_num_markers">
               <property name="text">
-               <string>styled line step marker divisor:</string>
+               <string>styled line number of markers:</string>
               </property>
              </widget>
             </item>
             <item row="6" column="1">
-             <widget class="QSpinBox" name="spinBox_out_markers_step_divisor">
+             <widget class="QSpinBox" name="spinBox_out_num_markers">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -1246,14 +1246,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="7" column="0">
-             <widget class="QLabel" name="label_out_rho_steps_divisor">
+             <widget class="QLabel" name="label_out_count_rho">
               <property name="text">
-               <string>fluence graphs rho steps divisor:</string>
+               <string>transverse graphs rho step count:</string>
               </property>
              </widget>
             </item>
             <item row="7" column="1">
-             <widget class="QSpinBox" name="spinBox_out_rho_steps_divisor">
+             <widget class="QSpinBox" name="spinBox_out_count_rho">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -1266,14 +1266,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="8" column="0">
-             <widget class="QLabel" name="label_out_phi_steps_divisor">
+             <widget class="QLabel" name="label_out_count_phi">
               <property name="text">
-               <string>fluence graphs phi steps divisor:</string>
+               <string>transverse graphs phi step count:</string>
               </property>
              </widget>
             </item>
             <item row="8" column="1">
-             <widget class="QSpinBox" name="spinBox_out_phi_steps_divisor">
+             <widget class="QSpinBox" name="spinBox_out_count_phi">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -1286,14 +1286,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="9" column="0">
-             <widget class="QLabel" name="label_out_z_steps_divisor">
+             <widget class="QLabel" name="label_out_count_z">
               <property name="text">
-               <string>evolution graphs z steps divisor:</string>
+               <string>evolution graphs z step count:</string>
               </property>
              </widget>
             </item>
             <item row="9" column="1">
-             <widget class="QSpinBox" name="spinBox_out_z_steps_divisor">
+             <widget class="QSpinBox" name="spinBox_out_count_z">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -1306,14 +1306,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="10" column="0">
-             <widget class="QLabel" name="label_out_t_steps_divisor">
+             <widget class="QLabel" name="label_out_count_t">
               <property name="text">
-               <string>evolution graphs time steps divisor:</string>
+               <string>evolution graphs time step count:</string>
               </property>
              </widget>
             </item>
             <item row="10" column="1">
-             <widget class="QSpinBox" name="spinBox_out_t_steps_divisor">
+             <widget class="QSpinBox" name="spinBox_out_count_t">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -1326,14 +1326,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              </widget>
             </item>
             <item row="11" column="0">
-             <widget class="QLabel" name="label_num_auto_contours">
+             <widget class="QLabel" name="label_out_num_auto_contours">
               <property name="text">
                <string>color graphs number of contours:</string>
               </property>
              </widget>
             </item>
             <item row="11" column="1">
-             <widget class="QSpinBox" name="spinBox_num_auto_contours">
+             <widget class="QSpinBox" name="spinBox_out_num_auto_contours">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>

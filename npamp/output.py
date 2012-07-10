@@ -167,8 +167,8 @@ def plot_output(dirname, input_beam, input_pulse, fwhm, amp, fluences, exact_den
     
     out_t_label = norm_t_label if params.output_rel_time else t_amp_label
     
-    stride_z = max(amp.count_z // params.out_z_steps_divisor, 1)
-    stride_t = max(amp.count_t // params.out_t_steps_divisor, 1)
+    stride_z = max(amp.count_z // params.out_count_z, 1)
+    stride_t = max(amp.count_t // params.out_count_t, 1)
     
     plot.plot_data(filename("density_in"), "Input Photon Density", (T, None, tlim, out_t_label), (density[0]/ref_density, None, None, density_rel_label))
     plot.plot_data(filename("density_out"), "Output Photon Density", (T, None, tlim, out_t_label), (density[-1]/ref_density, None, None, density_rel_label))
@@ -220,8 +220,8 @@ def plot_beam(dirname, input_beam, Rho, Phi, ref_output_fluence):
     norm_input_fluence = ref_input_fluence / input_beam.ref_fluence
     norm_output_fluence = ref_output_fluence / input_beam.ref_fluence
     scale = np.amax(norm_output_fluence)
-    stride_rho = max(len(Rho) // params.out_rho_steps_divisor, 1)
-    stride_phi = max(len(Phi) // params.out_phi_steps_divisor, 1)
+    stride_rho = max(len(Rho) // params.out_count_rho, 1)
+    stride_phi = max(len(Phi) // params.out_count_phi, 1)
     plot.plot_projection(filename("fluence_in"), "Input Fluence", (XY, None, x_label), (YX, None, y_label), (norm_input_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
     plot.plot_projection(filename("fluence_out"), "Output Fluence", (XY, None, x_label), (YX, None, y_label), (norm_output_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
     

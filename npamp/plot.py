@@ -107,7 +107,7 @@ def plot_data(basename, title, (X, xscale, xlim, xlabel), (Y, yscale, ylim, ylab
             x = x * uxscale
             y = y * uyscale
             style = line_styles[i] if params.output_styled_lines else "-"
-            marker_stride = max(len(x) // params.out_markers_step_divisor, 1)
+            marker_stride = max(len(x) // params.out_num_markers, 1)
             plt.plot(x, y, style, markevery=marker_stride, label=label, **kwargs)
         plt.legend(loc=0)
     else:
