@@ -324,11 +324,13 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     
     if not quiet or params.verbose:
         print "processing results"
+    
     max_output_fluence = max_fluences[::-1].sum()
     max_output_fluence = model.energy.energy(params.lasing_wavelen, max_output_fluence)
     train_output_photon_count = output_photon_counts[::-1].sum()
     train_output_energy = model.energy.energy(params.lasing_wavelen, train_output_photon_count)
     rel_gain_decrease = 1.0 - output_photon_counts[-1] / output_photon_counts[0]
+    
     if not quiet:
         if params.graphs:
             print output.status_writing
