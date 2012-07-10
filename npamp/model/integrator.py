@@ -77,6 +77,6 @@ class DomainIntegrator(object):
         phi_integrals = np.apply_along_axis(integrate, 1, fluence, Phi, 2.0*math.pi)
         radius = self.active_medium.radius
         phi_integrals *= Rho if len(Rho) > 1 else radius/2.0
-        rho_intergral = integrate(phi_integrals, Rho, radius)
+        rho_integral = integrate(phi_integrals, Rho, radius)
         
-        return rho_intergral
+        return rho_integral
