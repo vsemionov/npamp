@@ -111,7 +111,7 @@ NPAmp has a graphical interface (GNPAmp) and a command-line interface (NPAmp).
 
 The model accepts a set of physical, numerical, operational, and output parameters. All of these parameters can be adjusted from the graphical interface. The parameters can optionally be written to and loaded from configuration files. 
 
-There are two different modes of operation -- basic mode and extended mode. In basic mode, results are computed only for fixed values of the input parameters. In extended mode, results are computed for varying values of some of the parameters. This facilitates the studying of the effects of these parameters on the results.
+There are two different modes of operation -- basic mode and extended mode. In basic mode, results are computed only for fixed values of the input parameters. In extended mode, results are computed for varying values of some parameters and/or for different models of some processes (currently ASE). This facilitates the studying of the effects of the physical parameters on the results, as well as the effects of the different factors, accounted for by the various models.
 
 
 Basic Mode
