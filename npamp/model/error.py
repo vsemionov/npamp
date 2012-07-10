@@ -35,7 +35,6 @@ import numpy as np
 import amplifier
 import discrete
 import util
-import exc
 
 
 def pulse_scale(pulse, trunc_rtol):
