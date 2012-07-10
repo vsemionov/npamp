@@ -227,7 +227,7 @@ The numerical methods for pumping-stage calculations are selected manually. The 
 
 Amplification-stage computations utilize a combination of methods (an integration method and an "amplification" method). More than one method can be selected for each of the two types. In that case, NPAmp will probe all possible combinations of selected methods from the two types and will use the most efficient one (depending on physical parameters, initial conditions, error tolerances, and other numerical parameters).
 
-Generally, it is advisable to select both amplification methods, since each one has advantages and disadvantages over the other one and is more efficient in different cases. HybridAmplifier is first-order accurate in time and second-order accurate in space, but the physical consistency of its results is conditional, and depends on the physical parameters and initial conditions. NSFDAmplifier is first-order accurate, but its results are unconditionally physically consistent. Both methods have a computational complexity of O(MxN), but HybridAmplifier generally executes faster. Further description of these methods is out of the scope of this document.
+Generally, it is advisable to select both amplification methods, since each one has advantages and disadvantages over the other one and is more efficient in different cases. HybridAmplifier is first-order accurate in time and second-order accurate in space, but the physical consistency of its results is conditional, and depends on the physical parameters and initial conditions. NSFDAmplifier is first-order accurate, but its results are unconditionally physically consistent. Both methods have a computational complexity of O(MxN), but HybridAmplifier generally executes faster.
 
 
 Numerical Parameters
