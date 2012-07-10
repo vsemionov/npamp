@@ -38,6 +38,8 @@ import util
 
 
 def pulse_scale(pulse, trunc_rtol):
+    if pulse.ref_density == 0.0:
+        return 1.0, 0.0
     total_fluence = pulse.density_integral(float("inf"))
     scale = 1.0
     offset = pulse.offset
