@@ -28,6 +28,7 @@
 import os
 
 import math
+import functools
 
 import copy
 
@@ -758,6 +759,17 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
         labels = (output.lower_lifetime_legend % "0", output.lower_lifetime_legend % lsl_graph_label_fmt, output.lower_lifetime_legend % "\\infty")
         plot.plot_data(filename("lsl_effects"), "Effects of Lower State Lifetime", (Ts, None, tlim, out_t_label), (densities, None, None, output.density_rel_label), labels)
 
+def min_integration_steps_geom(min_integration_steps, integrator, *args, **kwargs):
+    active_medium_orig = integrator.active_medium
+    max_medium_radius = params.ext_opt_geom_mediumradius[1]
+    active_medium_geom = model.medium.ActiveMedium(active_medium_orig.initial_inversion, active_medium_orig.doping_agent, max_medium_radius, active_medium_orig.length, active_medium_orig.refr_idx)
+    try:
+        integrator.active_medium = active_medium_geom
+        steps = min_integration_steps(integrator, *args, **kwargs)
+    finally:
+        integrator.active_medium = active_medium_orig
+    return steps
+
 def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), numerics):
     if params.amplification:
         compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), numerics)
@@ -781,11 +793,17 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), num
             
             orig_geom = set_geom(min_medium_radius, min_beam_radius)
             try:
-                max_inversion_geom = inversions_geom[0]
-                num_types_geom, counts_geom = core.select_methods((int_types, amp_types), max_inversion_geom, quiet=True)
-                _, _, count_z_geom, count_t_geom = counts_geom
+                min_integration_steps_orig = model.error.min_integration_steps
+                try:
+                    model.error.min_integration_steps = functools.partial(min_integration_steps_geom, min_integration_steps_orig)
+                    max_inversion_geom = inversions_geom[0]
+                    num_types_geom, counts_geom = core.select_methods((int_types, amp_types), max_inversion_geom, quiet=True)
+                    _, _, count_z_geom, count_t_geom = counts_geom
+                finally:
+                    model.error.min_integration_steps = min_integration_steps_orig
             finally:
                 set_geom(*orig_geom)
+            
             
             max_fluences_pump = compute_fluence_pump_dependence(task_pool, dirname, inversions_pump, num_types_pump, (count_z_pump, count_t_pump))
             max_fluences_geom = compute_fluence_geom_dependence(task_pool, dirname, inversions_geom, num_types_geom, (count_z_geom, count_t_geom))
