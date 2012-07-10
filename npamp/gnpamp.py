@@ -295,7 +295,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         old_conf = self.gui2conf()
         try:
             self.conf2gui(conf)
-        except Exception:
+        except:
             self.conf2gui(old_conf)
             raise
         self.working_conf = conf
@@ -469,15 +469,17 @@ def main():
     extensions = npamp.load_extensions()
     
     win = AppWindow(extensions)
-    win.show()
-    sys.excepthook = old_except_hook
-    win.add_excepthook()
     
     args = sys.argv[1:]
     if len(args) > 1:
         raise npamp.InvocationError("too many arguments")
     if args:
         win.openFile(args[0])
+    
+    win.show()
+    
+    sys.excepthook = old_except_hook
+    win.add_excepthook()
     
     sys.exit(app.exec_())
 
