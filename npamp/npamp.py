@@ -48,21 +48,28 @@ import mp
 import svc
 
 
+
+
 usage_help = \
-"""Usage: {app_name} {{-h | -v | -e | [-D definition [...]] [-o output_dir] conf_file}}
+"""Usage: {app_name} {{-h | -v | -e | [-g] [-D definition [...]] [-o output_dir] conf_file}}
 
 Options:
  -h             print this help message and exit
  -v             print version information and exit
- -e             list installed extensions
+ -e             list installed extensions and exit
+ -g             debug mode
  -D             define or override parameters
  -o output_dir  set output directory path (required for graphs)""".format(app_name=meta.app_name)
 
 help_hint = "Try \"{app_name} -h\" for more information.".format(app_name=meta.app_name)
 
 
+debug_mode = False
+
+
 class InvocationError(Exception):
     pass
+
 
 def print_help():
     print usage_help
@@ -178,26 +185,32 @@ def run(conf_path, output_path, definitions):
     except MemoryError:
         output.print_error("out of memory")
     except:
-        output.print_exception()
+        if not debug_mode:
+            output.print_exception()
+        else:
+            raise
 
 def process(extensions):
     try:
+        global debug_mode
+        
         conf_path = None
         output_path = None
         definitions = []
         
-        help_flag = False
-        version_flag = False
-        extensions_flag = False
-        
-        opts, args = getopt.getopt(sys.argv[1:], "hveD:o:")
+        opts, args = getopt.getopt(sys.argv[1:], "hvegD:o:")
         for opt, arg in opts:
             if opt == "-h":
-                help_flag = True
+                print_help()
+                sys.exit()
             elif opt == "-v":
-                version_flag = True
+                print_info()
+                sys.exit()
             elif opt == "-e":
-                extensions_flag = True
+                print_extensions(extensions)
+                sys.exit()
+            elif opt == "-g":
+                debug_mode = True
             elif opt == "-D":
                 definitions.append(arg)
             elif opt == "-o":
@@ -206,16 +219,6 @@ def process(extensions):
                 assert False, "unhandled option"
         if args:
             conf_path = args[0]
-        
-        if help_flag:
-            print_help()
-            sys.exit()
-        if version_flag:
-            print_info()
-            sys.exit()
-        if extensions_flag:
-            print_extensions(extensions)
-            sys.exit()
         
         if len(args) < 1:
             raise InvocationError("no input file")
