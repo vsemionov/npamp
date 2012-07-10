@@ -597,7 +597,7 @@ def compute_energy_pump_dependence(task_pool, dirname, inversions, constraints, 
             plot.plot_color(filename("efficiency_extr"), "Extraction Efficiency", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (extraction_effs.T, None, output.extraction_eff_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
             plot.plot_color(filename("efficiency_opt2"), "Optical to Optical Efficiency", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (total_effs.T, None, output.total_eff_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
             if params.train_pulse_count > 1:
-                plot.plot_color(filename("gain_decrease"), "Gain decrease", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (rel_gain_decreases.T, None, output.rel_gain_decrease_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+                plot.plot_color(filename("gain_decrease"), "Gain Decrease", (Tau, None, None, output.pump_duration_label), (Y, None, None, ylabel), (rel_gain_decreases.T, None, output.rel_gain_decrease_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
 
 def compute_energy_geom_dependence_task((i, j), (rm, rb), inversion, num_types, counts):
     output.show_status((i, j), params.extended_status_strides, False)
@@ -682,7 +682,7 @@ def compute_energy_geom_dependence(task_pool, dirname, inversions, constraints, 
         plot.plot_color(filename("efficiency_extr"), "Extraction Efficiency", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (extraction_effs.T, None, output.extraction_eff_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
         plot.plot_color(filename("efficiency_opt2"), "Optical to Optical Efficiency", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (total_effs.T, None, output.total_eff_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
         if params.train_pulse_count > 1:
-            plot.plot_color(filename("gain_decrease"), "Gain decrease", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (rel_gain_decreases.T, None, output.rel_gain_decrease_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
+            plot.plot_color(filename("gain_decrease"), "Gain Decrease", (Rm, None, None, output.medium_radius_label), (Rb, None, None, output.beam_radius_label), (rel_gain_decreases.T, None, output.rel_gain_decrease_label), params.out_num_auto_contours, extra_contours=extra_contours, xvals=xvals, yvals=yvals)
 
 def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), numerics):
     filename = lambda name: os.path.join(dirname, name)
