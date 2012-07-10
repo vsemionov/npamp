@@ -258,7 +258,8 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
         exact_inversion_integral = integrator.integrate(exact_Z, exact_inversion_final)
         del exact_inversion_final
         
-        inversion_abs_error = abs(num_inversion_integral - exact_inversion_integral) + fluence_rtol * (num_inversion_integral + exact_inversion_integral)
+        inversion_abs_error = abs(num_inversion_integral - exact_inversion_integral)
+        inversion_abs_error += fluence_rtol * (num_inversion_integral + exact_inversion_integral)
         rel_error_inversion = math.exp(active_medium.doping_agent.xsection * inversion_abs_error) - 1.0
         
         rel_error = rel_error_density + rel_error_inversion
