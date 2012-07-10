@@ -231,11 +231,11 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
         T = pulse.duration
         exact_amp_3.input_pulse = pulse
         exact_amp_4.input_pulse = pulse
-        inversion_out_3 = lambda z: population_inversion(exact_amp_3.exact_population(z, T))
-        inversion_out_4 = lambda z: population_inversion(exact_amp_4.exact_population(z, T))
+        inversion_final_3 = lambda z: population_inversion(exact_amp_3.exact_population(z, T))
+        inversion_final_4 = lambda z: population_inversion(exact_amp_4.exact_population(z, T))
         zname = "z"
-        steps_z_3 = converge_steps(inversion_out_3, 0.0, L, zname)
-        steps_z_4 = converge_steps(inversion_out_4, 0.0, L, zname)
+        steps_z_3 = converge_steps(inversion_final_3, 0.0, L, zname)
+        steps_z_4 = converge_steps(inversion_final_4, 0.0, L, zname)
         steps_z = max(steps_z, steps_z_3, steps_z_4)
     
     return steps_rho, steps_phi, steps_z, steps_t

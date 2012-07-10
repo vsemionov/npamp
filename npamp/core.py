@@ -243,9 +243,9 @@ def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
     
     if active_medium.doping_agent.lower_lifetime in model.amplifier.ExactAmplifier.analytical_lower_lifetimes:
         exact = model.amplifier.ExactOutputAmplifier(active_medium, count_z)
-        exact_density_out, exact_population_out = exact.amplify(0.0, 0.0, ref_pulse, count_t)
+        exact_density_out, exact_population_final = exact.amplify(0.0, 0.0, ref_pulse, count_t)
     else:
-        exact_density_out, exact_population_out = None, None
+        exact_density_out, exact_population_final = None, None
     
     fluence_out = integrator.integrate(amp.T, num_density_out) * active_medium.light_speed
     fluence_gain = fluence_out / input_beam.ref_fluence
@@ -258,7 +258,7 @@ def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
             fluences[l] = integrator.integrate(amp.T, amp.density[l]) * active_medium.light_speed
         print output.status_writing
         dirname = output.init_dir(dirname)
-        output.plot_output(dirname, input_beam, ref_pulse, params.pulse_duration, amp, fluences, exact_density_out, exact_population_out)
+        output.plot_output(dirname, input_beam, ref_pulse, params.pulse_duration, amp, fluences, exact_density_out, exact_population_final)
 
 def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     if not quiet:
