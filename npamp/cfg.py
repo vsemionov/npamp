@@ -73,7 +73,7 @@ def validate():
         if vtype in (int, float):
             if vtype is float and name not in param_zero_allowed:
                 if value <= 0.0:
-                    raise ConfigurationError("parameter \"%s\" has (or contains) a zero value" % name)
+                    raise ConfigurationError("parameter \"%s\" has (or contains) a non-positive value" % name)
             elif value < 0.0:
                 raise ConfigurationError("parameter \"%s\" has (or contains) a negative value" % name)
             if vtype is float and name not in param_infty_allowed:
