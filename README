@@ -1,86 +1,99 @@
 =====
 NPAmp
 =====
-
 ------------------------------------------------------------------------------------------------------------------------------------
 Numerical model of a laser amplifier for pulse trains, accounting for amplified spontaneous emission and finite lower state lifetime
 ------------------------------------------------------------------------------------------------------------------------------------
 
+NPAmp is an implementation of a numerical model of a laser amplifier. It is designed for practical and educational purposes.
 
+
+Example Results
+===============
+The following are example results of research, conducted with NPAmp.
+
+Effects of ASE
+--------------
+See examples/ase.npc in the installation directory.
+.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/ase/pumping/inversions_evo.png
+
+Effects of Gain Saturation
+--------------------------
+See examples/gain_saturation.npc in the installation directory.
+.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/gain_saturation/ref_pulse/densities.png
+
+Effects of Lower State Lifetime
+-------------------------------
+See examples/lower_state_lifetime.npc in the installation directory.
+.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/lower_state_lifetime/ref_pulse/lsl_effects.png
+
+Laser Amplifier Optimization
+----------------------------
+See examples/optimization.npc in the installation directory.
+.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/optimization/optimization/geometry/energy_out.png
+
+Pulse Train Amplification
+-------------------------
+See examples/pulse_train.npc in the installation directory.
+.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/pulse_train/pulse_energy_gain.png
 
 
 Overview
 ========
 
-NPAmp is an implementation of a numerical model of a laser amplifier. It is designed for practical and educational purposes.
-
-
 Mathematical Model Features
 ---------------------------
-
 * Describes the propagation of single pulses or pulse trains in a laser amplifier.
 * Accounts for the amplified spontaneous emission during pumping.
 * Accounts for the finite lower state lifetime during amplification.
 
-
 Numerical Model Features
 ------------------------
-
 * Produces physically consistent and, where possible, numerically stable results.
-* Automatic determination of the discretization parameters domain, based on specified numerical error tolerances of individual intermediate results.
-* Automatic selection of the most efficient combination of employed numerical methods, based on physical consistency, numerical stability, and error tolerance criteria.
-
+* Automatically determines discretization parameters from specified numerical error tolerances.
+* Automatically selects the most efficient combination of numerical methods.
 
 Implementation Features
 -----------------------
-
-* Parallel computing -- performs calculations concurrently, on multiple CPUs, where possible.
-* Cross-platform -- operates on Windows and various Unix-like systems (Linux, BSD, etc.)
-* Flexible and configurable operation -- the various computations can be selectively enabled, their input parameters adjusted, and their outputs customized.
 * Computes a wide variety of results.
 * Generates publication-quality figures.
+* Performs calculations in parallel, on multiple CPUs, where possible.
+* Operates on Windows and various Unix-like systems (Linux, BSD, etc.)
+* Flexible and configurable operation.
 * Simple graphical user interface.
-* Command-line interface, facilitating the automation of research.
+* Command-line interface, facilitating research automation.
 * Extensible by means of Python modules.
 * Freely distributable under the terms of the BSD license.
 
-
 Characteristics of the Modeled Amplifier and Input Signal
 ---------------------------------------------------------
-
 * The amplifier is single-pass.
 * The active medium is solid-state, four-level, with cylindrical geometry.
 * The pumping is pulsed, homogeneous, and its optical power is a rectangular function of time.
-* The gain medium has a diffuse side surface and is water-cooled.
-* There are no significant temperature gradients and mechanical stresses inside the gain medium, therefore the gain medium is homogeneous.
-* The gain medium's temperature, and therefore its refractive index, is constant in time.
+* The active medium has a diffuse side surface and is water-cooled.
+* There are no significant temperature gradients and mechanical stresses inside the active medium, therefore it is homogeneous.
+* The active medium's temperature, and therefore its refractive index, is constant in time.
 * The laser beam, propagating in the amplifier, is collimated.
 * The input signal enters the amplifier immediately after the pumping; its power is null beforehand.
 * The input signal consists of either a single pulse or a finite-length train of equally-separated in time pulses with arbitrary, but uniform, spatial and temporal shapes.
 * The signal's frequency spectrum width is much smaller than its carrier frequency.
 * The signal's total duration is much shorter than the upper state lifetime.
-* The signal's optical intensity is proportional to both its power and its fluence.
-* The time between amplification and the subsequent pumping is much longer than the upper state lifetime.
+* The signal's optical intensity is proportional to its power and fluence.
+* The time between an amplification and the subsequent pumping is much longer than the upper state lifetime.
 * During pumping, population inversion does not change significantly in the transit time of the amplifier.
-* The pump band's lifetime is much shorter than the upper state lifetime, and therefore its population is negligible; ground state population is much larger than the sum of the laser state populations, and is therefore constant in time; nonradiative transitions, originating from the upper state, can be neglected; the frequency dependence of the upper state stimulated emission cross section can be neglected.
+* The pump band has a lifetime, much shorter than the upper state lifetime, and therefore its population is negligible; ground state population is much larger than the sum of the laser state populations, and is therefore constant in time; nonradiative transitions, originating from the upper state, can be neglected; the frequency dependence of the stimulated emission cross section of the laser transition can be neglected.
 * During amplification, spontaneous emission is negligible; the transit time of the amplifier is much shorter than the upper state lifetime; absorption and scattering losses of signal radiation are negligible.
-
-
 
 
 Installation
 ============
 
-
 Windows
 -------
-
 The recommended way of installing NPAmp on Windows is to download and run the provided installer.
-
 
 Unix
 ----
-
 On Unix, NPAmp needs to be built from source. First, the required build and runtime dependencies need to be present and accessible on the system. The required packages, and their tested versions, are:
 
 * python (2.7.3)
@@ -95,11 +108,8 @@ On Unix, NPAmp needs to be built from source. First, the required build and runt
 Next, extract the source archive into the target directory, and execute ``make`` inside that directory. The executables are <target>/npamp/npamp.py and <target>/npamp/gnpamp.py, where <target> denotes the path to the target directory.
 
 
-
-
 Operation
 =========
-
 NPAmp has a graphical interface (GNPAmp) and a command-line interface (NPAmp).
 
 The model accepts a set of physical, numerical, operational, and output parameters. All of these parameters can be adjusted through the graphical interface. The parameters can optionally be written to and loaded from configuration files. 
@@ -109,7 +119,6 @@ There are two different modes of operation -- basic mode and extended mode. In b
 
 Basic Mode
 ----------
-
 The most important results, currently computed in basic mode, are:
 
 * pumping stage:
@@ -149,7 +158,6 @@ The most important results, currently computed in basic mode, are:
 
 Extended Mode
 -------------
-
 The following computations are currently performed in extended mode:
 
 * effects of lower state lifetime on the temporal shape and fluence of the pulse
@@ -200,7 +208,6 @@ The following computations are currently performed in extended mode:
 
 Execution
 ---------
-
 The most important parameters, affecting the execution of the model, are:
 
 * extended mode: enables extended mode; see above
@@ -209,31 +216,22 @@ The most important parameters, affecting the execution of the model, are:
 * generate graphs: enables the generation of result graphs
 
 
-
-
 Practical Use
 =============
 
-
 ASE Models
 ----------
-
-Of all implemented depopulation models, the Ross ASE model accounts for the effects of the highest number of contributing factors, and is expected to yield the most accurate results. In the graphical interface, this model is labeled as "RossApproximateASEModel" and is selected by default.
-
+Of all implemented depopulation models, the Ross ASE model accounts for the effects of the highest number of contributing factors, and is expected to yield the most accurate results. In the graphical interface, this model is labeled as "RossApproximateASEModel", and is selected by default.
 
 Numerical Parameters
 --------------------
-
 In many cases, the default values of the numerical parameters (in the Numerics tab of the graphical interface) are an acceptable compromise between accuracy and efficiency. In the absence of specific requirements, these parameters do not need to be modified.
 
 In cases when examination of the temporal or spatial evolution of the computed quantities is required, the minimum numbers of discretization steps may need adjustment in order to increase the smoothness of the generated graphs.
 
 
-
-
 Extensions
 ==========
-
 NPAmp is extensible by means of Python modules. To install an extension module:
 
 1. Create the <home>/.npamp/extensions directory, if it doesn't exist, where <home> denotes the path to the user's home directory.
@@ -244,11 +242,8 @@ For an example of an extension and a configuration which uses it, see examples/s
 To view the list of currently installed extensions in the graphical interface, use "About NPAmp" from the Help menu.
 
 
-
-
 Common Problems
 ===============
-
 * Warnings in the output. In some cases, NPAmp may issue warnings about exceeding the maximum numbers of discretization steps while trying to ensure the required accuracy. If this occurs during the pumping-stage calculations, a possible solution is to select a different inversion method. For amplification-stage computations, NPAmp probes all combinations of the selected integration and amplification methods and chooses the most efficient combination (requiring the least total number of discretization steps). Therefore, it is possible that the warnings are related to a method combination which will not actually be used, and therefore computations may still be performed with the required accuracy. To verify this, enable verbose output to check which method combination causes the warnings, and/or select different (sets of) integration and amplification methods. In cases of extreme values of physical or numerical parameters, all method combinations may require unreasonably large numbers of discretization steps. In that case, the only solution is to reduce the required accuracy.
 * Unordered progress status numbers in the output. In some cases, when computations are performed in parallel, the reported status may be unordered. This is normal and does not affect the results.
 
@@ -257,11 +252,9 @@ Common Problems
 
 Contacts and Support
 ====================
-
 Developed and maintained by Victor Semionov <vsemionov@gmail.com>.
 
 Studied under the guidance of Assoc. Prof. Ivan Buchvarov and Assistant Prof. Alexander Gaydardzhiev at the Faculty of Physics, Sofia University.
-
 
 For the latest information and downloads, visit the main website:
 http://www.vsemionov.org/npamp/
@@ -274,51 +267,3 @@ http://www.phys.uni-sofia.bg/~ibuch/
 
 For feedback, problem reports, or any other queries, email:
 Victor Semionov <vsemionov@gmail.com>
-
-
-
-
-Examples
-========
-
-The following are example results of research, conducted with NPAmp.
-
-
-ASE
----
-
-See examples/ase.npc in the installation directory.
-
-.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/ase/pumping/inversions_evo.png
-
-
-Gain Saturation
----------------
-
-See examples/gain_saturation.npc in the installation directory.
-
-.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/gain_saturation/ref_pulse/densities.png
-
-
-Lower State Lifetime
---------------------
-
-See examples/lower_state_lifetime.npc in the installation directory.
-
-.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/lower_state_lifetime/ref_pulse/lsl_effects.png
-
-
-Optimization
-------------
-
-See examples/optimization.npc in the installation directory.
-
-.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/optimization/optimization/geometry/energy_out.png
-
-
-Pulse Train
------------
-
-See examples/pulse_train.npc in the installation directory.
-
-.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/pulse_train/pulse_energy_gain.png
