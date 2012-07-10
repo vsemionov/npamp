@@ -30,6 +30,7 @@ import math
 import numpy as np
 
 import native
+import exc
 
 
 def lower_state_decay(active_medium, pulse_train):
@@ -129,7 +130,7 @@ class ExactAmplifier(PulseAmplifier):
         elif math.isinf(lower_lifetime):
             four_level = False
         else:
-            raise ValueError("%s only accepts zero or infinite lower state lifetimes" % self.__class__.__name__)
+            raise exc.ModelError("%s only accepts zero or infinite lower state lifetimes" % self.__class__.__name__)
         self.four_level = four_level
     
     @staticmethod

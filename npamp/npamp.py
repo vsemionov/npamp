@@ -36,6 +36,8 @@ import getopt
 import signal
 import multiprocessing
 
+import model
+
 import meta
 import params
 import output
@@ -120,56 +122,59 @@ def execute(task_pool):
         ext.extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), numerics)
 
 def run(conf_path, output_path, definitions):
-    print "configuring"
-    if conf_path is not None:
-        conf = cfg.load_conf(params.__dict__, conf_path)
-        params.__dict__.update(conf)
-    if definitions is not None:
-        diff = dict()
-        for definition in definitions:
-            exec definition in diff
-        defaults = cfg.copy_conf(params.__dict__)
-        diff = cfg.copy_conf(diff)
-        cfg.check_conf(defaults, diff)
-        params.__dict__.update(diff)
-    
-    if params.verbose:
-        print "verbose output enabled"
-    
-    if params.lower_process_priority:
-        if params.verbose:
-            print "reducing process priority"
-        warning = svc.reduce_process_priority()
-        if warning:
-            output.warn(warning)
-    
-    if params.graphs:
-        if not output_path:
-            raise InvocationError("no output directory")
-        output_path = os.path.normpath(output_path)
-        if params.verbose:
-            print "graphs will be written to:", output_path
-    output.output_dir = output_path
-    
-    print "validating"
-    cfg.validate()
-    
-    with mp.TaskPool(params.num_tasks, params.extended_mode, params.__dict__) as task_pool:
-        print "executing"
+    try:
+        print "configuring"
+        if conf_path is not None:
+            conf = cfg.load_conf(params.__dict__, conf_path)
+            params.__dict__.update(conf)
+        if definitions is not None:
+            diff = dict()
+            for definition in definitions:
+                exec definition in diff
+            defaults = cfg.copy_conf(params.__dict__)
+            diff = cfg.copy_conf(diff)
+            cfg.check_conf(defaults, diff)
+            params.__dict__.update(diff)
         
         if params.verbose:
-            print "number of parallel tasks:", task_pool.num_tasks
+            print "verbose output enabled"
         
-        start_time = time.time()
-        execute(task_pool)
-        end_time = time.time()
-        elapsed_time = end_time - start_time
+        if params.lower_process_priority:
+            if params.verbose:
+                print "reducing process priority"
+            warning = svc.reduce_process_priority()
+            if warning:
+                output.warn(warning)
         
-        print output.div_line
-        print "done"
+        if params.graphs:
+            if not output_path:
+                raise InvocationError("no output directory")
+            output_path = os.path.normpath(output_path)
+            if params.verbose:
+                print "graphs will be written to:", output_path
+        output.output_dir = output_path
         
-        if params.verbose:
-            print "finished in %.2f s" % elapsed_time
+        print "validating"
+        cfg.validate()
+        
+        with mp.TaskPool(params.num_tasks, params.extended_mode, params.__dict__) as task_pool:
+            print "executing"
+            
+            if params.verbose:
+                print "number of parallel tasks:", task_pool.num_tasks
+            
+            start_time = time.time()
+            execute(task_pool)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            
+            print output.div_line
+            print "done"
+            
+            if params.verbose:
+                print "finished in %.2f s" % elapsed_time
+    except (cfg.ConfigurationError, core.ComputationError, model.exc.ModelError):
+        output.print_error()
 
 def process(extensions):
     try:
@@ -214,9 +219,8 @@ def process(extensions):
             raise InvocationError("too many arguments")
         
         run(conf_path, output_path, definitions)
-    except InvocationError as ie:
-        print >>sys.stderr, "%s: %s" % (meta.app_name, ie.message)
-        print >>sys.stderr, help_hint
+    except InvocationError:
+        output.print_error(help_hint)
 
 def main():
     multiprocessing.freeze_support()

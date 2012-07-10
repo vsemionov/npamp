@@ -27,6 +27,7 @@
 
 import sys
 import os
+import traceback
 
 import numpy as np
 
@@ -37,6 +38,7 @@ import plot
 div_line = "=" * 32
 status_writing = "generating output"
 
+
 output_dir = None
 models_rel_path = "pumping"
 ref_pulse_rel_path = "ref_pulse"
@@ -44,6 +46,7 @@ optimization_rel_path = "optimization"
 opt_pump_rel_path = os.path.join(optimization_rel_path, "pumping")
 opt_geom_rel_path = os.path.join(optimization_rel_path, "geometry")
 alt_plot_rel_path = "alt"
+
 
 x_label = "x [mm]"
 y_label = "y [mm]"
@@ -85,8 +88,23 @@ lower_lifetime_legend = r"$\tau_1 \, = \, %s$"
 lower_lifetime_unit = "ns"
 
 
+
+
 def warn(message):
-    print >>sys.stderr, "warning:", message
+    print >>sys.stderr, "%s: %s" % ("warning:", message)
+
+def print_error(hint=None):
+    _, exc, _ = sys.exc_info()
+    print >>sys.stderr, "%s: %s" % ("error", exc.message)
+    if hint:
+        print >>sys.stderr, hint
+
+def print_exception():
+    t, v, _ = sys.exc_info()
+    fmt = traceback.format_exception_only(t, v)
+    exc_msg = fmt[-1]
+    print >>sys.stderr, exc_msg
+
 
 def show_status((i, j), (si, sj), done):
     def print_status():

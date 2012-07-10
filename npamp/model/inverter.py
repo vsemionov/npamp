@@ -25,12 +25,11 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import sys
-
 import numpy as np
 
 import discrete
 import util
+import exc
 
 
 class PopulationInverter(object):
@@ -58,7 +57,7 @@ class PopulationInverter(object):
     def _step(f, dt, n):
         raise NotImplementedError()
     
-    def _integrate(self, rtol, count_t, persist):
+    def _integrate(self, rtol, count_t):
         # Adaptive step size is not necessary.
         # It would be useful only in cases when the majority of the time is spent in the steady state.
         # However, that is not a practical case -- any pumping, applied after reaching the steady state, is wasted.
@@ -75,11 +74,7 @@ class PopulationInverter(object):
             try:
                 dn = self._step(f, dt, n)
             except (ValueError, ArithmeticError):
-                if persist:
-                    sys.exc_clear()
-                    return None
-                else:
-                    raise
+                return None
             if not is_stable(n, dn):
                 return None
             inversion[k+1] = n + dn
@@ -95,20 +90,24 @@ class PopulationInverter(object):
         last_res = None
         while True:
             count_t = discrete.steps(divs)
-            divs += 1
-            is_last_try = divs > max_divs
-            res = self._integrate(rtol, count_t, not is_last_try)
+            res = self._integrate(rtol, count_t)
             diff = None
             if None not in (last_res, res):
                 diff = abs(res - last_res)
                 if diff <= rtol * abs(res):
                     break
-            if is_last_try:
+            divs += 1
+            if divs > max_divs:
                 if diff is not None:
                     util.warn("max. inversion time divs (%g) exceeded; rtol: %g; latest step count: %g; latest difference: %g (current: %g; last: %g)" % (max_divs, rtol, count_t, diff, res, last_res), stacklevel=2)
                     break
                 else:
-                    raise ValueError("max. inversion time divs (%g) exceeded; rtol: %g; latest step count: %g" % (max_divs, rtol, count_t))
+                    msg = "max. inversion time divs (%g) exceeded; rtol: %g; latest step count: %g" % (max_divs, rtol, count_t)
+                    if res is not None:
+                        util.warn(msg)
+                        break
+                    else:
+                        raise exc.NumericalError(msg)
             last_res = res
         return res
 

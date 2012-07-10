@@ -63,7 +63,7 @@ class DepopulationModel(object):
     
     def rate(self, inversion):
         if inversion < 0.0:
-            raise ValueError("negative population inversion")
+            raise exc.ModelError("negative population inversion")
         return self.calc_rate(inversion)
     
     def calc_rate(self, inversion):
@@ -78,9 +78,14 @@ class NumericalDepopulationModel(DepopulationModel):
     def __init__(self, active_medium, wavelen, rtol, min_samples, prng_seed=-1):
         super(NumericalDepopulationModel, self).__init__(active_medium, wavelen)
         
+        self.max_samples = 16 * 1024**2
+        
         self.rtol = rtol
         self.min_samples = min_samples
         self.prng_seed = prng_seed
+        
+        if self.min_samples > self.max_samples:
+            raise exc.NumericalError("min. depop. rate sample count (%g) is greater than max. sample count (%g)" % (self.min_samples, self.max_samples))
         
         native._seed_prng(prng_seed)
 
@@ -178,12 +183,8 @@ class RossNumericalASEModel(NumericalDepopulationModel):
         super(RossNumericalASEModel, self).__init__(active_medium, wavelen, rtol, min_samples, prng_seed)
         
         self.sample_count_multiplier = sample_count_multiplier
-        
-        self.max_samples = 16 * 1024**2
     
     def _rate_coef(self, inversion):
-        if self.min_samples > self.max_samples:
-            raise exc.ModelError("min. depop. rate sample count (%g) is greater than max. sample count (%g)" % (self.min_samples, self.max_samples))
         nsamples = self.min_samples
         while True:
             B, B_rel_error = self._integrate_B(inversion, nsamples)

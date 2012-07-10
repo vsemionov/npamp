@@ -35,6 +35,7 @@ import numpy as np
 import amplifier
 import discrete
 import util
+import exc
 
 
 def pulse_scale(pulse, trunc_rtol):
@@ -141,9 +142,9 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
             if divs > max_divs:
                 if diff is not None:
                     util.warn("max. integration %s divs (%g) exceeded; rtol: %g; latest step count: %g; latest difference: %g (current: %g; last: %g)" % (varname, max_divs, rtol, steps, diff, res, last_res), stacklevel=3)
-                    break
                 else:
-                    raise ValueError("max. integration %s divs (%g) exceeded; rtol: %g; latest step count: %g" % (varname, max_divs, rtol, steps))
+                    util.warn("max. integration %s divs (%g) exceeded; rtol: %g; latest step count: %g" % (varname, max_divs, rtol, steps))
+                break
             last_res = res
         return steps
     def fluence_integrals(steps_rho, steps_phi):

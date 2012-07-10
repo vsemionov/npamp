@@ -164,7 +164,7 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
         try:
             count_rho, count_phi, min_count_z, min_count_t = model.error.min_integration_steps(integrator, input_beam, (ref_pulse,), params.energy_rtol, params.fluence_rtol)
         except size_exc_types:
-            traceback.print_exc()
+            output.print_exception()
             print "attempting to recover"
             sys.exc_clear()
             continue
@@ -181,7 +181,7 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
             try:
                 data = model.error.min_amplification_steps(amp_type, active_medium, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.fluence_rtol, params.amp_rtol, ret_extra=True)
             except size_exc_types:
-                traceback.print_exc()
+                output.print_exception()
                 print "attempting to recover"
                 sys.exc_clear()
                 continue
