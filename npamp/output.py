@@ -93,9 +93,8 @@ lower_lifetime_unit = "ns"
 def warn(message):
     print >>sys.stderr, "%s: %s" % ("warning:", message)
 
-def print_error(hint=None):
-    _, exc, _ = sys.exc_info()
-    print >>sys.stderr, "%s: %s" % ("error", exc.message)
+def print_error(message, hint=None):
+    print >>sys.stderr, "%s: %s" % ("error", message)
     if hint:
         print >>sys.stderr, hint
 
