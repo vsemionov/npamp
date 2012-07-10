@@ -149,6 +149,10 @@ def validate():
     if not (params.dopant_lower_lifetime <= params.dopant_upper_lifetime / 10.0 or params.initial_inversion):
         output.warn("approximation validity condition violated: lower state lifetime is not much shorter than upper state (fluorescence) lifetime")
     
+    transit_time = active_medium.length / active_medium.light_speed
+    if not (transit_time <= params.dopant_upper_lifetime / 10.0):
+        output.warn("approximation validity condition violated: amplifier transit time is not much shorter than upper state (fluorescence) lifetime")
+    
     train_duration = params.pulse_duration + (params.train_pulse_count - 1) * params.train_pulse_period
     if not (train_duration <= params.dopant_upper_lifetime / 10.0 or not params.amplification):
         output.warn("approximation validity condition violated: signal duration is not much shorter than upper state (fluorescence) lifetime")
