@@ -102,7 +102,7 @@ def print_error(hint=None):
 def print_exception():
     t, v, _ = sys.exc_info()
     fmt = traceback.format_exception_only(t, v)
-    exc_msg = fmt[-1]
+    exc_msg = fmt[-1][:-1]
     print >>sys.stderr, exc_msg
 
 
