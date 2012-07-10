@@ -120,7 +120,7 @@ extended_status_strides = (4, 0)
 
 out_markers_step_divisor = 5
 out_rho_steps_divisor = 33
-out_phi_steps_divisor = 65
+out_phi_steps_divisor = 33
 out_z_steps_divisor = 33
 out_t_steps_divisor = 33
 
