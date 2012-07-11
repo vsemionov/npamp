@@ -86,6 +86,8 @@ class PopulationInverter(object):
         max_divs = 15
         min_count_t = max(min_count_t, 2)
         divs = discrete.divs(min_count_t)
+        if divs > max_divs:
+            raise exc.NumericalError("min. inversion time step count (%s) and corresponding min. divs (%s) too large; max. divs: %s" % (min_count_t, divs, max_divs))
         divs = max(divs-1, 0)
         last_res = None
         while True:
@@ -104,7 +106,7 @@ class PopulationInverter(object):
                 else:
                     msg = "max. inversion time divs (%s) exceeded; rtol: %s; latest step count: %s" % (max_divs, rtol, count_t)
                     if res is not None:
-                        util.warn(msg)
+                        util.warn(msg, stacklevel=2)
                         break
                     else:
                         raise exc.NumericalError(msg)
