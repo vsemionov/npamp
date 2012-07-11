@@ -88,8 +88,7 @@ ext_opt_geom_beamradius = (beam_radius / 2.0, beam_radius * 2.0)
 ext_opt_geom_resolution = (24, 24)
 
 time_trunc_rtol = 1.0e-2
-fluence_rtol = 1.0e-2
-energy_rtol = 1.0e-2
+int_rtol = 1.0e-2
 amp_rtol = 2.0e-2
 
 min_count_rho = 0
