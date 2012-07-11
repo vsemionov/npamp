@@ -38,7 +38,7 @@ exe: app
 	python setup.py py2exe
 
 installer: exe
-	ISCC installer/installer.iss
+	ISCC installer/npamp.iss
 
 clean:
 	rm -rf output
