@@ -156,8 +156,9 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             if type(widget) is QtGui.QLineEdit:
                 if type(value) is float:
                     value = unitconv.convert_to_input(label.text(), value)
-                    value = float(value)
-                widget.setText(repr_classless(value))
+                    widget.setText(value)
+                else:
+                    widget.setText(repr_classless(value))
             elif type(widget) is QtGui.QSpinBox:
                 widget.setValue(value)
             elif type(widget) is QtGui.QCheckBox:
