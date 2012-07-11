@@ -1,5 +1,9 @@
 import model
+
 version = 1.0
+
+inf = float("inf")
+nan = float("nan")
 
 amp_rtol = 0.02
 amplification = False
@@ -70,3 +74,6 @@ time_trunc_rtol = 0.01
 train_pulse_count = 1
 train_pulse_period = 1e-09
 verbose = False
+
+del inf
+del nan
