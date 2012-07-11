@@ -463,7 +463,8 @@ def main():
     
     app = QtGui.QApplication(sys.argv)
     
-    old_except_hook = sys.excepthook
+    global old_excepthook
+    old_excepthook = sys.excepthook
     sys.excepthook = boot_excepthook
     
     extensions = npamp.load_extensions()
@@ -478,7 +479,7 @@ def main():
     
     win.show()
     
-    sys.excepthook = old_except_hook
+    sys.excepthook = old_excepthook
     win.add_excepthook()
     
     sys.exit(app.exec_())
