@@ -151,7 +151,8 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
     if not quiet or params.verbose:
         print "determining most efficient method combination"
     
-    min_counts = (params.min_count_rho, params.min_count_phi, params.min_count_z, params.min_count_t)
+    min_xverse = (params.min_count_rho, params.min_count_phi)
+    min_count_z, min_count_t = (params.min_count_z, params.min_count_t)
     
     pulse_train = create_train(ref_pulse)
     
@@ -165,7 +166,7 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
             print int_name
         integrator = model.integrator.DomainIntegrator(int_type, active_medium)
         try:
-            count_rho, count_phi, min_count_z, min_count_t = model.error.min_integration_steps(integrator, input_beam, (ref_pulse,), params.energy_rtol, params.fluence_rtol, min_counts)
+            count_rho, count_phi = model.error.min_integration_steps(integrator, input_beam, (ref_pulse,), params.int_rtol, min_xverse)
         except size_exc_types:
             output.print_exception()
             print "attempting to recover"
@@ -218,7 +219,7 @@ def select_methods((int_types, amp_types), ref_inversion, ret_rel_errors=False, 
         print "count_z: %d; count_t: %d" % (count_z, count_t)
     
     numerics = (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
-    rel_errors = (time_trunc_rel_error, params.fluence_rtol, params.amp_rtol, params.energy_rtol)
+    rel_errors = (time_trunc_rel_error, params.amp_rtol, params.int_rtol)
     return (numerics, rel_errors) if ret_rel_errors else numerics
 
 def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
