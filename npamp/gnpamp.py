@@ -49,6 +49,10 @@ import outwin
 
 old_excepthook = None
 
+
+predef_attr_reprs = [("inf", "float(\"inf\")"), ("nan", "float(\"nan\")")]
+predef_attrs = [(name, eval(value)) for (name, value) in predef_attr_reprs]
+
 defaults = npamp.cfg.load_conf(npamp.params.__dict__, None)
 
 
@@ -68,10 +72,17 @@ def file2conf(path):
 def conf2file(conf, path):
     with open(path, "w") as fp:
         fp.write("import model\n")
+        fp.write("\n")
         fp.write("%s = %s\n" % ("version", npamp.params.version))
+        fp.write("\n")
+        for name, value in predef_attr_reprs:
+            fp.write("%s = %s\n" % (name, value))
         fp.write("\n")
         for param, value in sorted(conf.items()):
             fp.write("%s = %s\n" % (param, repr_cfg(value)))
+        fp.write("\n")
+        for name, _ in predef_attr_reprs:
+            fp.write("del %s\n" % name)
 
 
 class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
@@ -156,9 +167,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             if type(widget) is QtGui.QLineEdit:
                 if type(value) is float:
                     value = unitconv.convert_to_input(label.text(), value)
-                    widget.setText(value)
-                else:
-                    widget.setText(repr_cfg(value))
+                widget.setText(repr_cfg(value))
             elif type(widget) is QtGui.QSpinBox:
                 widget.setValue(value)
             elif type(widget) is QtGui.QCheckBox:
@@ -186,8 +195,8 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             assert len(labels) == 1, "none or more than one label matches parameter name \"%s\"" % parameter
             set_widget_value(labels[0], widgets[0], value)
         
-#        if self.gui2conf() != conf:
-#            raise npamp.cfg.ConfigurationError("invalid parameter value(s)")
+        if self.gui2conf() != conf:
+            raise npamp.cfg.ConfigurationError("invalid parameter value(s)")
     
     def gui2conf(self):
         def get_widget_value(label, widget, defval):
@@ -201,7 +210,9 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
                     value = unitconv.convert_from_input(label.text(), value)
                     return value
                 else:
-                    return eval(widget.text())
+                    glb = dict(predef_attrs)
+                    glb["model"] = npamp.model
+                    return eval(widget.text(), glb)
             elif type(widget) is QtGui.QSpinBox:
                 return widget.value()
             elif type(widget) is QtGui.QCheckBox:

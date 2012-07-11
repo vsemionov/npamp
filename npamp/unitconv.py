@@ -92,7 +92,7 @@ def convert_to_input(label, value):
         if unit in units:
             coef = units[unit]
             value /= Decimal(repr(coef))
-    value = str(value)
+    value = float(value)
     return value
 
 def output_scale(label):
