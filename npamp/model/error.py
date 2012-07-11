@@ -125,7 +125,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname,
     return last_counts
 
 def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_rtol, (min_count_rho, min_count_phi, min_count_z, min_count_t)):
-    def converge_steps(func, a, b, min_steps, varname):
+    def converge_steps(func, a, b, rtol, min_steps, varname):
         max_divs = 15
         min_steps = max(min_steps, 3)
         divs = discrete.divs(min_steps)
@@ -198,15 +198,13 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
     L = active_medium.length
     gain = math.exp(active_medium.doping_agent.xsection * active_medium.initial_inversion.ref_inversion * L)
     
-    rtol = energy_rtol
-    
     beam_rho, beam_phi = input_beam.xcoords
     
     if not beam_rho and not beam_phi:
         steps_rho, steps_phi = 1, 1
     else:
         compute_rdiff = lambda last_res, res: max([abs((new - old) / new) for (old, new) in zip(last_res, res)])
-        steps_rho, steps_phi = min_steps((min_count_rho, min_count_phi), (beam_rho, beam_phi), rtol, fluence_integrals, compute_rdiff, "integration", "(rho, phi)")
+        steps_rho, steps_phi = min_steps((min_count_rho, min_count_phi), (beam_rho, beam_phi), energy_rtol, fluence_integrals, compute_rdiff, "integration", "(rho, phi)")
     
     active_medium_3 = copy.deepcopy(active_medium)
     active_medium_3.doping_agent.lower_lifetime = float("inf")
@@ -220,7 +218,6 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
     exact_amp_4.rho = 0.0
     exact_amp_4.phi = 0.0
     
-    rtol = fluence_rtol
     steps_t = 3
     for pulse in pulses:
         t0 = pulse.t0
@@ -235,14 +232,13 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
         density_out_4 = lambda t: exact_amp_4.exact_density(L, t)
         
         timename = "time"
-        steps_t_0 = converge_steps(density_in, t0, t0 + T, min_count_t, timename)
-        steps_t_1 = converge_steps(density_out, t0, t0 + T, min_count_t, timename)
-        steps_t_3 = converge_steps(density_out_3, t0, t0 + T, min_count_t, timename)
-        steps_t_4 = converge_steps(density_out_4, t0, t0 + T, min_count_t, timename)
+        steps_t_0 = converge_steps(density_in, t0, t0 + T, fluence_rtol, min_count_t, timename)
+        steps_t_1 = converge_steps(density_out, t0, t0 + T, fluence_rtol, min_count_t, timename)
+        steps_t_3 = converge_steps(density_out_3, t0, t0 + T, fluence_rtol, min_count_t, timename)
+        steps_t_4 = converge_steps(density_out_4, t0, t0 + T, fluence_rtol, min_count_t, timename)
         
         steps_t = max(steps_t, steps_t_0, steps_t_1, steps_t_3, steps_t_4)
     
-    rtol = fluence_rtol
     population_inversion = lambda population: population[0] - population[1]
     steps_z = 3
     for pulse in pulses:
@@ -255,8 +251,8 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
         inversion_final_4 = lambda z: population_inversion(exact_amp_4.exact_population(z, T))
         
         zname = "z"
-        steps_z_3 = converge_steps(inversion_final_3, 0.0, L, min_count_z, zname)
-        steps_z_4 = converge_steps(inversion_final_4, 0.0, L, min_count_z, zname)
+        steps_z_3 = converge_steps(inversion_final_3, 0.0, L, fluence_rtol, min_count_z, zname)
+        steps_z_4 = converge_steps(inversion_final_4, 0.0, L, fluence_rtol, min_count_z, zname)
         
         steps_z = max(steps_z, steps_z_3, steps_z_4)
     
