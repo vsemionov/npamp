@@ -62,15 +62,31 @@ def load_conf(defaults, path):
     
     conf = copy_conf(conf)
     
+    defaults = copy_conf(defaults)
     check_conf(defaults, conf)
     
     return conf
+
+def update_conf(defaults, conf, definitions):
+    diff = dict()
+    for definition in definitions:
+        exec definition in diff
+    
+    diff = copy_conf(diff)
+    
+    defaults = copy_conf(defaults)
+    check_conf(defaults, diff)
+    
+    conf.update(diff)
 
 
 def validate():
     def validate_param_bounds(name, value):
         vtype = type(value)
         if vtype in (int, float):
+            if vtype is float and name not in param_nan_allowed:
+                if math.isnan(value):
+                    raise ConfigurationError("parameter \"%s\" has (or contains) an not-a-number value" % name)
             if vtype is float and name not in param_zero_allowed:
                 if value <= 0.0:
                     raise ConfigurationError("parameter \"%s\" has (or contains) a non-positive value" % name)
@@ -99,6 +115,8 @@ def validate():
         if len(values) != len(set(values)):
             raise ConfigurationError("parameter \"%s\" contains duplicate values" % name)
     
+    param_nan_allowed = set([
+    ])
     param_zero_allowed = set([
         "dopant_branching_ratio",
         "dopant_lower_lifetime",
