@@ -691,7 +691,7 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
     print "comparing lower state lifetimes"
     
     if numerics is None:
-        numerics = core.select_methods((int_types, amp_types), ref_inversion, quiet=True)
+        numerics, _ = core.select_methods((int_types, amp_types), ref_inversion, quiet=True)
     num_types, counts = numerics
     
     lower_lifetime = params.dopant_lower_lifetime
@@ -794,7 +794,7 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), num
                 if perform_opt_pump:
                     print "pumping"
                     max_inversion_pump = inversions_pump[-1, -1]
-                    num_types_pump, counts_pump = core.select_methods((int_types, amp_types), max_inversion_pump, quiet=True)
+                    (num_types_pump, counts_pump), _ = core.select_methods((int_types, amp_types), max_inversion_pump, quiet=True)
                     _, _, count_z_pump, count_t_pump = counts_pump
                 
                 if perform_opt_geom:
@@ -808,7 +808,7 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), num
                         try:
                             model.error.min_integration_steps = functools.partial(min_integration_steps_geom, min_integration_steps_orig)
                             max_inversion_geom = inversions_geom[0]
-                            num_types_geom, counts_geom = core.select_methods((int_types, amp_types), max_inversion_geom, quiet=True)
+                            (num_types_geom, counts_geom), _ = core.select_methods((int_types, amp_types), max_inversion_geom, quiet=True)
                             _, _, count_z_geom, count_t_geom = counts_geom
                         finally:
                             model.error.min_integration_steps = min_integration_steps_orig

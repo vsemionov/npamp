@@ -145,7 +145,7 @@ def compute_inversion(dirname):
     
     return ref_inversion, rel_error
 
-def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref_pulse, quiet=False):
+def most_efficient_methods((int_types, amp_types), active_medium, input_beam, ref_pulse, quiet=False):
     if not quiet:
         print output.div_line
     if not quiet or params.verbose:
@@ -166,7 +166,7 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
             print int_name
         integrator = model.integrator.DomainIntegrator(int_type, active_medium)
         try:
-            count_rho, count_phi = model.error.min_integration_steps(integrator, input_beam, (ref_pulse,), params.int_rtol, min_xverse)
+            (count_rho, count_phi), int_rel_error = model.error.min_integration_steps(integrator, input_beam, (ref_pulse,), params.int_rtol, min_xverse)
         except size_exc_types:
             output.print_exception()
             print "attempting to recover"
@@ -179,39 +179,39 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
             test_min_count_z = max(min_count_z, amp_type.min_steps_z(active_medium))
             test_min_count_t = max(min_count_t, amp_type(active_medium, test_min_count_z).min_steps_t(ref_pulse))
             try:
-                data = model.error.min_amplification_steps(amp_type, active_medium, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.amp_rtol, ret_extra=True)
+                data = model.error.min_amplification_steps(amp_type, active_medium, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.amp_rtol)
             except size_exc_types:
                 output.print_exception()
                 print "attempting to recover"
                 sys.exc_clear()
                 continue
-            (count_z, count_t), rel_error, results = data
+            (count_z, count_t), amp_rel_error = data
             count = count_rho * count_phi * count_z * count_t
             is_best = False
             if best_method is None:
                 is_best = True
             else:
-                _, _, _, best_count, best_rel_error = best_method
+                _, _, best_count, (best_amp_rel_error, best_int_rel_error) = best_method
                 if count < best_count:
                     is_best = True
                 elif count == best_count:
-                    if rel_error < best_rel_error:
+                    if amp_rel_error + int_rel_error < best_amp_rel_error + best_int_rel_error:
                         is_best = True
             if is_best:
-                best_method = ((int_type, amp_type), (count_rho, count_phi, count_z, count_t), results, count, rel_error)
+                best_method = ((int_type, amp_type), (count_rho, count_phi, count_z, count_t), count, (amp_rel_error, int_rel_error))
     
     if best_method is None:
         raise ComputationError("no suitable numerical method combination found")
-    (int_type, amp_type), (count_rho, count_phi, count_z, count_t), results, _, _ = best_method
     
-    return (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
+    (int_type, amp_type), (count_rho, count_phi, count_z, count_t), _, (amp_rel_error, int_rel_error) = best_method
+    return (int_type, amp_type), (count_rho, count_phi, count_z, count_t), (amp_rel_error, int_rel_error)
 
-def select_methods((int_types, amp_types), ref_inversion, ret_rel_errors=False, quiet=False):
+def select_methods((int_types, amp_types), ref_inversion, quiet=False):
     active_medium = create_medium(ref_inversion)
     input_beam = create_beam()
     ref_pulse, time_trunc_rel_error = create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref, ret_time_trunc_rel_error=True)
     
-    (int_type, amp_type), (count_rho, count_phi, count_z, count_t) = most_efficient_method((int_types, amp_types), active_medium, input_beam, ref_pulse, quiet)
+    (int_type, amp_type), (count_rho, count_phi, count_z, count_t), (amp_rel_error, int_rel_error) = most_efficient_methods((int_types, amp_types), active_medium, input_beam, ref_pulse, quiet)
     
     if params.verbose:
         print "int_type: %s; amp_type: %s" % (int_type.__name__, amp_type.__name__, )
@@ -219,8 +219,8 @@ def select_methods((int_types, amp_types), ref_inversion, ret_rel_errors=False, 
         print "count_z: %d; count_t: %d" % (count_z, count_t)
     
     numerics = (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
-    rel_errors = (time_trunc_rel_error, params.amp_rtol, params.int_rtol)
-    return (numerics, rel_errors) if ret_rel_errors else numerics
+    rel_errors = (time_trunc_rel_error, amp_rel_error, int_rel_error)
+    return (numerics, rel_errors)
 
 def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
     print output.div_line

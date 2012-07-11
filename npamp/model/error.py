@@ -54,7 +54,7 @@ def pulse_scale(pulse, trunc_rtol):
         scale *= 2.0
     return scale, trunc_rel_error
 
-def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname, varnames, ret_extra=False):
+def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname, varnames):
     min_count_x, min_count_y = min_counts
     var_x, var_y = varspace
     
@@ -87,7 +87,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname,
     rdiff = float("inf")
     
     while True:
-        last_counts, last_result, last_rel_error = counts, result, rel_error
+        last_counts, last_rel_error = counts, rel_error
         last_divs_x, last_divs_y = divs_x, divs_y
         count_x, count_y = counts
         
@@ -120,9 +120,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname,
             util.warn("max. %s %s divs sum (%s) exceeded; rtol: %s; latest counts: (%s, %s); latest divs: (%s, %s); latest rel. error: %s, latest rel. difference: %s" % (opname, varnames, max_divs_sum, rtol, count_x, count_y, last_divs_x, last_divs_y, rel_error, rdiff), stacklevel=2)
             break
     
-    if ret_extra:
-        return last_counts, max_rel_error, last_result
-    return last_counts
+    return last_counts, max_rel_error
 
 def min_integration_steps(integrator, input_beam, pulses, int_rtol, (min_count_rho, min_count_phi)):
     def converge_steps(func, a, b, rtol, min_steps, varname):
@@ -201,13 +199,14 @@ def min_integration_steps(integrator, input_beam, pulses, int_rtol, (min_count_r
     
     if not beam_rho and not beam_phi:
         steps_rho, steps_phi = 1, 1
+        rel_error = 0.0
     else:
         compute_rdiff = lambda last_res, res: max([abs((new - old) / new) for (old, new) in zip(last_res, res)])
-        steps_rho, steps_phi = min_steps((min_count_rho, min_count_phi), (beam_rho, beam_phi), int_rtol, fluence_integrals, compute_rdiff, "integration", "(rho, phi)")
+        (steps_rho, steps_phi), rel_error = min_steps((min_count_rho, min_count_phi), (beam_rho, beam_phi), int_rtol, fluence_integrals, compute_rdiff, "integration", "(rho, phi)")
     
-    return steps_rho, steps_phi
+    return (steps_rho, steps_phi), rel_error
 
-def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, min_count_t), integrator, amp_rtol, ret_extra=False):
+def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, min_count_t), integrator, amp_rtol):
     compute_rel_error = lambda num_fluence, exact_fluence: abs((exact_fluence - num_fluence) / exact_fluence)
     
     def amplify_signal(count_z, count_t):
@@ -258,7 +257,7 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
         
         return fluence_out, rel_error
     
-    data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_signal, compute_rel_error, "amplification", "(z, t)", ret_extra)
+    data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_signal, compute_rel_error, "amplification", "(z, t)")
     
     return data
 
