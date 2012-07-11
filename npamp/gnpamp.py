@@ -58,7 +58,7 @@ def boot_excepthook(exc_type, value, traceback):
     QtGui.QMessageBox.critical(None, "%s Error" % meta.app_name, str(value))
 
 
-def repr_classless(v):
+def repr_cfg(v):
     return re.sub("<class '([^']+?)'>", "\\1", repr(v))
 
 def file2conf(path):
@@ -71,7 +71,7 @@ def conf2file(conf, path):
         fp.write("%s = %s\n" % ("version", npamp.params.version))
         fp.write("\n")
         for param, value in sorted(conf.items()):
-            fp.write("%s = %s\n" % (param, repr_classless(value)))
+            fp.write("%s = %s\n" % (param, repr_cfg(value)))
 
 
 class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
@@ -158,7 +158,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
                     value = unitconv.convert_to_input(label.text(), value)
                     widget.setText(value)
                 else:
-                    widget.setText(repr_classless(value))
+                    widget.setText(repr_cfg(value))
             elif type(widget) is QtGui.QSpinBox:
                 widget.setValue(value)
             elif type(widget) is QtGui.QCheckBox:
