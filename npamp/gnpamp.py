@@ -122,11 +122,13 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             if type(obj) is type and issubclass(obj, model.beam.BeamProfile) and obj is not model.beam.BeamProfile:
                 self.comboBox_beam_class.addItem(name)
         self.widget_module_map[self.comboBox_beam_class.objectName()] = model.beam
+        
         for name in dir(model.pulse):
             obj = getattr(model.pulse, name)
             if type(obj) is type and issubclass(obj, model.pulse.SinglePulse) and obj is not model.pulse.SinglePulse:
                 self.comboBox_pulse_class.addItem(name)
         self.widget_module_map[self.comboBox_pulse_class.objectName()] = model.pulse
+        
         for name in dir(model.depop):
             obj = getattr(model.depop, name)
             if type(obj) is type and issubclass(obj, model.depop.DepopulationModel) and hasattr(obj, "concrete") and obj.concrete is True:
@@ -136,17 +138,20 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         self.widget_module_map[self.comboBox_depop_model_class.objectName()] = model.depop
         self.widget_module_map[self.comboBox_ext_alt_depop_model.objectName()] = model.depop
         self.widget_module_map[self.listWidget_ext_depop_models.objectName()] = model.depop
+        
         for name in dir(model.inverter):
             obj = getattr(model.inverter, name)
             if type(obj) is type and issubclass(obj, model.inverter.PopulationInverter) and obj is not model.inverter.PopulationInverter:
                 self.comboBox_inverter_class.addItem(name)
         self.widget_module_map[self.comboBox_inverter_class.objectName()] = model.inverter
+        
         for name in dir(model.integrator):
             obj = getattr(model.integrator, name)
             if type(obj) is type and issubclass(obj, model.integrator.NumericalIntegrator) and obj is not model.integrator.NumericalIntegrator:
                 self.listWidget_integrator_classes.addItem(name)
         self.widget_module_map[self.listWidget_integrator_classes.objectName()] = model.integrator
         self.listWidget_integrator_classes.resize(self.listWidget_integrator_classes.sizeHint())
+        
         for name in dir(model.amplifier):
             obj = getattr(model.amplifier, name)
             if type(obj) is type and issubclass(obj, model.amplifier.NumericalAmplifier) and obj is not model.amplifier.NumericalAmplifier:
@@ -187,6 +192,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
                     set_widget_value(label, w, v)
             else:
                 assert False, "unhandled widget type"
+        
         for parameter, value in conf.items():
             children = self.centralWidget().findChildren(QtGui.QWidget, QtCore.QRegExp("^[^_]+_%s$" % parameter))
             widgets = [w for w in children if type(w) is not QtGui.QLabel]
@@ -204,6 +210,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
                 module = self.widget_module_map[w.objectName()]
                 cls = getattr(module, t)
                 return cls
+            
             if type(widget) is QtGui.QLineEdit:
                 if type(defval) is float:
                     value = widget.text()
@@ -230,6 +237,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
                 return type(defval)(map(lambda wv: get_widget_value(label, *wv), zip(children, defval)))
             else:
                 assert False, "unhandled widget type"
+        
         conf = dict()
         for parameter, default in defaults.items():
             children = self.centralWidget().findChildren(QtGui.QWidget, QtCore.QRegExp("^[^_]+_%s$" % parameter))
@@ -461,10 +469,12 @@ class InputThread(QtCore.QThread):
 def worker((monitor_in, monitor_out), out_conn, conf, output_path):
     mpout = npamp.mp.MPOutput(out_conn.send)
     sys.stdout = sys.stderr = mpout
+    
     monitor_out.close()
     thr = threading.Thread(target=npamp.mp.monitor_thread, args=(monitor_in,))
     thr.daemon = True
     thr.start()
+    
     npamp.params.__dict__.update(conf)
     npamp.run(None, output_path, None)
 
