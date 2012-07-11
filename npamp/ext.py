@@ -776,40 +776,57 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), num
     
     if not params.initial_inversion:
         compare_depop_models(dirname)
-        inversions_pump, inversion_rdiffs_pump = compute_inversion_pump_dependence(task_pool, dirname)
-        inversions_geom, inversion_rdiffs_geom = compute_inversion_geom_dependence(task_pool, dirname)
-        if params.amplification:
-            print output.div_line
-            print "determining extended mode method combinations"
+        
+        perform_opt_pump = min(params.ext_opt_pump_resolution) > 1
+        perform_opt_geom = min(params.ext_opt_geom_resolution) > 1
+        perform_opt = perform_opt_pump or perform_opt_geom
+        
+        if perform_opt:
+            if perform_opt_pump:
+                inversions_pump, inversion_rdiffs_pump = compute_inversion_pump_dependence(task_pool, dirname)
+            if perform_opt_geom:
+                inversions_geom, inversion_rdiffs_geom = compute_inversion_geom_dependence(task_pool, dirname)
             
-            print "pumping"
-            max_inversion_pump = inversions_pump[-1, -1]
-            num_types_pump, counts_pump = core.select_methods((int_types, amp_types), max_inversion_pump, quiet=True)
-            _, _, count_z_pump, count_t_pump = counts_pump
-            
-            print "geometry"
-            min_medium_radius = params.ext_opt_geom_mediumradius[0]
-            min_beam_radius = params.ext_opt_geom_beamradius[0]
-            
-            orig_geom = set_geom(min_medium_radius, min_beam_radius)
-            try:
-                min_integration_steps_orig = model.error.min_integration_steps
-                try:
-                    model.error.min_integration_steps = functools.partial(min_integration_steps_geom, min_integration_steps_orig)
-                    max_inversion_geom = inversions_geom[0]
-                    num_types_geom, counts_geom = core.select_methods((int_types, amp_types), max_inversion_geom, quiet=True)
-                    _, _, count_z_geom, count_t_geom = counts_geom
-                finally:
-                    model.error.min_integration_steps = min_integration_steps_orig
-            finally:
-                set_geom(*orig_geom)
-            
-            
-            max_fluences_pump = compute_fluence_pump_dependence(task_pool, dirname, inversions_pump, num_types_pump, (count_z_pump, count_t_pump))
-            max_fluences_geom = compute_fluence_geom_dependence(task_pool, dirname, inversions_geom, num_types_geom, (count_z_geom, count_t_geom))
-            
-            pump_constraints = output_pump_constraints(dirname, inversion_rdiffs_pump, max_fluences_pump)
-            geom_constraints = output_geom_constraints(dirname, inversion_rdiffs_geom, max_fluences_geom)
-            
-            compute_energy_pump_dependence(task_pool, dirname, inversions_pump, pump_constraints, num_types_pump, counts_pump)
-            compute_energy_geom_dependence(task_pool, dirname, inversions_geom, geom_constraints, num_types_geom, counts_geom)
+            if params.amplification:
+                print output.div_line
+                print "determining extended mode method combinations"
+                
+                if perform_opt_pump:
+                    print "pumping"
+                    max_inversion_pump = inversions_pump[-1, -1]
+                    num_types_pump, counts_pump = core.select_methods((int_types, amp_types), max_inversion_pump, quiet=True)
+                    _, _, count_z_pump, count_t_pump = counts_pump
+                
+                if perform_opt_geom:
+                    print "geometry"
+                    min_medium_radius = params.ext_opt_geom_mediumradius[0]
+                    min_beam_radius = params.ext_opt_geom_beamradius[0]
+                    
+                    orig_geom = set_geom(min_medium_radius, min_beam_radius)
+                    try:
+                        min_integration_steps_orig = model.error.min_integration_steps
+                        try:
+                            model.error.min_integration_steps = functools.partial(min_integration_steps_geom, min_integration_steps_orig)
+                            max_inversion_geom = inversions_geom[0]
+                            num_types_geom, counts_geom = core.select_methods((int_types, amp_types), max_inversion_geom, quiet=True)
+                            _, _, count_z_geom, count_t_geom = counts_geom
+                        finally:
+                            model.error.min_integration_steps = min_integration_steps_orig
+                    finally:
+                        set_geom(*orig_geom)
+                
+                
+                if perform_opt_pump:
+                    max_fluences_pump = compute_fluence_pump_dependence(task_pool, dirname, inversions_pump, num_types_pump, (count_z_pump, count_t_pump))
+                if perform_opt_geom:
+                    max_fluences_geom = compute_fluence_geom_dependence(task_pool, dirname, inversions_geom, num_types_geom, (count_z_geom, count_t_geom))
+                
+                if perform_opt_pump:
+                    pump_constraints = output_pump_constraints(dirname, inversion_rdiffs_pump, max_fluences_pump)
+                if perform_opt_geom:
+                    geom_constraints = output_geom_constraints(dirname, inversion_rdiffs_geom, max_fluences_geom)
+                
+                if perform_opt_pump:
+                    compute_energy_pump_dependence(task_pool, dirname, inversions_pump, pump_constraints, num_types_pump, counts_pump)
+                if perform_opt_geom:
+                    compute_energy_geom_dependence(task_pool, dirname, inversions_geom, geom_constraints, num_types_geom, counts_geom)

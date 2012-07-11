@@ -670,7 +670,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="minimum">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
                  <property name="maximum">
                   <number>1073741824</number>
@@ -683,7 +683,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="minimum">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
                  <property name="maximum">
                   <number>1073741824</number>
@@ -709,7 +709,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="minimum">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
                  <property name="maximum">
                   <number>1073741824</number>
@@ -722,7 +722,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="minimum">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
                  <property name="maximum">
                   <number>1073741824</number>

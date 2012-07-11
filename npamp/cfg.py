@@ -118,8 +118,8 @@ def validate():
         "out_count_phi": (1, None),
         "out_count_z": (1, None),
         "out_count_t": (1, None),
-        "ext_opt_pump_resolution": (2, None),
-        "ext_opt_geom_resolution": (2, None),
+        "ext_opt_pump_resolution": (1, None),
+        "ext_opt_geom_resolution": (1, None),
         "dopant_branching_ratio": (None, 1.0),
         "pump_efficiency": (None, 1.0),
     }
