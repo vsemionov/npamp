@@ -26,7 +26,6 @@
 
 
 import math
-import functools
 
 import copy
 
@@ -113,6 +112,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname,
             rdiff = rdiff_y
         
         rdiff *= 2.0
+        max_rel_error = max(rdiff, last_rel_error)
         
         if max(rdiff, last_rel_error) < rtol:
             break
@@ -121,7 +121,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname,
             break
     
     if ret_extra:
-        return last_counts, rdiff, last_result
+        return last_counts, max_rel_error, last_result
     return last_counts
 
 def min_integration_steps(integrator, input_beam, pulses, int_rtol, (min_count_rho, min_count_phi)):
@@ -208,62 +208,57 @@ def min_integration_steps(integrator, input_beam, pulses, int_rtol, (min_count_r
     return steps_rho, steps_phi
 
 def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, min_count_t), integrator, amp_rtol, ret_extra=False):
-    def compute_rel_error(lower_decay, (num_Z, num_T, num_density_out, num_population_final), (exact_Z, exact_T, exact_density_out, exact_population_final)):
-        num_density_integral = integrator.integrate(num_T, num_density_out)
-        exact_density_integral = integrator.integrate(exact_T, exact_density_out)
+    compute_rel_error = lambda num_fluence, exact_fluence: abs((exact_fluence - num_fluence) / exact_fluence)
+    
+    def amplify_signal(count_z, count_t):
+        ref_pulse = pulse_train.pulse
+        pulse_count = pulse_train.count
         
-        rel_error_density = abs((num_density_integral - exact_density_integral) / exact_density_integral)
-        
-        num_upper_final, num_lower_final = num_population_final
-        num_inversion_final = num_upper_final - num_lower_final * lower_decay
-        exact_upper_final, exact_lower_final = exact_population_final
-        exact_inversion_final = exact_upper_final - exact_lower_final * lower_decay
-        
-        num_inversion_integral = integrator.integrate(num_Z, num_inversion_final)
-        del num_inversion_final
-        exact_inversion_integral = integrator.integrate(exact_Z, exact_inversion_final)
-        del exact_inversion_final
-        
-        inversion_abs_error = abs(num_inversion_integral - exact_inversion_integral)
-        rel_error_inversion = math.exp(active_medium.doping_agent.xsection * inversion_abs_error) - 1.0
-        
-        rel_error = rel_error_density + rel_error_inversion
-        return rel_error
-    def amplify_pulse(count_z, count_t):
-        rel_error = 0.0
-        for lower_lifetime in amplifier.ExactAmplifier.analytical_lower_lifetimes:
-            test_active_medium = copy.deepcopy(active_medium)
-            test_active_medium.doping_agent.lower_lifetime = lower_lifetime
-            
-            lower_decay = amplifier.lower_state_decay(test_active_medium, pulse_train)
-            
-            amp = amp_type(test_active_medium, count_z)
-            num_density_out, num_population_final = amp.amplify(0.0, 0.0, ref_pulse, count_t)
-            num_Z, num_T, num_density_out, num_population_final = amp.Z, amp.T, np.copy(num_density_out), tuple(np.copy(state) for state in num_population_final)
-            
-            del amp
-            
-            exact = amplifier.ExactOutputAmplifier(test_active_medium, count_z)
-            exact_density_out, exact_population_final = exact.amplify(0.0, 0.0, ref_pulse, count_t)
-            
-            test_rel_error = compute_rel_error(lower_decay, (num_Z, num_T, num_density_out, num_population_final), (exact.Z, exact.T, exact_density_out, exact_population_final))
-            
-            del exact
-            del num_density_out, num_population_final, exact_density_out, exact_population_final
-            
-            rel_error = max(test_rel_error, rel_error)
+        rel_error = None
+        if pulse_train.count == 1:
+            rel_error = 0.0
+            for lower_lifetime in amplifier.ExactAmplifier.analytical_lower_lifetimes:
+                test_active_medium = copy.deepcopy(active_medium)
+                test_active_medium.doping_agent.lower_lifetime = lower_lifetime
+                
+                lower_decay = amplifier.lower_state_decay(test_active_medium, pulse_train)
+                
+                amp = amp_type(test_active_medium, count_z)
+                num_density_out, num_population_final = amp.amplify(0.0, 0.0, ref_pulse, count_t)
+                num_fluence = integrator.integrate(amp.T, num_density_out)
+                del amp, num_density_out, num_population_final
+                
+                exact = amplifier.ExactOutputAmplifier(test_active_medium, count_z)
+                exact_density_out, exact_population_final = exact.amplify(0.0, 0.0, ref_pulse, count_t)
+                exact_fluence = integrator.integrate(exact.T, exact_density_out)
+                del exact, exact_density_out, exact_population_final
+                
+                test_rel_error = compute_rel_error(num_fluence, exact_fluence)
+                rel_error = max(test_rel_error, rel_error)
         
         amp = amp_type(active_medium, count_z)
-        num_density_out, num_population_final = amp.amplify(0.0, 0.0, ref_pulse, count_t)
-        results = amp.Z, amp.T, np.copy(num_density_out), tuple(np.copy(state) for state in num_population_final)
         
-        return results, rel_error
+        upper = np.vectorize(active_medium.initial_inversion.inversion)(0.0, 0.0, amp.Z)
+        lower = np.zeros(count_z)
+        population = (upper, lower)
+        
+        pulse_fluences = np.empty(pulse_count)
+        
+        for pnum in range(pulse_count):
+            density_out, population_final = amp.amplify(0.0, 0.0, ref_pulse, count_t, initial_population=population)
+            
+            upper = np.copy(population_final[0])
+            lower = population_final[1] * lower_decay
+            population = (upper, lower)
+            
+            fluence_out = integrator.integrate(amp.T, density_out)
+            pulse_fluences[pnum] = fluence_out
+        
+        fluence_out = pulse_fluences[::-1].sum()
+        
+        return fluence_out, rel_error
     
-    ref_pulse = pulse_train.pulse
-    lower_decay = amplifier.lower_state_decay(active_medium, pulse_train)
-    
-    compute_rdiff = functools.partial(compute_rel_error, lower_decay)
-    data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_pulse, compute_rdiff, "amplification", "(z, t)", ret_extra)
+    data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_signal, compute_rel_error, "amplification", "(z, t)", ret_extra)
     
     return data
 
