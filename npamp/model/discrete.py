@@ -35,10 +35,3 @@ def steps(divs):
 def divs(min_steps):
     divs = int(math.ceil(math.log(min_steps - 1, 2.0)))
     return divs
-
-def mangle_count_tv(count_tv):
-    count_tv = max(count_tv, 1)
-    if count_tv > 1:
-        count_tv = max(count_tv, 3)
-        count_tv = steps(divs(count_tv))
-    return count_tv

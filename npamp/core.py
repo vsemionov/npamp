@@ -151,26 +151,26 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
     if not quiet or params.verbose:
         print "determining most efficient method combination"
     
+    min_counts = (params.min_count_rho, params.min_count_phi, params.min_count_z, params.min_count_t)
+    
     pulse_train = create_train(ref_pulse)
     
     size_exc_types = (ValueError, MemoryError)
+    
     best_method = None
+    
     for int_type in int_types:
         int_name = int_type.__name__
         if params.verbose:
             print int_name
         integrator = model.integrator.DomainIntegrator(int_type, active_medium)
         try:
-            count_rho, count_phi, min_count_z, min_count_t = model.error.min_integration_steps(integrator, input_beam, (ref_pulse,), params.energy_rtol, params.fluence_rtol)
+            count_rho, count_phi, min_count_z, min_count_t = model.error.min_integration_steps(integrator, input_beam, (ref_pulse,), params.energy_rtol, params.fluence_rtol, min_counts)
         except size_exc_types:
             output.print_exception()
             print "attempting to recover"
             sys.exc_clear()
             continue
-        count_rho = max(count_rho, model.discrete.mangle_count_tv(params.min_count_rho))
-        count_phi = max(count_phi, model.discrete.mangle_count_tv(params.min_count_phi))
-        min_count_z = max(min_count_z, params.min_count_z)
-        min_count_t = max(min_count_t, params.min_count_t)
         for amp_type in amp_types:
             amp_name = amp_type.__name__
             if params.verbose:
@@ -183,8 +183,6 @@ def most_efficient_method((int_types, amp_types), active_medium, input_beam, ref
                 output.print_exception()
                 print "attempting to recover"
                 sys.exc_clear()
-                continue
-            if data is None:
                 continue
             (count_z, count_t), rel_error, results = data
             count = count_rho * count_phi * count_z * count_t
