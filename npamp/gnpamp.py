@@ -156,6 +156,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             if type(widget) is QtGui.QLineEdit:
                 if type(value) is float:
                     value = unitconv.convert_to_input(label.text(), value)
+                    value = float(value)
                 widget.setText(repr_classless(value))
             elif type(widget) is QtGui.QSpinBox:
                 widget.setValue(value)
@@ -184,8 +185,8 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             assert len(labels) == 1, "none or more than one label matches parameter name \"%s\"" % parameter
             set_widget_value(labels[0], widgets[0], value)
         
-        if self.gui2conf() != conf:
-            raise npamp.cfg.ConfigurationError("invalid parameter value(s)")
+#        if self.gui2conf() != conf:
+#            raise npamp.cfg.ConfigurationError("invalid parameter value(s)")
     
     def gui2conf(self):
         def get_widget_value(label, widget, defval):
@@ -195,7 +196,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
                 return cls
             if type(widget) is QtGui.QLineEdit:
                 if type(defval) is float:
-                    value = float(widget.text())
+                    value = widget.text()
                     value = unitconv.convert_from_input(label.text(), value)
                     return value
                 else:

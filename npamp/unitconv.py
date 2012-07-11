@@ -66,29 +66,33 @@ units = {
 
 
 def convert_from_input(label, value):
+    value = Decimal(value)
     for external, coef in quantities:
         if re.search(r"\b%s\b.*\[.+\]\s*:\s*$" % external, label):
-            value = float(Decimal(repr(value)) / Decimal(repr(coef)))
+            value /= Decimal(repr(coef))
             break
     m = re.search(r"\[\s*([^\[\]]+)\s*\]\s*:\s*$", label)
     if m:
         unit = m.group(1)
         if unit in units:
             coef = units[unit]
-            value = float(Decimal(repr(value)) * Decimal(repr(coef)))
+            value *= Decimal(repr(coef))
+    value = float(value)
     return value
 
 def convert_to_input(label, value):
+    value = Decimal(repr(value))
     for external, coef in quantities:
         if re.search(r"\b%s\b.*\[.+\]\s*:\s*$" % external, label):
-            value = float(Decimal(repr(value)) * Decimal(repr(coef)))
+            value *= Decimal(repr(coef))
             break
     m = re.search(r"\[\s*([^\[\]]+)\s*\]\s*:\s*$", label)
     if m:
         unit = m.group(1)
         if unit in units:
             coef = units[unit]
-            value = float(Decimal(repr(value)) / Decimal(repr(coef)))
+            value /= Decimal(repr(coef))
+    value = str(value)
     return value
 
 def output_scale(label):
