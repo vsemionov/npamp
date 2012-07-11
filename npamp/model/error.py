@@ -148,14 +148,18 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
                 break
             last_res = res
         return steps
+    
     def fluence_integrals(steps_rho, steps_phi):
         Rho = np.linspace(0.0, active_medium.radius, steps_rho)
         Phi = np.linspace(0.0, 2.0*math.pi, steps_phi)
+        
         fluence_min = np.empty((steps_rho, steps_phi))
         fluence_max = np.empty((steps_rho, steps_phi))
         fluence_max_3 = np.empty((steps_rho, steps_phi))
         fluence_max_4 = np.empty((steps_rho, steps_phi))
+        
         inversion_fluence = active_medium.initial_inversion.inversion_integral(0.0, 0.0, L)
+        
         for m, rho in enumerate(Rho):
             for n, phi in enumerate(Phi):
                 beam_fluence = input_beam.fluence(rho, phi)
@@ -163,18 +167,25 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
                 fluence_max[m, n] = beam_fluence * gain
                 fluence_max_3[m, n] = beam_fluence + inversion_fluence / 2.0
                 fluence_max_4[m, n] = beam_fluence + inversion_fluence
+        
+        photon_count_in = input_beam.fluence_integral(active_medium.radius)
+        
         num0 = integrator.integrate_base(Rho, Phi, fluence_min)
-        exact0 = input_beam.fluence_integral(active_medium.radius)
+        exact0 = photon_count_in
         rel_error_0 = abs((num0 - exact0) / exact0)
+        
         num1 = integrator.integrate_base(Rho, Phi, fluence_max)
-        exact1 = input_beam.fluence_integral(active_medium.radius) * gain
+        exact1 = photon_count_in * gain
         rel_error_1 = abs((num1 - exact1) / exact1)
+        
         num3 = integrator.integrate_base(Rho, Phi, fluence_max_3)
-        exact3 = exact0 + inversion_fluence / 2.0 * active_medium.aperture
+        exact3 = photon_count_in + inversion_fluence / 2.0 * active_medium.aperture
         rel_error_3 = abs((num3 - exact3) / exact3)
+        
         num4 = integrator.integrate_base(Rho, Phi, fluence_max_4)
-        exact4 = exact0 + inversion_fluence * active_medium.aperture
+        exact4 = photon_count_in + inversion_fluence * active_medium.aperture
         rel_error_4 = abs((num4 - exact4) / exact4)
+        
         result = (num0, num1, num3, num4)
         rel_error = max(rel_error_0, rel_error_1, rel_error_3, rel_error_4)
         return result, rel_error
@@ -188,10 +199,9 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
     beam_rho, beam_phi = input_beam.xcoords
     
     if not beam_rho and not beam_phi:
-        steps_rho = 1
-        steps_phi = 1
+        steps_rho, steps_phi = 1, 1
     else:
-        compute_rdiff = lambda last_res, res: max([abs((res[i] - last_res[i]) / res[i]) for i in range(len(res))])
+        compute_rdiff = lambda last_res, res: max([abs((new - old) / new) for (old, new) in zip(last_res, res)])
         steps_rho, steps_phi = min_steps((1, 1), (beam_rho, beam_phi), rtol, fluence_integrals, compute_rdiff, "integration", "(rho, phi)")
     
     active_medium_3 = copy.deepcopy(active_medium)
@@ -207,35 +217,43 @@ def min_integration_steps(integrator, input_beam, pulses, energy_rtol, fluence_r
     exact_amp_4.phi = 0.0
     
     rtol = fluence_rtol
-    steps_t = 0
+    steps_t = 3
     for pulse in pulses:
         t0 = pulse.t0
         T = pulse.duration
+        
         exact_amp_3.input_pulse = pulse
         exact_amp_4.input_pulse = pulse
+        
         density_in = lambda t: pulse.density(t)
         density_out = lambda t: pulse.density(t) * gain
         density_out_3 = lambda t: exact_amp_3.exact_density(L, t)
         density_out_4 = lambda t: exact_amp_4.exact_density(L, t)
+        
         timename = "time"
         steps_t_0 = converge_steps(density_in, t0, t0 + T, timename)
         steps_t_1 = converge_steps(density_out, t0, t0 + T, timename)
         steps_t_3 = converge_steps(density_out_3, t0, t0 + T, timename)
         steps_t_4 = converge_steps(density_out_4, t0, t0 + T, timename)
+        
         steps_t = max(steps_t, steps_t_0, steps_t_1, steps_t_3, steps_t_4)
     
     rtol = fluence_rtol
     population_inversion = lambda population: population[0] - population[1]
-    steps_z = 0
+    steps_z = 3
     for pulse in pulses:
         T = pulse.duration
+        
         exact_amp_3.input_pulse = pulse
         exact_amp_4.input_pulse = pulse
+        
         inversion_final_3 = lambda z: population_inversion(exact_amp_3.exact_population(z, T))
         inversion_final_4 = lambda z: population_inversion(exact_amp_4.exact_population(z, T))
+        
         zname = "z"
         steps_z_3 = converge_steps(inversion_final_3, 0.0, L, zname)
         steps_z_4 = converge_steps(inversion_final_4, 0.0, L, zname)
+        
         steps_z = max(steps_z, steps_z_3, steps_z_4)
     
     return steps_rho, steps_phi, steps_z, steps_t
