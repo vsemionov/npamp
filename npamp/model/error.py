@@ -216,7 +216,6 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
         
         rel_error = None
         if pulse_count == 1:
-            rel_error = 0.0
             for lower_lifetime in amplifier.ExactAmplifier.analytical_lower_lifetimes:
                 test_active_medium = copy.deepcopy(active_medium)
                 test_active_medium.doping_agent.lower_lifetime = lower_lifetime
