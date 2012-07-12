@@ -31,9 +31,7 @@ import math
 class BeamProfile(object):
     
     xcoords = True, True
-    
-    rho_ref = 0.0
-    phi_ref = 0.0
+    rho_ref, phi_ref = 0.0, 0.0
     
     def __init__(self, radius, ref_fluence):
         self.radius = radius
