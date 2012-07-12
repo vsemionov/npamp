@@ -84,14 +84,14 @@ class NumericalDepopulationModel(DepopulationModel):
 class PerturbedDepopulationModel(DepopulationModel):
     descr = "perturbed depopulation model"
     
-    def __init__(self, numerical_depop_model):
-        super(PerturbedDepopulationModel, self).__init__(numerical_depop_model.active_medium)
+    def __init__(self, num_depop_model):
+        super(PerturbedDepopulationModel, self).__init__(num_depop_model.active_medium)
         
-        self.numerical_depop_model = numerical_depop_model
-        self.rel_perturbation = numerical_depop_model.rtol
+        self.num_depop_model = num_depop_model
+        self.rel_perturbation = num_depop_model.rtol
     
     def _rate(self, inversion):
-        rate = self.numerical_depop_model._rate(inversion)
+        rate = self.num_depop_model._rate(inversion)
         rate *= (1.0 - self.rel_perturbation)
         return rate
 

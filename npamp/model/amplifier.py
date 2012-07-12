@@ -194,8 +194,8 @@ class NumericalAmplifier(PulseAmplifier):
     def __init__(self, active_medium, count_z):
         super(NumericalAmplifier, self).__init__(active_medium, count_z)
         
-        self.initial_population = None
-        self.input_density = None
+        self._initial_population = None
+        self._input_density = None
     
     @staticmethod
     def _min_steps(total_size, max_step_size):
@@ -215,8 +215,8 @@ class NumericalAmplifier(PulseAmplifier):
         assert initial_population is None or (len(initial_population) == 2 and [pop.shape == (self.count_z,) for pop in initial_population] == [True] * 2)
         assert input_density is None or input_density.shape == (count_t,)
         
-        self.initial_population = initial_population
-        self.input_density = input_density
+        self._initial_population = initial_population
+        self._input_density = input_density
         
         return super(NumericalAmplifier, self).amplify(rho, phi, input_pulse, count_t)
 

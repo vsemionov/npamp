@@ -58,10 +58,10 @@ def _hybrid_amplifier_solve(self):
     cdef np.ndarray[DTYPE_t, ndim=2] upper = self.population[0]
     cdef np.ndarray[DTYPE_t, ndim=2] lower = self.population[1]
     
-    cdef int have_initial_population = self.initial_population is not None
-    cdef np.ndarray[DTYPE_t, ndim=1] initial_upper = self.initial_population[0] if have_initial_population else None
-    cdef np.ndarray[DTYPE_t, ndim=1] initial_lower = self.initial_population[1] if have_initial_population else None
-    cdef np.ndarray[DTYPE_t, ndim=1] input_density = self.input_density
+    cdef int have_initial_population = self._initial_population is not None
+    cdef np.ndarray[DTYPE_t, ndim=1] initial_upper = self._initial_population[0] if have_initial_population else None
+    cdef np.ndarray[DTYPE_t, ndim=1] initial_lower = self._initial_population[1] if have_initial_population else None
+    cdef np.ndarray[DTYPE_t, ndim=1] input_density = self._input_density
     
     cdef unsigned int count_z = self.count_z
     cdef unsigned int count_t = self.count_t
@@ -139,10 +139,10 @@ def _nsfd_amplifier_solve(self):
     cdef np.ndarray[DTYPE_t, ndim=2] upper = self.population[0]
     cdef np.ndarray[DTYPE_t, ndim=2] lower = self.population[1]
     
-    cdef int have_initial_population = self.initial_population is not None
-    cdef np.ndarray[DTYPE_t, ndim=1] initial_upper = self.initial_population[0] if have_initial_population else None
-    cdef np.ndarray[DTYPE_t, ndim=1] initial_lower = self.initial_population[1] if have_initial_population else None
-    cdef np.ndarray[DTYPE_t, ndim=1] input_density = self.input_density
+    cdef int have_initial_population = self._initial_population is not None
+    cdef np.ndarray[DTYPE_t, ndim=1] initial_upper = self._initial_population[0] if have_initial_population else None
+    cdef np.ndarray[DTYPE_t, ndim=1] initial_lower = self._initial_population[1] if have_initial_population else None
+    cdef np.ndarray[DTYPE_t, ndim=1] input_density = self._input_density
     
     cdef unsigned int count_z = self.count_z
     cdef unsigned int count_t = self.count_t
