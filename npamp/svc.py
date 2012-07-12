@@ -30,7 +30,7 @@ import os
 
 
 # http://code.activestate.com/recipes/496767/
-def win32_setpriority(pid=None,priority=1):
+def _win32_setpriority(pid=None,priority=1):
     """ Set The Priority of a Windows Process.  Priority is a value between 0-5 where
         2 is normal priority.  Default sets the priority of the current
         python process but can take any valid process ID. """
@@ -54,7 +54,7 @@ def reduce_process_priority():
     if os.name == "posix":
         os.nice(10)
     elif os.name == "nt":
-        win32_setpriority(None, 1)
+        _win32_setpriority(None, 1)
     else:
         warning = "unable to reduce process priority: unsupported platform / operating system (%s/%s)" % (sys.platform, os.name)
         return warning

@@ -63,7 +63,7 @@ class MPOutput(object):
 
 
 class _sentinel_type(object): pass
-def input_thread(io_queue, outfile, oldfiles):
+def _input_thread(io_queue, outfile, oldfiles):
     try:
         while True:
             s = io_queue.get()
@@ -79,7 +79,7 @@ def monitor_thread(in_conn):
     except EOFError:
         os.kill(os.getpid(), signal.SIGTERM)
 
-def task_init(io_queue, (in_conn, out_conn), conf):
+def _task_init(io_queue, (in_conn, out_conn), conf):
     mpout = MPOutput(io_queue.put)
     sys.stdout = sys.stderr = mpout
     
@@ -90,7 +90,7 @@ def task_init(io_queue, (in_conn, out_conn), conf):
     
     params.__dict__.update(conf)
 
-def dispatch_task((task, args)):
+def _dispatch_task((task, args)):
     return task(*args)
 
 class TaskPool(object):
@@ -98,35 +98,35 @@ class TaskPool(object):
         num_tasks = num_tasks or None
         if not parallel:
             num_tasks = 1
-        self.pool = None
+        self._pool = None
         self.num_tasks = num_tasks or multiprocessing.cpu_count()
         if num_tasks != 1:
             conf = cfg.copy_conf(task_params)
-            self.io_queue = multiprocessing.Queue()
-            self.oldfiles = sys.stdout, sys.stderr
-            self.input_thread = threading.Thread(target=input_thread, args=(self.io_queue, sys.stdout, self.oldfiles))
-            self.input_thread.daemon = True
-            self.input_thread.start()
-            mpout = MPOutput(self.io_queue.put)
+            self._io_queue = multiprocessing.Queue()
+            self._oldfiles = sys.stdout, sys.stderr
+            self._input_thread = threading.Thread(target=_input_thread, args=(self._io_queue, sys.stdout, self._oldfiles))
+            self._input_thread.daemon = True
+            self._input_thread.start()
+            mpout = MPOutput(self._io_queue.put)
             sys.stdout = sys.stderr = mpout
             try:
                 in_conn, out_conn = multiprocessing.Pipe(False)
                 self._out_conn = out_conn
-                self.pool = multiprocessing.Pool(processes=num_tasks, initializer=task_init, initargs=(self.io_queue, (in_conn, out_conn), conf))
+                self._pool = multiprocessing.Pool(processes=num_tasks, initializer=_task_init, initargs=(self._io_queue, (in_conn, out_conn), conf))
             except:
-                sys.stdout, sys.stderr = self.oldfiles
+                sys.stdout, sys.stderr = self._oldfiles
                 raise
     
     def close(self):
-        if self.pool is not None:
-            self.pool.close()
-            self.pool.terminate()
-            self.pool.join()
+        if self._pool is not None:
+            self._pool.close()
+            self._pool.terminate()
+            self._pool.join()
             
-            sys.stdout, sys.stderr = self.oldfiles # avoid a race condition
-            self.io_queue.put(_sentinel_type())
-            self.input_thread.join()
-        self.pool = None
+            sys.stdout, sys.stderr = self._oldfiles # avoid a race condition
+            self._io_queue.put(_sentinel_type())
+            self._input_thread.join()
+        self._pool = None
     
     def __del__(self):
         self.close()
@@ -169,8 +169,8 @@ class TaskPool(object):
         else:
             assert False, "invalid number of coordinates"
         dispatch_args = zip((task,) * count_tot, task_args)
-        mapper = self.pool.map if self.pool is not None else map
-        task_results = mapper(dispatch_task, dispatch_args)
+        mapper = self._pool.map if self._pool is not None else map
+        task_results = mapper(_dispatch_task, dispatch_args)
         if task_results:
             if type(task_results[0]) in [tuple, list]:
                 results = map(to_array[ndims-1], zip(*task_results))
