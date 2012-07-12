@@ -60,7 +60,7 @@ class PulseAmplifier(object):
         
         self.input_pulse = None
         
-        self.sizet = None
+        self._tdur = None
         self.count_t = None
         self.T = None
         self.dt = None
@@ -109,10 +109,10 @@ class PulseAmplifier(object):
         
         self.input_pulse = input_pulse
         
-        if self.sizet != input_pulse.duration or self.count_t != count_t or self.T is None or self.T[-1] != input_pulse.t0 + self.sizet:
-            self.sizet = input_pulse.duration
+        if self._tdur != input_pulse.duration or self.count_t != count_t or self.T is None or self.T[0] != input_pulse.t0:
+            self._tdur = input_pulse.duration
             self.count_t = count_t
-            self.T, self.dt = np.linspace(input_pulse.t0, input_pulse.t0 + self.sizet, count_t, retstep=True)
+            self.T, self.dt = np.linspace(input_pulse.t0, input_pulse.t0 + input_pulse.duration, count_t, retstep=True)
         
         data_out = self._compute()
         return data_out
