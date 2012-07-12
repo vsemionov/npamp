@@ -801,6 +801,7 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), num
         perform_opt = perform_opt_pump or perform_opt_geom
         
         if perform_opt:
+            inversions_pump, inversions_geom = None, None
             if perform_opt_pump:
                 inversions_pump, inversion_rdiffs_pump = compute_inversion_pump_dependence(task_pool, dirname)
             if perform_opt_geom:
@@ -808,12 +809,12 @@ def extended_mode(task_pool, dirname, ref_inversion, (int_types, amp_types), num
             
             if params.amplification:
                 (num_types_pump, counts_pump), (num_types_geom, counts_geom) = select_methods(perform_opt_pump, perform_opt_geom, (int_types, amp_types), inversions_pump, inversions_geom)
-                _, _, count_z_pump, count_t_pump = counts_pump
-                _, _, count_z_geom, count_t_geom = counts_geom
                 
                 if perform_opt_pump:
+                    _, _, count_z_pump, count_t_pump = counts_pump
                     max_fluences_pump = compute_fluence_pump_dependence(task_pool, dirname, inversions_pump, num_types_pump, (count_z_pump, count_t_pump))
                 if perform_opt_geom:
+                    _, _, count_z_geom, count_t_geom = counts_geom
                     max_fluences_geom = compute_fluence_geom_dependence(task_pool, dirname, inversions_geom, num_types_geom, (count_z_geom, count_t_geom))
                 
                 if perform_opt_pump:
