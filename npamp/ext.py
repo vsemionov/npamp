@@ -52,6 +52,29 @@ def set_geom(rm, rb):
         params.medium_radius, params.beam_radius = old_geom
         raise
 
+def ref_signal_fluence(active_medium, (rho, phi), (integrator, amp), count_t, ref_pulse, lower_decay):
+    upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
+    lower = np.zeros(amp.count_z)
+    population = (upper, lower)
+    
+    pulse_fluences = np.empty(params.train_pulse_count)
+    
+    for pnum in range(params.train_pulse_count):
+        density_out, population_final = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
+        
+        upper = np.copy(population_final[0])
+        lower = population_final[1] * lower_decay
+        population = (upper, lower)
+        
+        fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
+        pulse_fluences[pnum] = fluence_out
+    
+    fluence_out = pulse_fluences[::-1].sum()
+    fluence_out = model.energy.energy(params.lasing_wavelen, fluence_out)
+    
+    return fluence_out
+
+
 def compare_depop_models(dirname):
     filename = lambda name: os.path.join(dirname, name)
     
@@ -278,24 +301,7 @@ def compute_fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_m
     integrator = model.integrator.DomainIntegrator(int_type, active_medium)
     amp = amp_type(active_medium, count_z)
     
-    upper = np.vectorize(initial_inversion.inversion)(rho, phi, amp.Z)
-    lower = np.zeros(count_z)
-    population = (upper, lower)
-    
-    pulse_fluences = np.empty(params.train_pulse_count)
-    
-    for pnum in range(params.train_pulse_count):
-        density_out, population_final = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
-        
-        upper = np.copy(population_final[0])
-        lower = population_final[1] * lower_decay
-        population = (upper, lower)
-        
-        fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
-        pulse_fluences[pnum] = fluence_out
-    
-    fluence_out = pulse_fluences[::-1].sum()
-    fluence_out = model.energy.energy(params.lasing_wavelen, fluence_out)
+    fluence_out = ref_signal_fluence(active_medium, (rho, phi), (integrator, amp), count_t, ref_pulse, lower_decay)
     return fluence_out
 
 def compute_fluence_pump_dependence(task_pool, dirname, inversions, (int_type, amp_type), (count_z, count_t)):
@@ -354,24 +360,7 @@ def compute_fluence_geom_dependence_task((i, j), (rm, rb), inversion, (int_type,
         integrator = model.integrator.DomainIntegrator(int_type, active_medium)
         amp = amp_type(active_medium, count_z)
         
-        upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
-        lower = np.zeros(count_z)
-        population = (upper, lower)
-        
-        pulse_fluences = np.empty(params.train_pulse_count)
-        
-        for pnum in range(params.train_pulse_count):
-            density_out, population_final = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
-            
-            upper = np.copy(population_final[0])
-            lower = population_final[1] * lower_decay
-            population = (upper, lower)
-            
-            fluence_out = integrator.integrate(amp.T, density_out) * active_medium.light_speed
-            pulse_fluences[pnum] = fluence_out
-        
-        fluence_out = pulse_fluences[::-1].sum()
-        fluence_out = model.energy.energy(params.lasing_wavelen, fluence_out)
+        fluence_out = ref_signal_fluence(active_medium, (rho, phi), (integrator, amp), count_t, ref_pulse, lower_decay)
     finally:
         set_geom(*orig_geom)
     
