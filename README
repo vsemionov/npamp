@@ -10,7 +10,7 @@ NPAmp is an implementation of a numerical model of a laser amplifier. It is desi
 
 Example Results
 ===============
-The following are exemplary results from research, conducted with NPAmp.
+The following are example results from research, conducted with NPAmp.
 
 Effects of ASE
 --------------
@@ -75,7 +75,7 @@ Characteristics of the Modeled Amplifier and Input Signal
 * The signal's frequency spectrum width is much smaller than its carrier frequency.
 * The signal's total duration is much shorter than the upper state lifetime.
 * The signal's optical intensity is proportional to its power and fluence.
-* The time between an amplification and the subsequent pumping is much longer than the upper state lifetime.
+* The time between amplification and the subsequent pumping is much longer than the upper state lifetime.
 * During pumping, population inversion does not change significantly in the transit time of the amplifier.
 * The pump band has a lifetime, much shorter than the upper state lifetime, and therefore its population is negligible; the ground state population is much larger than the sum of the laser state populations, and is therefore constant in time; nonradiative transitions, originating from the upper state, can be neglected; the frequency dependence of the stimulated emission cross section of the laser transition can be neglected.
 * During amplification, spontaneous emission is negligible; the transit time of the amplifier is much shorter than the upper state lifetime; absorption and scattering losses of signal radiation are negligible.
@@ -101,7 +101,7 @@ On Unix, NPAmp needs to be built from source. First, the required build and runt
 * make (3.81)
 * C compiler (gcc 4.6.3)
 
-Next, download and extract the source archive into the target directory, and execute ``make`` inside that directory. The executables are <target>/npamp/npamp.py and <target>/npamp/gnpamp.py, where <target> denotes the path to the target directory.
+Next, download and extract the source archive into the target directory, and execute ``make`` inside that directory. The executable files are <target>/npamp/npamp.py and <target>/npamp/gnpamp.py, where <target> denotes the path to the target directory.
 
 
 
@@ -181,7 +181,7 @@ The following computations are currently performed in extended mode:
   - population inversion and depopulation rate immediately after pumping, for each model
   - temporal evolution of population inversion and depopulation rate during pumping, for all models
   - dependence of depopulation rate on population inversion, for all models
-  - temporal evolution of the relative difference between the population inversion, yielded by the compared models and by a reference model (exemplary use: evaluation of the effect of ASE on population inversion by comparing results from ASE and fluorescence models)
+  - temporal evolution of the relative difference between the population inversion, yielded by the compared models and by a reference model (example use: evaluation of the effect of ASE on population inversion by comparing results from ASE and fluorescence models)
 
 * amplifier optimization:
 
