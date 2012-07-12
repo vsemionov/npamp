@@ -212,15 +212,14 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
     def amplify_signal(count_z, count_t):
         ref_pulse = pulse_train.pulse
         pulse_count = pulse_train.count
+        lower_decay = amplifier.lower_state_decay(active_medium, pulse_train)
         
         rel_error = None
-        if pulse_train.count == 1:
+        if pulse_count == 1:
             rel_error = 0.0
             for lower_lifetime in amplifier.ExactAmplifier.analytical_lower_lifetimes:
                 test_active_medium = copy.deepcopy(active_medium)
                 test_active_medium.doping_agent.lower_lifetime = lower_lifetime
-                
-                lower_decay = amplifier.lower_state_decay(test_active_medium, pulse_train)
                 
                 amp = amp_type(test_active_medium, count_z)
                 num_density_out, num_population_final = amp.amplify(0.0, 0.0, ref_pulse, count_t)
