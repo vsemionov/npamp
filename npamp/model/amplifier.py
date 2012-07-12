@@ -75,29 +75,29 @@ class PulseAmplifier(object):
     def min_steps_t(self, input_pulse):
         raise NotImplementedError()
     
-    def calc_population(self, l, k):
+    def _calc_population(self, l, k):
         raise NotImplementedError()
     
-    def calc_density(self, l, k):
+    def _calc_density(self, l, k):
         raise NotImplementedError()
     
-    def _init_buffers(self):
-        new_buffer = lambda old, shape: np.empty(shape) if old is None or old.shape != shape else old
+    def _init_arrays(self):
+        new_array = lambda old, shape: np.empty(shape) if old is None or old.shape != shape else old
         shape = (self.Z.shape + self.T.shape)
-        self.density = new_buffer(self.density, shape)
+        self.density = new_array(self.density, shape)
         self.population = self.population or (None, None)
-        self.population = tuple(new_buffer(state, shape) for state in self.population)
+        self.population = tuple(new_array(state, shape) for state in self.population)
     
-    def _calc_output(self):
+    def _solve(self):
         for l in range(self.count_z):
             for k in range(self.count_t):
                 idxs = (l, k)
-                self.population[0][idxs], self.population[1][idxs] = self.calc_population(*idxs)
-                self.density[idxs] = self.calc_density(*idxs)
+                self.population[0][idxs], self.population[1][idxs] = self._calc_population(*idxs)
+                self.density[idxs] = self._calc_density(*idxs)
     
-    def amplify_data(self):
-        self._init_buffers()
-        self._calc_output()
+    def _compute(self):
+        self._init_arrays()
+        self._solve()
         
         density_out = self.density[-1]
         population_final = tuple(state.T[-1] for state in self.population)
@@ -114,7 +114,7 @@ class PulseAmplifier(object):
             self.count_t = count_t
             self.T, self.dt = np.linspace(input_pulse.t0, input_pulse.t0 + self.sizet, count_t, retstep=True)
         
-        data_out = self.amplify_data()
+        data_out = self._compute()
         return data_out
 
 class ExactAmplifier(PulseAmplifier):
@@ -140,19 +140,19 @@ class ExactAmplifier(PulseAmplifier):
     def min_steps_t(self, *args, **kwargs):
         return 2
     
-    def calc_population(self, l, k):
+    def _calc_population(self, l, k):
         z = self.Z[l]
         t = self.T[k]
-        population = self.exact_population(z, t)
+        population = self._exact_population(z, t)
         return population
     
-    def calc_density(self, l, k):
+    def _calc_density(self, l, k):
         z = self.Z[l]
         t = self.T[k]
-        density = self.exact_density(z, t)
+        density = self._exact_density(z, t)
         return density
     
-    def exact_population(self, z, t):
+    def _exact_population(self, z, t):
         active_medium = self.active_medium
         light_speed = active_medium.light_speed
         xsection = active_medium.doping_agent.xsection
@@ -168,7 +168,7 @@ class ExactAmplifier(PulseAmplifier):
         lower = (initial_inversion - inversion) / 2.0 if not four_level else 0.0
         return (upper, lower)
     
-    def exact_density(self, z, t):
+    def _exact_density(self, z, t):
         active_medium = self.active_medium
         input_pulse = self.input_pulse
         light_speed = active_medium.light_speed
@@ -183,9 +183,9 @@ class ExactAmplifier(PulseAmplifier):
 
 class ExactOutputAmplifier(ExactAmplifier):
     
-    def amplify_data(self):
-        density_out = np.vectorize(self.exact_density)(self.Z[-1], self.T)
-        population_final = np.vectorize(self.exact_population)(self.Z, self.T[-1])
+    def _compute(self):
+        density_out = np.vectorize(self._exact_density)(self.Z[-1], self.T)
+        population_final = np.vectorize(self._exact_population)(self.Z, self.T[-1])
         
         return density_out, population_final
 
@@ -208,7 +208,7 @@ class NumericalAmplifier(PulseAmplifier):
     def min_steps_t(self, input_pulse, initial_population=None):
         raise NotImplementedError()
     
-    def _calc_output(self):
+    def _solve(self):
         raise NotImplementedError()
     
     def amplify(self, rho, phi, input_pulse, count_t, initial_population=None, input_density=None):
@@ -270,8 +270,8 @@ class HybridAmplifier(NumericalAmplifier):
         min_count_t = NumericalAmplifier._min_steps(duration, dt_max)
         return min_count_t
     
-    def _calc_output(self):
-        native._hybrid_amplifier_calc_output(self)
+    def _solve(self):
+        native._hybrid_amplifier_solve(self)
 
 class NSFDAmplifier(NumericalAmplifier):
     
@@ -282,5 +282,5 @@ class NSFDAmplifier(NumericalAmplifier):
     def min_steps_t(self, *args, **kwargs):
         return 2
     
-    def _calc_output(self):
-        native._nsfd_amplifier_calc_output(self)
+    def _solve(self):
+        native._nsfd_amplifier_solve(self)

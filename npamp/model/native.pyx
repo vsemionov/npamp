@@ -44,7 +44,7 @@ ctypedef np.double_t DTYPE_t
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
-def _hybrid_amplifier_calc_output(self):
+def _hybrid_amplifier_solve(self):
     active_medium = self.active_medium
     input_pulse = self.input_pulse
     
@@ -124,7 +124,7 @@ def _hybrid_amplifier_calc_output(self):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
-def _nsfd_amplifier_calc_output(self):
+def _nsfd_amplifier_solve(self):
     # for the analytical solution of the rate equations, see http://eqworld.ipmnet.ru/en/solutions/sysode/sode0101.pdf
     active_medium = self.active_medium
     input_pulse = self.input_pulse
