@@ -166,7 +166,7 @@ def most_efficient_methods((int_types, amp_types), active_medium, input_beam, re
             print int_name
         integrator = model.integrator.DomainIntegrator(int_type, active_medium)
         try:
-            (count_rho, count_phi), int_rel_error = model.error.min_integration_steps(integrator, input_beam, (ref_pulse,), params.int_rtol, min_xverse)
+            (count_rho, count_phi), int_rel_error = model.error.min_integration_steps(integrator, input_beam, params.int_rtol, min_xverse)
         except size_exc_types:
             output.print_exception()
             print "attempting to recover"

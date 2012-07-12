@@ -122,7 +122,7 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname,
     
     return last_counts, max_rel_error
 
-def min_integration_steps(integrator, input_beam, pulses, int_rtol, (min_count_rho, min_count_phi)):
+def min_integration_steps(integrator, input_beam, int_rtol, (min_count_rho, min_count_phi)):
     def converge_steps(func, a, b, rtol, min_steps, varname):
         max_divs = 15
         min_steps = max(min_steps, 3)
