@@ -27,7 +27,7 @@
 
 class InitialInversion(object):
     
-    xcoords = True, True
+    xcoords = True, True, True
     
     def __init__(self, ref_inversion):
         self.ref_inversion = ref_inversion
@@ -40,7 +40,7 @@ class InitialInversion(object):
 
 class UniformInversion(InitialInversion):
     
-    xcoords = False, False
+    xcoords = False, False, False
     
     def inversion(self, rho, phi, z):
         return self.ref_inversion
@@ -50,7 +50,7 @@ class UniformInversion(InitialInversion):
 
 class SquareInversion(InitialInversion):
     
-    xcoords = False, False
+    xcoords = False, False, True
     
     def __init__(self, ref_inversion, z0, length):
         super(SquareInversion, self).__init__(ref_inversion)

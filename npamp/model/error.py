@@ -152,6 +152,8 @@ def min_integration_steps(integrator, input_beam, pulses, int_rtol, (min_count_r
         return steps
     
     def fluence_integrals(steps_rho, steps_phi):
+        assert active_medium.initial_inversion.xcoords[0:2] == (False, False)
+        
         Rho = np.linspace(0.0, active_medium.radius, steps_rho)
         Phi = np.linspace(0.0, 2.0*math.pi, steps_phi)
         
@@ -206,7 +208,7 @@ def min_integration_steps(integrator, input_beam, pulses, int_rtol, (min_count_r
     
     return (steps_rho, steps_phi), rel_error
 
-def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, min_count_t), integrator, amp_rtol):
+def min_amplification_steps(amp_type, active_medium, input_beam, pulse_train, (min_count_z, min_count_t), integrator, amp_rtol):
     compute_rel_error = lambda num_fluence, exact_fluence: abs((exact_fluence - num_fluence) / exact_fluence)
     
     def amplify_signal(count_z, count_t):
@@ -221,12 +223,12 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
                 test_active_medium.doping_agent.lower_lifetime = lower_lifetime
                 
                 amp = amp_type(test_active_medium, count_z)
-                num_density_out, num_population_final = amp.amplify(0.0, 0.0, ref_pulse, count_t)
+                num_density_out, num_population_final = amp.amplify(rho, phi, ref_pulse, count_t)
                 num_fluence = integrator.integrate(amp.T, num_density_out)
                 del amp, num_density_out, num_population_final
                 
                 exact_amp = amplifier.ExactOutputAmplifier(test_active_medium, count_z)
-                exact_density_out, exact_population_final = exact_amp.amplify(0.0, 0.0, ref_pulse, count_t)
+                exact_density_out, exact_population_final = exact_amp.amplify(rho, phi, ref_pulse, count_t)
                 exact_fluence = integrator.integrate(exact_amp.T, exact_density_out)
                 del exact_amp, exact_density_out, exact_population_final
                 
@@ -235,14 +237,14 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
         
         amp = amp_type(active_medium, count_z)
         
-        upper = np.vectorize(active_medium.initial_inversion.inversion)(0.0, 0.0, amp.Z)
+        upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
         lower = np.zeros(count_z)
         population = (upper, lower)
         
         pulse_fluences = np.empty(pulse_count)
         
         for pnum in range(pulse_count):
-            density_out, population_final = amp.amplify(0.0, 0.0, ref_pulse, count_t, initial_population=population)
+            density_out, population_final = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
             
             upper = np.copy(population_final[0])
             lower = population_final[1] * lower_decay
@@ -254,6 +256,8 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
         fluence_out = pulse_fluences[::-1].sum()
         
         return fluence_out, rel_error
+    
+    rho, phi = input_beam.rho_ref, input_beam.phi_ref
     
     data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_signal, compute_rel_error, "amplification", "(z, t)")
     

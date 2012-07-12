@@ -179,7 +179,7 @@ def most_efficient_methods((int_types, amp_types), active_medium, input_beam, re
             test_min_count_z = max(min_count_z, amp_type.min_steps_z(active_medium))
             test_min_count_t = max(min_count_t, amp_type(active_medium, test_min_count_z).min_steps_t(ref_pulse))
             try:
-                data = model.error.min_amplification_steps(amp_type, active_medium, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.amp_rtol)
+                data = model.error.min_amplification_steps(amp_type, active_medium, input_beam, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.amp_rtol)
             except size_exc_types:
                 output.print_exception()
                 print "attempting to recover"
@@ -232,16 +232,17 @@ def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
     
     active_medium = create_medium(ref_inversion)
     input_beam = create_beam()
-    ref_pulse = create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref)
+    rho, phi = input_beam.rho_ref, input_beam.phi_ref
+    ref_pulse = create_pulse(active_medium, input_beam, rho, phi)
     
     integrator = model.integrator.DomainIntegrator(int_type, active_medium)
     amp = amp_type(active_medium, count_z)
     
-    num_density_out, _ = amp.amplify(0.0, 0.0, ref_pulse, count_t)
+    num_density_out, _ = amp.amplify(rho, phi, ref_pulse, count_t)
     
     if active_medium.doping_agent.lower_lifetime in model.amplifier.ExactAmplifier.analytical_lower_lifetimes:
         exact_amp = model.amplifier.ExactOutputAmplifier(active_medium, count_z)
-        exact_density_out, exact_population_final = exact_amp.amplify(0.0, 0.0, ref_pulse, count_t)
+        exact_density_out, exact_population_final = exact_amp.amplify(rho, phi, ref_pulse, count_t)
     else:
         exact_density_out, exact_population_final = None, None
     
