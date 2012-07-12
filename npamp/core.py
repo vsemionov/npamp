@@ -154,7 +154,6 @@ def most_efficient_methods((int_types, amp_types), active_medium, input_beam, re
     min_xverse = (params.min_count_rho, params.min_count_phi)
     min_count_z, min_count_t = (params.min_count_z, params.min_count_t)
     
-    rho_ref, phi_ref = input_beam.rho_ref, input_beam.phi_ref
     pulse_train = create_train(ref_pulse)
     
     size_exc_types = (ValueError, MemoryError)
@@ -180,7 +179,7 @@ def most_efficient_methods((int_types, amp_types), active_medium, input_beam, re
             test_min_count_z = max(min_count_z, amp_type.min_steps_z(active_medium))
             test_min_count_t = max(min_count_t, amp_type(active_medium, test_min_count_z).min_steps_t(ref_pulse))
             try:
-                data = model.error.min_amplification_steps(amp_type, active_medium, (rho_ref, phi_ref), pulse_train, (test_min_count_z, test_min_count_t), integrator, params.amp_rtol)
+                data = model.error.min_amplification_steps(amp_type, active_medium, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.amp_rtol)
             except size_exc_types:
                 output.print_exception()
                 print "attempting to recover"
