@@ -59,7 +59,10 @@ Options:
  -e             list installed extensions and exit
  -g             debug mode
  -D             define or override parameters
- -o output_dir  set output directory path (required for graphs)""".format(app_name=meta.app_name)
+ -o output_dir  set output directory path (required for graphs)
+
+Arguments:
+ conf_file      path to configuration file ("-" for standard input)""".format(app_name=meta.app_name)
 
 help_hint = "Try \"{app_name} -h\" for more information.".format(app_name=meta.app_name)
 

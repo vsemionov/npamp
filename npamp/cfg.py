@@ -25,6 +25,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import sys
+
 import math
 
 import types
@@ -54,7 +56,11 @@ def load_conf(defaults, path):
     
     diff = dict()
     if path:
-        execfile(path, diff)
+        if path == "-":
+            buff = sys.stdin.read()
+            exec buff in diff
+        else:
+            execfile(path, diff)
     conf.update(diff)
     
     if conf.pop("version", params.version) != params.version:
