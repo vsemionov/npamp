@@ -226,10 +226,10 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
                 num_fluence = integrator.integrate(amp.T, num_density_out)
                 del amp, num_density_out, num_population_final
                 
-                exact = amplifier.ExactOutputAmplifier(test_active_medium, count_z)
-                exact_density_out, exact_population_final = exact.amplify(0.0, 0.0, ref_pulse, count_t)
-                exact_fluence = integrator.integrate(exact.T, exact_density_out)
-                del exact, exact_density_out, exact_population_final
+                exact_amp = amplifier.ExactOutputAmplifier(test_active_medium, count_z)
+                exact_density_out, exact_population_final = exact_amp.amplify(0.0, 0.0, ref_pulse, count_t)
+                exact_fluence = integrator.integrate(exact_amp.T, exact_density_out)
+                del exact_amp, exact_density_out, exact_population_final
                 
                 test_rel_error = compute_rel_error(num_fluence, exact_fluence)
                 rel_error = max(test_rel_error, rel_error)

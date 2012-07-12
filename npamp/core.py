@@ -240,8 +240,8 @@ def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
     num_density_out, _ = amp.amplify(0.0, 0.0, ref_pulse, count_t)
     
     if active_medium.doping_agent.lower_lifetime in model.amplifier.ExactAmplifier.analytical_lower_lifetimes:
-        exact = model.amplifier.ExactOutputAmplifier(active_medium, count_z)
-        exact_density_out, exact_population_final = exact.amplify(0.0, 0.0, ref_pulse, count_t)
+        exact_amp = model.amplifier.ExactOutputAmplifier(active_medium, count_z)
+        exact_density_out, exact_population_final = exact_amp.amplify(0.0, 0.0, ref_pulse, count_t)
     else:
         exact_density_out, exact_population_final = None, None
     
