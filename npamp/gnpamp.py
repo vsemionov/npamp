@@ -29,11 +29,12 @@
 import sys
 import os
 
-import re
-
 import signal
 import threading
 import multiprocessing
+
+import getopt
+import re
 
 from PySide import QtCore, QtGui
 
@@ -48,6 +49,8 @@ import outwin
 
 
 old_excepthook = None
+
+debug_mode = False
 
 
 predef_attr_reprs = [("inf", "float(\"inf\")"), ("nan", "float(\"nan\")")]
@@ -365,7 +368,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             output_path = None
         
         in_conn, out_conn = multiprocessing.Pipe(False)
-        proc = multiprocessing.Process(name=meta.app_name, target=worker, args=(self.monitor_pipe, out_conn, conf, output_path))
+        proc = multiprocessing.Process(name=meta.app_name, target=worker, args=(self.monitor_pipe, out_conn, conf, output_path, debug_mode))
         
         thr = InputThread(in_conn)
         out = OutputWindow(self, proc, thr)
@@ -466,7 +469,7 @@ class InputThread(QtCore.QThread):
         self.in_conn.close()
         self.finished.emit()
 
-def worker((monitor_in, monitor_out), out_conn, conf, output_path):
+def worker((monitor_in, monitor_out), out_conn, conf, output_path, debug_mode):
     mpout = npamp.mp.MPOutput(out_conn.send)
     sys.stdout = sys.stderr = mpout
     
@@ -475,6 +478,7 @@ def worker((monitor_in, monitor_out), out_conn, conf, output_path):
     thr.daemon = True
     thr.start()
     
+    npamp.debug_mode = debug_mode
     npamp.params.__dict__.update(conf)
     npamp.run(None, output_path, None)
 
@@ -494,7 +498,14 @@ def main():
     
     win = AppWindow(extensions)
     
-    args = sys.argv[1:]
+    opts, args = getopt.getopt(sys.argv[1:], "g")
+    for opt, _ in opts:
+        if opt == "-g":
+            global debug_mode
+            debug_mode = True
+        else:
+            assert False, "unhandled option"
+    
     if len(args) > 1:
         raise npamp.InvocationError("too many arguments")
     if args:
