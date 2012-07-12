@@ -29,12 +29,12 @@
 import sys
 import os
 
+import signal
+import multiprocessing
+
 import time
 import glob
 import getopt
-
-import signal
-import multiprocessing
 
 import model
 
@@ -186,8 +186,6 @@ def run(conf_path, output_path, definitions):
 
 def process(extensions):
     try:
-        global debug_mode
-        
         conf_path = None
         output_path = None
         definitions = []
@@ -204,6 +202,7 @@ def process(extensions):
                 print_extensions(extensions)
                 sys.exit()
             elif opt == "-g":
+                global debug_mode
                 debug_mode = True
             elif opt == "-D":
                 definitions.append(arg)
