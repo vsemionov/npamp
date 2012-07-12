@@ -85,7 +85,7 @@ class NumericalDepopulationModel(DepopulationModel):
         self.prng_seed = prng_seed
         
         if self.min_samples > self.max_samples:
-            raise exc.NumericalError("min. depop. rate sample count (%s) is greater than max. sample count (%s)" % (self.min_samples, self.max_samples))
+            raise exc.NumericalError("min. depop. rate sample size (%s) is greater than max. sample size (%s)" % (self.min_samples, self.max_samples))
         
         native._seed_prng(prng_seed)
 
@@ -195,7 +195,7 @@ class RossNumericalASEModel(NumericalDepopulationModel):
                 break
             nsamples *= self.sample_count_multiplier
             if nsamples > self.max_samples:
-                util.warn("max. depop. rate sample count (%s) exceeded; latest rel. error: %s" % (self.max_samples, rate_rel_error), stacklevel=2)
+                util.warn("max. depop. rate sample size (%s) exceeded; latest rel. error: %s" % (self.max_samples, rate_rel_error), stacklevel=2)
                 break
         return rate_coef
     
