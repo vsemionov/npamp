@@ -64,11 +64,13 @@ class PopulationInverter(object):
         def is_stable(n, dn): # oscillation detection
             mid = n + dn/2.0
             return dn >= -2.0*rtol * mid
+        
         f = self._deriv
-        pump_duration = self.pump_system.duration
-        T, dt = np.linspace(0.0, pump_duration, count_t, retstep=True)
+        
+        T, dt = np.linspace(0.0, self.pump_system.duration, count_t, retstep=True)
         inversion = np.empty(count_t)
         inversion[0] = 0.0
+        
         for k in range(count_t-1):
             n = inversion[k]
             try:
@@ -78,26 +80,31 @@ class PopulationInverter(object):
             if not is_stable(n, dn):
                 return None
             inversion[k+1] = n + dn
+        
         self.T = T
         self.inversion = inversion
         return inversion[-1]
     
     def invert(self, rtol, min_count_t):
         max_divs = 15
+        
         min_count_t = max(min_count_t, 2)
         divs = discrete.divs(min_count_t)
         if divs > max_divs:
             raise exc.NumericalError("min. inversion time step count (%s) and corresponding min. divs (%s) too large; max. divs: %s" % (min_count_t, divs, max_divs))
+        
         divs = max(divs-1, 0)
         last_res = None
         while True:
             count_t = discrete.steps(divs)
             res = self._integrate(rtol, count_t)
+            
             diff = None
             if None not in (last_res, res):
                 diff = abs(res - last_res)
                 if diff <= rtol * abs(res):
                     break
+            
             divs += 1
             if divs > max_divs:
                 if diff is not None:
@@ -111,6 +118,7 @@ class PopulationInverter(object):
                     else:
                         raise exc.NumericalError(msg)
             last_res = res
+        
         return res
 
 class EulerInverter(PopulationInverter):

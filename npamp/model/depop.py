@@ -39,11 +39,6 @@ import exc
 # Having these in mind, the depopulation rate functions, as per these ASE models, are only defined in the domain of non-negative inversions.
 
 
-def inversion_decay_rate(inversion, volume, probability):
-    rate = inversion * volume * probability
-    return rate
-
-
 def concrete(cls):
     setattr(cls, "concrete", True)
     return cls
@@ -51,32 +46,29 @@ def concrete(cls):
 class DepopulationModel(object):
     descr = "depopulation model"
     
-    def __init__(self, active_medium, wavelen):
+    def __init__(self, active_medium):
         self.active_medium = active_medium
-        self.wavelen = wavelen
-        self.photon_energy = energy.photon_energy(self.wavelen)
-        self.active_solid_angle = self.active_medium.aperture / self.active_medium.length**2.0
-        self.upper_probability = 1.0 / active_medium.doping_agent.upper_lifetime
-        self.radiative_probability = self.upper_probability * active_medium.doping_agent.branching_ratio
-        self.nonradiative_probability = self.upper_probability * (1.0 - active_medium.doping_agent.branching_ratio)
-        self.saturation_intensity = self.photon_energy * self.radiative_probability / self.active_medium.doping_agent.xsection
+    
+    def _decay_rate(self, inversion, probability):
+        rate = inversion * self.active_medium.volume * probability
+        return rate
+    
+    def _rate(self, inversion):
+        raise NotImplementedError()
     
     def rate(self, inversion):
         if inversion < 0.0:
             raise exc.ModelError("negative population inversion")
-        return self.calc_rate(inversion)
-    
-    def calc_rate(self, inversion):
-        raise NotImplementedError()
+        return self._rate(inversion)
 
-class ExactDepopulationModel(DepopulationModel):
-    descr = "exact depopulation model"
+class AnalyticalDepopulationModel(DepopulationModel):
+    descr = "analytical depopulation model"
 
 class NumericalDepopulationModel(DepopulationModel):
     descr = "numerical depopulation model"
     
-    def __init__(self, active_medium, wavelen, rtol, min_samples, prng_seed=-1):
-        super(NumericalDepopulationModel, self).__init__(active_medium, wavelen)
+    def __init__(self, active_medium, rtol, min_samples, prng_seed=-1):
+        super(NumericalDepopulationModel, self).__init__(active_medium)
         
         self.max_samples = 16 * 1024**2
         
@@ -93,66 +85,75 @@ class PerturbedDepopulationModel(DepopulationModel):
     descr = "perturbed depopulation model"
     
     def __init__(self, numerical_depop_model):
-        super(PerturbedDepopulationModel, self).__init__(numerical_depop_model.active_medium, numerical_depop_model.wavelen)
+        super(PerturbedDepopulationModel, self).__init__(numerical_depop_model.active_medium)
         
         self.numerical_depop_model = numerical_depop_model
-        self.perturb = numerical_depop_model.rtol
+        self.rel_perturbation = numerical_depop_model.rtol
     
-    def calc_rate(self, inversion):
-        rate = self.numerical_depop_model.calc_rate(inversion)
-        rate *= (1.0 - self.perturb)
+    def _rate(self, inversion):
+        rate = self.numerical_depop_model._rate(inversion)
+        rate *= (1.0 - self.rel_perturbation)
         return rate
 
 @concrete
-class NullDepopulation(ExactDepopulationModel):
+class NullDepopulation(AnalyticalDepopulationModel):
     descr = "null depopulation"
     
-    def calc_rate(self, inversion):
+    def _rate(self, inversion):
         return 0.0
 
 @concrete
-class FluorescenceModel(ExactDepopulationModel):
+class FluorescenceModel(AnalyticalDepopulationModel):
     descr = "fluorescence"
     
-    def calc_rate(self, inversion):
-        rate = inversion_decay_rate(inversion, self.active_medium.volume, self.upper_probability)
+    def _rate(self, inversion):
+        rate = self._decay_rate(inversion, self.active_medium.doping_agent.transition_probability)
         return rate
 
 @concrete
-class LinfordASEModel(ExactDepopulationModel):
+class LinfordASEModel(AnalyticalDepopulationModel):
     descr = "Linford ASE model"
     
-    def calc_rate(self, inversion):
+    def __init__(self, *args, **kwargs):
+        super(LinfordASEModel, self).__init__(*args, **kwargs)
+        doping_agent = self.active_medium.doping_agent
+        photon_energy = energy.photon_energy(doping_agent.lasing_wavelen)
+        self._saturation_intensity = photon_energy * doping_agent.laser_transition_probability / doping_agent.xsection
+    
+    def _rate(self, inversion):
         # at zero inversion, depopulation rate is undefined but approaches zero
         if inversion == 0.0:
             return 0.0
         active_medium = self.active_medium
-        ln_gain = active_medium.doping_agent.xsection * inversion * active_medium.length
+        doping_agent = active_medium.doping_agent
+        active_solid_angle = active_medium.active_solid_angle
+        ln_gain = doping_agent.xsection * inversion * active_medium.length
         gain = math.exp(ln_gain)
-        intensity = self.saturation_intensity * (self.active_solid_angle/4.0) * (gain-1.0)**1.5/(gain*ln_gain)**0.5
+        intensity = self._saturation_intensity * (active_solid_angle/4.0) * (gain-1.0)**1.5/(gain*ln_gain)**0.5
         power = 2.0 * active_medium.aperture * intensity
-        rate = energy.photon_count(self.wavelen, power)
+        rate = energy.photon_count(doping_agent.lasing_wavelen, power)
         # fluorescence in directions outside of the two active solid angles:
-        rate += (1.0 - 2.0 * self.active_solid_angle / (4.0 * math.pi)) * inversion_decay_rate(inversion, active_medium.volume, self.radiative_probability)
+        rate += (1.0 - 2.0 * active_solid_angle / (4.0 * math.pi)) * self._decay_rate(inversion, doping_agent.laser_transition_probability)
         # fluorescence to other states:
-        rate += inversion_decay_rate(inversion, active_medium.volume, self.nonradiative_probability)
+        rate += self._decay_rate(inversion, doping_agent.nonlaser_transition_probability)
         return rate
 
 @concrete
-class SchulzASEModel(ExactDepopulationModel):
+class SchulzASEModel(AnalyticalDepopulationModel):
     descr = "Schulz ASE model"
     
-    def calc_rate(self, inversion):
+    def _rate(self, inversion):
         active_medium = self.active_medium
-        xsection = active_medium.doping_agent.xsection
+        doping_agent = active_medium.doping_agent
+        xsection = doping_agent.xsection
         ln_gain = xsection * inversion * active_medium.length
         gain = math.exp(ln_gain)
-        gamma_prime = ln_gain * self.upper_probability + (self.active_solid_angle * (gain - ln_gain - 1.0) / (2.0 * math.pi)) * self.radiative_probability
+        gamma_prime = ln_gain * doping_agent.transition_probability + (active_medium.active_solid_angle * (gain - ln_gain - 1.0) / (2.0 * math.pi)) * doping_agent.laser_transition_probability
         rate = gamma_prime * active_medium.aperture / xsection
         return rate
 
 @concrete
-class RossApproximateASEModel(ExactDepopulationModel):
+class RossApproximateASEModel(AnalyticalDepopulationModel):
     descr = "Ross ASE model (approximate)"
     
     _Nd_YLF_branching_ratio = 0.56 * 0.525 / 0.500
@@ -163,14 +164,15 @@ class RossApproximateASEModel(ExactDepopulationModel):
         ln_gain = active_medium.doping_agent.xsection * inversion * length
         gain = math.exp(ln_gain)
         B = 0.05 * (2.0*active_medium.radius/length)**0.3 * gain
-        B *= self.active_medium.doping_agent.branching_ratio / self._Nd_YLF_branching_ratio
+        B *= active_medium.doping_agent.branching_ratio / self._Nd_YLF_branching_ratio
         return B
     
-    def calc_rate(self, inversion):
+    def _rate(self, inversion):
+        active_medium = self.active_medium
         B = self._B(inversion)
         rate_coef = 1.0 + B
-        rate = inversion * rate_coef * self.upper_probability
-        rate *= self.active_medium.volume
+        rate = inversion * rate_coef * active_medium.doping_agent.transition_probability
+        rate *= active_medium.volume
         return rate
 
 @concrete
@@ -179,8 +181,8 @@ class RossNumericalASEModel(NumericalDepopulationModel):
     
     _integrate_B = lambda self, *args: native._ross_ase_model_integrate_B(self, *args)
     
-    def __init__(self, active_medium, wavelen, rtol, min_samples, prng_seed=-1, sample_count_multiplier=16):
-        super(RossNumericalASEModel, self).__init__(active_medium, wavelen, rtol, min_samples, prng_seed)
+    def __init__(self, active_medium, rtol, min_samples, prng_seed=-1, sample_count_multiplier=16):
+        super(RossNumericalASEModel, self).__init__(active_medium, rtol, min_samples, prng_seed)
         
         self.sample_count_multiplier = sample_count_multiplier
     
@@ -190,19 +192,23 @@ class RossNumericalASEModel(NumericalDepopulationModel):
             B, B_rel_error = self._integrate_B(inversion, nsamples)
             B_abs_error = B_rel_error * B
             rate_coef = 1.0 + B
+            
             rate_rel_error = B_abs_error / rate_coef
             if rate_rel_error < self.rtol:
                 break
+            
             nsamples *= self.sample_count_multiplier
             if nsamples > self.max_samples:
                 util.warn("max. depop. rate sample size (%s) exceeded; latest rel. error: %s" % (self.max_samples, rate_rel_error), stacklevel=2)
                 break
+        
         return rate_coef
     
-    def calc_rate(self, inversion):
+    def _rate(self, inversion):
+        active_medium = self.active_medium
         rate_coef = self._rate_coef(inversion)
-        rate = inversion * rate_coef * self.upper_probability
-        rate *= self.active_medium.volume
+        rate = inversion * rate_coef * active_medium.doping_agent.transition_probability
+        rate *= active_medium.volume
         return rate
     
     def rate_rel_stddev(self, inversion):
@@ -219,9 +225,9 @@ class RossHybridASEModel(RossNumericalASEModel):
     
     _integrate_B = lambda self, *args: native._ross_ase_model_integrate_BP(self, 0.0, 0.0, self.z_rel * self.active_medium.length, *args)
     
-    def __init__(self, active_medium, wavelen, rtol, min_samples, prng_seed=-1, sample_count_multiplier=16, z_rel=0.0):
+    def __init__(self, active_medium, rtol, min_samples, prng_seed=-1, sample_count_multiplier=16, z_rel=0.0):
         assert 0.0 <= z_rel <= 1.0, "z_rel is not in the interval [0.0, 1.0]"
         
-        super(RossHybridASEModel, self).__init__(active_medium, wavelen, rtol, min_samples, prng_seed, sample_count_multiplier)
+        super(RossHybridASEModel, self).__init__(active_medium, rtol, min_samples, prng_seed, sample_count_multiplier)
         
         self.z_rel = z_rel

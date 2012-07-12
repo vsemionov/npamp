@@ -72,13 +72,13 @@ class LorentzianPulse(SinglePulse):
     def __init__(self, *args, **kwargs):
         super(LorentzianPulse, self).__init__(*args, **kwargs)
         self.gamma = self.duration/2.0
-        self.coef = math.pi * self.gamma * self.ref_density
+        self.norm = math.pi * self.gamma
     
     def density(self, t):
-        return self.coef * (1.0/math.pi) * (self.gamma / ((t - self.offset)**2.0 + self.gamma**2.0))
+        return self.ref_density * self.norm * (1.0/math.pi) * (self.gamma / ((t - self.offset)**2.0 + self.gamma**2.0))
     
     def density_integral(self, t):
-        return self.coef * ((1.0/math.pi) * math.atan((t - self.offset)/self.gamma) + 1.0/2.0)
+        return self.ref_density * self.norm * ((1.0/math.pi) * math.atan((t - self.offset)/self.gamma) + 1.0/2.0)
 
 class GaussianPulse(SinglePulse):
     
@@ -109,19 +109,19 @@ class ScaledPulse(TransformedPulse):
     def __init__(self, pulse, ref_density):
         super(ScaledPulse, self).__init__(pulse)
         self.ref_density = ref_density
-        self.scale = self.ref_density / pulse.ref_density
+        self.density_scale = self.ref_density / pulse.ref_density
     
     def density(self, t):
-        return self.scale * self.pulse.density(t)
+        return self.density_scale * self.pulse.density(t)
     
     def density_integral(self, t):
-        return self.scale * self.pulse.density_integral(t)
+        return self.density_scale * self.pulse.density_integral(t)
 
 class ExtendedPulse(TransformedPulse):
     
     def __init__(self, pulse, scale):
         super(ExtendedPulse, self).__init__(pulse)
-        self.ext_scale = scale
+        self.duration_scale = scale
         self.duration *= scale
         self.t0 = self.offset - self.duration/2.0
 
@@ -166,25 +166,25 @@ class CompositePulse(InputPulse):
         ref_density = max(map(lambda p: p.ref_density, pulses))
         super(CompositePulse, self).__init__(t0, duration, ref_density)
         
-        self.pmap_t = np.empty(len(pulses))
-        self.pmap_n = np.array(range(len(pulses)))
+        self._pmap_t = np.empty(len(pulses))
+        self._pmap_n = np.array(range(len(pulses)))
         
         self.pulses = [pulses[0]]
         self.shifted_pulses = [ShiftedPulse(pulses[0], self.t0)]
-        self.pmap_t[0] = pulses[0].t0
+        self._pmap_t[0] = pulses[0].t0
         for i in range(1, len(pulses)):
             p = pulses[i]
             ppold = self.pulses[i-1]
             t0_integral = ppold.density_integral(ppold.t0 + ppold.duration)
             pulse = PartialPulse(p, t0_integral)
             self.pulses.append(pulse)
-            t0 = self.pmap_t[i-1] + ppold.duration
+            t0 = self._pmap_t[i-1] + ppold.duration
             shifted_pulse = ShiftedPulse(pulse, t0)
             self.shifted_pulses.append(shifted_pulse)
-            self.pmap_t[i] = t0
+            self._pmap_t[i] = t0
     
     def _pmap(self, t):
-        n = int(math.floor(np.interp(t, self.pmap_t, self.pmap_n)))
+        n = int(math.floor(np.interp(t, self._pmap_t, self._pmap_n)))
         p = self.shifted_pulses[n]
         return p
     

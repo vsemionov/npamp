@@ -32,7 +32,6 @@ import scipy.integrate
 
 
 class NumericalIntegrator(object):
-    
     method = None
     
     def __call__(self, Y, dx):
@@ -52,7 +51,6 @@ class DomainIntegrator(object):
     
     def __init__(self, int_type, active_medium):
         self.active_medium = active_medium
-        self.int_type = int_type
         self.integrator = int_type()
     
     def integrate(self, X, Y):

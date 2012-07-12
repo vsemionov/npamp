@@ -41,5 +41,7 @@ class ActiveMedium(object):
         self.refr_idx = refr_idx
         
         self.aperture = math.pi * radius**2.0
-        self.volume = self.aperture * self.length
-        self.light_speed = const.light_speed_vacuum / self.refr_idx
+        self.volume = self.aperture * length
+        self.active_solid_angle = self.aperture / length**2.0
+        
+        self.light_speed = const.light_speed_vacuum / refr_idx

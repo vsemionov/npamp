@@ -57,7 +57,7 @@ def create_medium(ref_inversion):
     initial_inversion = None
     if ref_inversion is not None:
         initial_inversion = initial_inversion = model.inversion.UniformInversion(ref_inversion)
-    doping_agent = model.dopant.DopingAgent(params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
+    doping_agent = model.dopant.DopingAgent(params.lasing_wavelen, params.dopant_xsection, params.dopant_upper_lifetime, params.dopant_lower_lifetime, params.dopant_branching_ratio, params.dopant_concentration)
     medium = model.medium.ActiveMedium(initial_inversion, doping_agent, params.medium_radius, params.medium_length, params.medium_refr_idx)
     return medium
 
@@ -88,7 +88,7 @@ def create_depop_model(active_medium, depop_model_class):
         depop_model_kwargs = {}
     if depop_model_class is params.depop_model_class:
         depop_model_kwargs.update(params.depop_model_extra_args)
-    depop_model = depop_model_class(active_medium, params.lasing_wavelen, **depop_model_kwargs)
+    depop_model = depop_model_class(active_medium, **depop_model_kwargs)
     return depop_model
 
 def compute_inversion(dirname):
@@ -111,7 +111,7 @@ def compute_inversion(dirname):
     
     if params.inversion_validate:
         print "validating uniform ASE-induced depopulation rate approximation"
-        ross_num_model = depop_model if isinstance(depop_model, model.depop.RossNumericalASEModel) else model.depop.RossNumericalASEModel(active_medium, params.lasing_wavelen, params.depop_rate_rtol, params.depop_rate_min_samples)
+        ross_num_model = depop_model if isinstance(depop_model, model.depop.RossNumericalASEModel) else model.depop.RossNumericalASEModel(active_medium, params.depop_rate_rtol, params.depop_rate_min_samples)
         rate_rel_stddev = ross_num_model.rate_rel_stddev(ref_inversion)
         unitconv.print_result("depopulation rate rel. std. deviation [{}]: {}", ("%",), (rate_rel_stddev,))
         if rate_rel_stddev > 10.0e-2:

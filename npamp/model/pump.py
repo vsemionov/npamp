@@ -36,8 +36,5 @@ class PumpSystem(object):
         self.power = power
         self.efficiency = efficiency
         
-        effective_power = power * efficiency
-        self.effective_power = effective_power
-        
-        effective_pump_rate = energy.photon_count(wavelen, effective_power)
-        self.effective_pump_rate = effective_pump_rate
+        self.effective_power = power * efficiency
+        self.effective_pump_rate = energy.photon_count(wavelen, self.effective_power)

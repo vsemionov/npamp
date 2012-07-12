@@ -27,11 +27,16 @@
 
 class DopingAgent(object):
     
-    def __init__(self, xsection, upper_lifetime, lower_lifetime, branching_ratio, concentration):
+    def __init__(self, lasing_wavelen, xsection, upper_lifetime, lower_lifetime, branching_ratio, concentration):
+        self.lasing_wavelen = lasing_wavelen
         self.xsection = xsection
         self.upper_lifetime = upper_lifetime
         self.lower_lifetime = lower_lifetime
         self.branching_ratio = branching_ratio
         self.concentration = concentration
+        
+        self.transition_probability = 1.0 / upper_lifetime
+        self.laser_transition_probability = self.transition_probability * branching_ratio
+        self.nonlaser_transition_probability = self.transition_probability * (1.0 - branching_ratio)
         
         self.spacing = concentration**(-1.0/3.0)

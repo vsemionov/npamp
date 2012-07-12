@@ -125,10 +125,12 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname,
 def min_integration_steps(integrator, input_beam, int_rtol, (min_count_rho, min_count_phi)):
     def converge_steps(func, a, b, rtol, min_steps, varname):
         max_divs = 15
+        
         min_steps = max(min_steps, 3)
         divs = discrete.divs(min_steps)
         if divs > max_divs:
             raise exc.NumericalError("min. integration %s step count (%s) and corresponding min. divs (%s) too large; max. divs: %s" % (varname, min_steps, divs, max_divs))
+        
         divs = max(divs-1, 1)
         last_res = None
         while True:
@@ -136,11 +138,13 @@ def min_integration_steps(integrator, input_beam, int_rtol, (min_count_rho, min_
             X = np.linspace(a, b, steps)
             Y = np.vectorize(func)(X)
             res = integrator.integrate(X, Y)
+            
             diff = None
             if last_res is not None:
                 diff = abs(res - last_res)
                 if diff <= rtol * abs(res):
                     break
+            
             divs += 1
             if divs > max_divs:
                 if diff is not None:
@@ -149,6 +153,7 @@ def min_integration_steps(integrator, input_beam, int_rtol, (min_count_rho, min_
                     util.warn("max. integration %s divs (%s) exceeded; rtol: %s; latest step count: %s" % (varname, max_divs, rtol, steps), stacklevel=3)
                 break
             last_res = res
+        
         return steps
     
     def fluence_integrals(steps_rho, steps_phi):

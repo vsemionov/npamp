@@ -247,12 +247,13 @@ class HybridAmplifier(NumericalAmplifier):
         # upper monotonically decreasing condition: lower <= upper
         
         active_medium = self.active_medium
+        doping_agent = active_medium.doping_agent
         if initial_population is None:
             max_inversion = active_medium.initial_inversion.ref_inversion
         else:
             max_inversion = np.amax(initial_population[0])
         light_speed = active_medium.light_speed
-        xsection = active_medium.doping_agent.xsection
+        xsection = doping_agent.xsection
         duration = input_pulse.duration
         max_density = input_pulse.ref_density * ((1.0 + xsection*max_inversion*self.dz/2.0) / (1.0 - xsection*max_inversion*self.dz/2.0))**(self.count_z-1)
         
@@ -260,7 +261,7 @@ class HybridAmplifier(NumericalAmplifier):
         dt_neg_n2 = 1.0 / (xsection * light_speed * max_density) if max_density != 0.0 else 2.0 * duration
         
         # n1 positiveness
-        lower_lifetime = active_medium.doping_agent.lower_lifetime
+        lower_lifetime = doping_agent.lower_lifetime
         dt_neg_n1 = lower_lifetime if lower_lifetime != 0.0 else 2.0 * duration
         
         # n1 <= n2
