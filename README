@@ -114,6 +114,16 @@ The model accepts a set of physical, numerical, operational, and output paramete
 There are two different modes of operation -- basic mode and extended mode. In basic mode, results are computed only for fixed values of the input parameters. In extended mode, results are computed for varying values of some parameters and/or for different models of some processes (currently ASE). This facilitates the studying of the effects of the physical parameters on the results, as well as the effects of the different factors, accounted for by the various models.
 
 
+Execution
+---------
+The most important parameters, affecting the execution of the model, are:
+
+* extended mode: enables extended mode; see below
+* initial inversion: specifies the initial population inversion for the amplification stage; if non-zero, pumping-stage inversion will not be computed
+* perform amplification: specifies whether amplification-stage computations will be performed
+* generate graphs: enables the generation of result graphs
+
+
 Basic Mode
 ----------
 The most important results, currently computed in basic mode, are:
@@ -201,16 +211,6 @@ The following computations are currently performed in extended mode:
   - values of the optimized set of parameters, for which the output characteristics are extremal, while all restrictions are met
   - constraints on the domain of the set of optimized parameters
   - dependence of the following quantities on the set of optimized parameters: pump energy, population inversion, small signal gain, stored energy, effect of ASE on population inversion, input energy, output energy, energy gain, extraction efficiency, optical to optical efficiency, maximum output fluence, relative gain decrease
-
-
-Execution
----------
-The most important parameters, affecting the execution of the model, are:
-
-* extended mode: enables extended mode; see above
-* initial inversion: specifies the initial population inversion for the amplification stage; if non-zero, pumping-stage inversion will not be computed
-* perform amplification: specifies whether amplification-stage computations will be performed
-* generate graphs: enables the generation of result graphs
 
 
 Practical Use
