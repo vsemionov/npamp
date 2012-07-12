@@ -206,7 +206,7 @@ def min_integration_steps(integrator, input_beam, int_rtol, (min_count_rho, min_
     
     return (steps_rho, steps_phi), rel_error
 
-def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, min_count_t), integrator, amp_rtol):
+def min_amplification_steps(amp_type, active_medium, xverse, pulse_train, (min_count_z, min_count_t), integrator, amp_rtol):
     compute_rel_error = lambda num_fluence, exact_fluence: abs((exact_fluence - num_fluence) / exact_fluence)
     
     def amplify_signal(count_z, count_t):
@@ -256,7 +256,11 @@ def min_amplification_steps(amp_type, active_medium, pulse_train, (min_count_z, 
         return fluence_out, rel_error
     
     initial_inversion = active_medium.initial_inversion
-    rho, phi = initial_inversion.rho_ref, initial_inversion.phi_ref
+    
+    if xverse:
+        rho, phi = xverse
+    else:
+        rho, phi = initial_inversion.rho_ref, initial_inversion.phi_ref
     
     data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_signal, compute_rel_error, "amplification", "(z, t)")
     
