@@ -25,9 +25,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import math
+
+
 class InitialInversion(object):
     
     xcoords = True, True, True
+    rho_ref, phi_ref = 0.0, 0.0
     
     def __init__(self, ref_inversion):
         self.ref_inversion = ref_inversion
@@ -37,6 +41,12 @@ class InitialInversion(object):
     
     def inversion_integral(self, rho, phi, z):
         raise NotImplementedError()
+    
+    def inversion_fluence_integral(self, rho, z):
+        if self.xcoords[0:2] == (False, False):
+            return self.inversion_integral(rho, 0.0, z) * math.pi * rho**2.0
+        else:
+            raise NotImplementedError()
 
 class UniformInversion(InitialInversion):
     
