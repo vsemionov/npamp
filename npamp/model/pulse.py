@@ -72,13 +72,13 @@ class LorentzianPulse(SinglePulse):
     def __init__(self, *args, **kwargs):
         super(LorentzianPulse, self).__init__(*args, **kwargs)
         self.gamma = self.duration/2.0
-        self.norm = math.pi * self.gamma
+        self.coef = math.pi * self.gamma
     
     def density(self, t):
-        return self.ref_density * self.norm * (1.0/math.pi) * (self.gamma / ((t - self.offset)**2.0 + self.gamma**2.0))
+        return self.ref_density * self.coef * (1.0/math.pi) * (self.gamma / ((t - self.offset)**2.0 + self.gamma**2.0))
     
     def density_integral(self, t):
-        return self.ref_density * self.norm * ((1.0/math.pi) * math.atan((t - self.offset)/self.gamma) + 1.0/2.0)
+        return self.ref_density * self.coef * ((1.0/math.pi) * math.atan((t - self.offset)/self.gamma) + 1.0/2.0)
 
 class GaussianPulse(SinglePulse):
     
