@@ -299,14 +299,18 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         else:
             return False
     
-    def save(self):
-        if self.working_path is not None:
-            conf = self.gui2conf()
-            conf2file(conf, self.working_path)
-            self.working_conf = conf
-            return True
-        else:
-            return self.saveAs()
+    def openFile(self, path):
+        conf = file2conf(path)
+        old_conf = self.gui2conf()
+        try:
+            self.conf2gui(conf)
+        except:
+            self.conf2gui(old_conf)
+            raise
+        self.working_conf = conf
+        self.working_path = path
+        self.output_path = None
+        self.updateUI()
     
     def saveAs(self):
         default = self.working_path or os.path.join(self.default_directory, self.untitled_name)
@@ -321,6 +325,15 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         self.updateUI()
         return True
     
+    def save(self):
+        if self.working_path is not None:
+            conf = self.gui2conf()
+            conf2file(conf, self.working_path)
+            self.working_conf = conf
+            return True
+        else:
+            return self.saveAs()
+    
     def onNew(self):
         if self.confirmProceed():
             self.conf2gui(defaults)
@@ -328,19 +341,6 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             self.working_path = None
             self.output_path = None
             self.updateUI()
-    
-    def openFile(self, path):
-        conf = file2conf(path)
-        old_conf = self.gui2conf()
-        try:
-            self.conf2gui(conf)
-        except:
-            self.conf2gui(old_conf)
-            raise
-        self.working_conf = conf
-        self.working_path = path
-        self.output_path = None
-        self.updateUI()
     
     def onOpen(self):
         if self.confirmProceed():
