@@ -179,13 +179,12 @@ def most_efficient_methods((int_types, amp_types), active_medium, input_beam, re
             test_min_count_z = max(min_count_z, amp_type.min_steps_z(active_medium))
             test_min_count_t = max(min_count_t, amp_type(active_medium, test_min_count_z).min_steps_t(ref_pulse))
             try:
-                data = model.error.min_amplification_steps(amp_type, active_medium, None, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.amp_rtol)
+                (count_z, count_t), amp_rel_error = model.error.min_amplification_steps(amp_type, active_medium, None, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.amp_rtol)
             except size_exc_types:
                 output.print_exception()
                 print "attempting to recover"
                 sys.exc_clear()
                 continue
-            (count_z, count_t), amp_rel_error = data
             count = count_rho * count_phi * count_z * count_t
             is_best = False
             if best_method is None:
@@ -211,7 +210,8 @@ def select_methods((int_types, amp_types), ref_inversion, quiet=False):
     input_beam = create_beam()
     ref_pulse, time_trunc_rel_error = create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref, ret_time_trunc_rel_error=True)
     
-    (int_type, amp_type), (count_rho, count_phi, count_z, count_t), (amp_rel_error, int_rel_error) = most_efficient_methods((int_types, amp_types), active_medium, input_beam, ref_pulse, quiet)
+    methods = most_efficient_methods((int_types, amp_types), active_medium, input_beam, ref_pulse, quiet)
+    (int_type, amp_type), (count_rho, count_phi, count_z, count_t), (amp_rel_error, int_rel_error) = methods
     
     if params.verbose:
         print "int_type: %s; amp_type: %s" % (int_type.__name__, amp_type.__name__, )

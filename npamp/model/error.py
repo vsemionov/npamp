@@ -267,9 +267,9 @@ def min_amplification_steps(amp_type, active_medium, xverse, pulse_train, (min_c
     else:
         rho, phi = initial_inversion.rho_ref, initial_inversion.phi_ref
     
-    data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_signal, compute_rdiff, "amplification", "(z, t)")
+    (steps_z, steps_t), rel_error = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_signal, compute_rdiff, "amplification", "(z, t)")
     
-    return data
+    return (steps_z, steps_t), rel_error
 
 def perturbed_inversion_rel_error(ref_inversion, perturb_ref_inversion, inversion_rtol):
     abs_error = abs(perturb_ref_inversion - ref_inversion) + (ref_inversion + perturb_ref_inversion) * inversion_rtol
