@@ -98,7 +98,6 @@ def conf2file(conf, path):
 class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     
     untitled_name = "untitled.%s" % meta.file_extension
-    home_dir = QtCore.QDir.toNativeSeparators(QtCore.QDir.homePath())
     file_filter = "%s Files (*.%s)" % (meta.app_name, meta.file_extension)
     
     def __init__(self, extensions):
@@ -110,6 +109,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         self.working_conf = npamp.cfg.copy_conf(defaults)
         self.working_path = None
         self.output_path = None
+        self.default_directory = self.get_default_directory()
         self.setupUi(self)
         self.initWidgets()
         self.connectSignals()
@@ -125,6 +125,14 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         if self.old_excepthook:
             self.old_excepthook(exc_type, value, traceback)
         QtGui.QMessageBox.critical(self, "Error", str(value))
+    
+    def get_default_directory(self):
+        if os.name == "nt":
+            import winshell
+            return winshell.desktop()
+        else:
+            home_dir = QtCore.QDir.toNativeSeparators(QtCore.QDir.homePath())
+            return home_dir
     
     def initWidgets(self):
         for name in dir(model.beam):
@@ -269,13 +277,6 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         self.actionQuit.triggered.connect(self.onQuit)
         self.actionAbout.triggered.connect(self.onAbout)
     
-    def default_directory(self):
-        if os.name == "nt":
-            import winshell
-            return winshell.desktop()
-        else:
-            return self.home_dir
-    
     def checkSave(self):
         if self.gui2conf() != self.working_conf:
             choice = QtGui.QMessageBox.question(self, "Changes Made", "Do you want to save changes to %s?" % self.shortFilename(), QtGui.QMessageBox.Save|QtGui.QMessageBox.Discard|QtGui.QMessageBox.Cancel)
@@ -308,7 +309,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             return self.saveAs()
     
     def saveAs(self):
-        default = self.working_path or os.path.join(self.default_directory(), self.untitled_name)
+        default = self.working_path or os.path.join(self.default_directory, self.untitled_name)
         path, _ = QtGui.QFileDialog.getSaveFileName(self, "Save As", default, self.file_filter)
         if not path:
             return False
@@ -343,7 +344,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     
     def onOpen(self):
         if self.confirmProceed():
-            default = os.path.dirname(self.working_path) if self.working_path else self.default_directory()
+            default = os.path.dirname(self.working_path) if self.working_path else self.default_directory
             path, _ = QtGui.QFileDialog.getOpenFileName(self, "Open", default, self.file_filter)
             if not path:
                 return
@@ -369,7 +370,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             if self.output_path is not None:
                 output_path = self.output_path
             else:
-                default = os.path.dirname(self.working_path) if self.working_path else self.default_directory()
+                default = os.path.dirname(self.working_path) if self.working_path else self.default_directory
                 output_path = QtGui.QFileDialog.getExistingDirectory(self, "Output Directory", default)
                 if not output_path:
                     return
