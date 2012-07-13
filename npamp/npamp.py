@@ -70,6 +70,9 @@ help_hint = "Try \"{app_name} -h\" for more information.".format(app_name=meta.a
 debug_mode = False
 
 
+app_dir = os.path.join(os.path.expanduser("~"), ".%s" % meta.app_name.lower())
+
+
 class InvocationError(Exception):
     pass
 
@@ -98,7 +101,7 @@ def print_extensions(extensions):
             print "%s: %s" % (name, doc)
 
 def load_extensions():
-    extension_path = os.path.normpath(os.path.expanduser("~/.%s/extensions" % meta.app_name.lower()))
+    extension_path = os.path.join(app_dir, "extensions")
     sys.path.append(extension_path)
     extension_pathnames = glob.glob(os.path.join(extension_path, "*.py"))
     extensions = []

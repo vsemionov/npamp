@@ -65,6 +65,13 @@ def boot_excepthook(exc_type, value, traceback):
     QtGui.QMessageBox.critical(None, "%s Error" % meta.app_name, str(value))
 
 
+def init_app_dir():
+    try:
+        os.mkdir(npamp.app_dir)
+    except OSError:
+        pass
+
+
 def repr_cfg(v):
     return re.sub("<class '([^']+?)'>", "\\1", repr(v))
 
@@ -500,6 +507,8 @@ def main():
     global old_excepthook
     old_excepthook = sys.excepthook
     sys.excepthook = boot_excepthook
+    
+    init_app_dir()
     
     extensions = npamp.load_extensions()
     
