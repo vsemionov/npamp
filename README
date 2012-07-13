@@ -8,6 +8,11 @@ Numerical model of a laser amplifier for pulse trains, accounting for amplified 
 NPAmp is an implementation of a numerical model of a laser amplifier. It is designed for practical and educational purposes.
 
 
+Screenshot
+==========
+.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/screenshots/basic.png
+
+
 Examples of Results
 ===================
 The following are examples of results from research, conducted with NPAmp.
@@ -31,11 +36,6 @@ Laser Amplifier Optimization
 Pulse Train Amplification
 -------------------------
 .. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/examples/pulse_train/pulse_energy_gain.png
-
-
-Screenshots
-===========
-.. image:: https://bitbucket.org/vsemionov/npamp/wiki/images/screenshots/basic.png
 
 
 Overview
