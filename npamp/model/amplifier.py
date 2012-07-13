@@ -199,7 +199,7 @@ class NumericalAmplifier(PulseAmplifier):
     
     @staticmethod
     def _min_steps(total_size, max_step_size):
-        return int(math.ceil(total_size / max_step_size)) + 1
+        return int(max(math.ceil(total_size / max_step_size), 1.0)) + 1
     
     @staticmethod
     def min_steps_z(active_medium, initial_population=None):
@@ -234,17 +234,17 @@ class HybridAmplifier(NumericalAmplifier):
             max_inversion = np.amax(initial_population[0])
         xsection = active_medium.doping_agent.xsection
         length = active_medium.length
-        dz_sing = 2.0 / (xsection * max_inversion) if max_inversion != 0.0 else 2.0 * length
+        dz_sing = 2.0 / (xsection * max_inversion) if max_inversion != 0.0 else float("inf")
         dz_max = dz_sing / 2.0
         min_count_z = NumericalAmplifier._min_steps(length, dz_max)
         return min_count_z
     
     def min_steps_t(self, input_pulse, initial_population=None):
         # euler method
-        # stability condition: step = -2.0/lambda, where lambda is the minimum (negative) eigenvalue of the Jacobian for the maximum photon density; this condition is weaker than the following
-        # positiveness condition: (1.0 - xsection * light_speed * max_density * step >= 0) and (1.0 - (1.0/lower_lifetime) * step >= 0)
-        # lower <= upper condition: 1.0 - 2.0 * xsection * light_speed * max_density * step >= 0 (stronger than one of the positiveness conditions, but taken into account under an extra condition)
-        # upper monotonically decreasing condition: lower <= upper
+        # stability condition: step = -2.0/lambda, where lambda is the minimum (negative) eigenvalue of the Jacobian for the maximum photon density; this condition is weaker than the following set
+        # positiveness conditions: (1.0 - xsection * light_speed * max_density * step >= 0) and (1.0 - (1.0/lower_lifetime) * step >= 0)
+        # upper >= lower condition: 1.0 - 2.0 * xsection * light_speed * max_density * step >= 0 (stronger than one of the positiveness conditions, but taken into account under an extra condition)
+        # upper monotonically decreasing condition: upper >= lower
         
         active_medium = self.active_medium
         doping_agent = active_medium.doping_agent
@@ -258,14 +258,14 @@ class HybridAmplifier(NumericalAmplifier):
         max_density = input_pulse.ref_density * ((1.0 + xsection*max_inversion*self.dz/2.0) / (1.0 - xsection*max_inversion*self.dz/2.0))**(self.count_z-1)
         
         # n2 positiveness
-        dt_neg_n2 = 1.0 / (xsection * light_speed * max_density) if max_density != 0.0 else 2.0 * duration
+        dt_neg_n2 = 1.0 / (xsection * light_speed * max_density) if max_density != 0.0 else float("inf")
         
         # n1 positiveness
         lower_lifetime = doping_agent.lower_lifetime
-        dt_neg_n1 = lower_lifetime if lower_lifetime != 0.0 else 2.0 * duration
+        dt_neg_n1 = lower_lifetime if lower_lifetime != 0.0 else float("inf")
         
-        # n1 <= n2
-        dt_neg_n = 1.0 / (2.0 * xsection * light_speed * max_density) if lower_lifetime != 0.0 and max_density != 0.0 else 2.0 * duration
+        # n positiveness
+        dt_neg_n = 1.0 / (2.0 * xsection * light_speed * max_density) if lower_lifetime != 0.0 and max_density != 0.0 else float("inf")
         
         dt_max = min(dt_neg_n2, dt_neg_n1, dt_neg_n) / 2.0
         min_count_t = NumericalAmplifier._min_steps(duration, dt_max)
