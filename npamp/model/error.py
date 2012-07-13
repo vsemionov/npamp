@@ -206,13 +206,13 @@ def min_integration_steps(integrator, input_beam, int_rtol, (min_count_rho, min_
         steps_rho, steps_phi = 1, 1
         rel_error = 0.0
     else:
-        compute_rdiff = lambda last_res, res: max([abs((new - old) / new) for (old, new) in zip(last_res, res)])
+        compute_rdiff = lambda approx_res, exact_res: max([abs((exact - approx) / exact) for (approx, exact) in zip(approx_res, exact_res)])
         (steps_rho, steps_phi), rel_error = min_steps((min_count_rho, min_count_phi), (beam_rho, beam_phi), int_rtol, fluence_integrals, compute_rdiff, "integration", "(rho, phi)")
     
     return (steps_rho, steps_phi), rel_error
 
 def min_amplification_steps(amp_type, active_medium, xverse, pulse_train, (min_count_z, min_count_t), integrator, amp_rtol):
-    compute_rel_error = lambda num_fluence, exact_fluence: abs((exact_fluence - num_fluence) / exact_fluence)
+    compute_rdiff = lambda approx_res, exact_res: max([abs((exact - approx) / exact) for (approx, exact) in zip(approx_res, exact_res)])
     
     def amplify_signal(count_z, count_t):
         ref_pulse = pulse_train.pulse
@@ -220,23 +220,22 @@ def min_amplification_steps(amp_type, active_medium, xverse, pulse_train, (min_c
         lower_decay = amplifier.lower_state_decay(active_medium, pulse_train)
         
         rel_error = None
-        if pulse_count == 1:
-            for lower_lifetime in amplifier.ExactAmplifier.analytical_lower_lifetimes:
-                test_active_medium = copy.deepcopy(active_medium)
-                test_active_medium.doping_agent.lower_lifetime = lower_lifetime
-                
-                amp = amp_type(test_active_medium, count_z)
-                num_density_out, num_population_final = amp.amplify(rho, phi, ref_pulse, count_t)
-                num_fluence = integrator.integrate(amp.T, num_density_out)
-                del amp, num_density_out, num_population_final
-                
-                exact_amp = amplifier.ExactOutputAmplifier(test_active_medium, count_z)
-                exact_density_out, exact_population_final = exact_amp.amplify(rho, phi, ref_pulse, count_t)
-                exact_fluence = integrator.integrate(exact_amp.T, exact_density_out)
-                del exact_amp, exact_density_out, exact_population_final
-                
-                test_rel_error = compute_rel_error(num_fluence, exact_fluence)
-                rel_error = max(test_rel_error, rel_error)
+        for lower_lifetime in amplifier.ExactAmplifier.analytical_lower_lifetimes:
+            test_active_medium = copy.deepcopy(active_medium)
+            test_active_medium.doping_agent.lower_lifetime = lower_lifetime
+            
+            amp = amp_type(test_active_medium, count_z)
+            num_density_out, num_population_final = amp.amplify(rho, phi, ref_pulse, count_t)
+            num_fluence = integrator.integrate(amp.T, num_density_out)
+            del amp, num_density_out, num_population_final
+            
+            exact_amp = amplifier.ExactOutputAmplifier(test_active_medium, count_z)
+            exact_density_out, exact_population_final = exact_amp.amplify(rho, phi, ref_pulse, count_t)
+            exact_fluence = integrator.integrate(exact_amp.T, exact_density_out)
+            del exact_amp, exact_density_out, exact_population_final
+            
+            test_rel_error = compute_rdiff((num_fluence,), (exact_fluence,))
+            rel_error = max(test_rel_error, rel_error)
         
         amp = amp_type(active_medium, count_z)
         
@@ -256,9 +255,10 @@ def min_amplification_steps(amp_type, active_medium, xverse, pulse_train, (min_c
             fluence_out = integrator.integrate(amp.T, density_out)
             pulse_fluences[pnum] = fluence_out
         
-        fluence_out = pulse_fluences[::-1].sum()
+        first_fluence_out = pulse_fluences[0]
+        total_fluence_out = pulse_fluences[::-1].sum()
         
-        return fluence_out, rel_error
+        return (first_fluence_out, total_fluence_out), rel_error
     
     initial_inversion = active_medium.initial_inversion
     
@@ -267,7 +267,7 @@ def min_amplification_steps(amp_type, active_medium, xverse, pulse_train, (min_c
     else:
         rho, phi = initial_inversion.rho_ref, initial_inversion.phi_ref
     
-    data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_signal, compute_rel_error, "amplification", "(z, t)")
+    data = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_signal, compute_rdiff, "amplification", "(z, t)")
     
     return data
 
