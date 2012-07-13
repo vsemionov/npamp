@@ -78,11 +78,11 @@ def _ref_signal_fluence(active_medium, (rho, phi), (integrator, amp), count_t, r
 def compare_depop_models(dirname):
     filename = lambda name: os.path.join(dirname, name)
     
-    print output.div_line
-    print "comparing depopulation models"
-    
     if not params.ext_depop_models:
         return
+    
+    print output.div_line
+    print "comparing depopulation models"
     
     active_medium = core.create_medium(None)
     pump_system = model.pump.PumpSystem(params.pump_wavelen, params.pump_duration, params.pump_power, params.pump_efficiency)
