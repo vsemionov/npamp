@@ -265,9 +265,9 @@ class HybridAmplifier(NumericalAmplifier):
         dt_neg_n1 = lower_lifetime if lower_lifetime != 0.0 else 2.0 * duration
         
         # n1 <= n2
-        dt_ratio = 1.0 / (2.0 * xsection * light_speed * max_density) if lower_lifetime != 0.0 and max_density != 0.0 else 2.0 * duration
+        dt_neg_n = 1.0 / (2.0 * xsection * light_speed * max_density) if lower_lifetime != 0.0 and max_density != 0.0 else 2.0 * duration
         
-        dt_max = min(dt_neg_n2, dt_neg_n1, dt_ratio) / 2.0
+        dt_max = min(dt_neg_n2, dt_neg_n1, dt_neg_n) / 2.0
         min_count_t = NumericalAmplifier._min_steps(duration, dt_max)
         return min_count_t
     
