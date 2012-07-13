@@ -40,7 +40,7 @@ import exc
 
 
 def concrete(cls):
-    setattr(cls, "concrete", True)
+    cls.concrete = True
     return cls
 
 class DepopulationModel(object):
