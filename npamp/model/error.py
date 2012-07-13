@@ -123,19 +123,19 @@ def min_steps(min_counts, varspace, rtol, compute_result, compute_rdiff, opname,
     return last_counts, max_rel_error
 
 def min_integration_steps(integrator, input_beam, int_rtol, (min_count_rho, min_count_phi)):
-    def converge_steps(func, a, b, rtol, min_steps, varname):
+    def converge_steps(func, a, b, rtol, min_count, varname):
         max_divs = 15
         
-        min_steps = max(min_steps, 3)
-        divs = discrete.divs(min_steps)
+        min_count = max(min_count, 3)
+        divs = discrete.divs(min_count)
         if divs > max_divs:
-            raise exc.NumericalError("min. integration %s step count (%s) and corresponding min. divs (%s) too large; max. divs: %s" % (varname, min_steps, divs, max_divs))
+            raise exc.NumericalError("min. integration %s step count (%s) and corresponding min. divs (%s) too large; max. divs: %s" % (varname, min_count, divs, max_divs))
         
         divs = max(divs-1, 1)
         last_res = None
         while True:
-            steps = discrete.steps(divs)
-            X = np.linspace(a, b, steps)
+            count = discrete.steps(divs)
+            X = np.linspace(a, b, count)
             Y = np.vectorize(func)(X)
             res = integrator.integrate(X, Y)
             
@@ -148,22 +148,22 @@ def min_integration_steps(integrator, input_beam, int_rtol, (min_count_rho, min_
             divs += 1
             if divs > max_divs:
                 if diff is not None:
-                    util.warn("max. integration %s divs (%s) exceeded; rtol: %s; latest step count: %s; latest difference: %s (current: %s; last: %s)" % (varname, max_divs, rtol, steps, diff, res, last_res), stacklevel=3)
+                    util.warn("max. integration %s divs (%s) exceeded; rtol: %s; latest step count: %s; latest difference: %s (current: %s; last: %s)" % (varname, max_divs, rtol, count, diff, res, last_res), stacklevel=3)
                 else:
-                    util.warn("max. integration %s divs (%s) exceeded; rtol: %s; latest step count: %s" % (varname, max_divs, rtol, steps), stacklevel=3)
+                    util.warn("max. integration %s divs (%s) exceeded; rtol: %s; latest step count: %s" % (varname, max_divs, rtol, count), stacklevel=3)
                 break
             last_res = res
         
-        return steps
+        return count
     
-    def fluence_integrals(steps_rho, steps_phi):
-        Rho = np.linspace(0.0, active_medium.radius, steps_rho)
-        Phi = np.linspace(0.0, 2.0*math.pi, steps_phi)
+    def fluence_integrals(count_rho, count_phi):
+        Rho = np.linspace(0.0, active_medium.radius, count_rho)
+        Phi = np.linspace(0.0, 2.0*math.pi, count_phi)
         
-        fluence_min = np.empty((steps_rho, steps_phi))
-        fluence_max = np.empty((steps_rho, steps_phi))
-        fluence_max_3 = np.empty((steps_rho, steps_phi))
-        fluence_max_4 = np.empty((steps_rho, steps_phi))
+        fluence_min = np.empty((count_rho, count_phi))
+        fluence_max = np.empty((count_rho, count_phi))
+        fluence_max_3 = np.empty((count_rho, count_phi))
+        fluence_max_4 = np.empty((count_rho, count_phi))
         
         for m, rho in enumerate(Rho):
             for n, phi in enumerate(Phi):
@@ -203,13 +203,13 @@ def min_integration_steps(integrator, input_beam, int_rtol, (min_count_rho, min_
     beam_rho, beam_phi = input_beam.xcoords
     
     if not beam_rho and not beam_phi:
-        steps_rho, steps_phi = 1, 1
+        count_rho, count_phi = 1, 1
         rel_error = 0.0
     else:
         compute_rdiff = lambda approx_res, exact_res: max([abs((exact - approx) / exact) for (approx, exact) in zip(approx_res, exact_res)])
-        (steps_rho, steps_phi), rel_error = min_steps((min_count_rho, min_count_phi), (beam_rho, beam_phi), int_rtol, fluence_integrals, compute_rdiff, "integration", "(rho, phi)")
+        (count_rho, count_phi), rel_error = min_steps((min_count_rho, min_count_phi), (beam_rho, beam_phi), int_rtol, fluence_integrals, compute_rdiff, "integration", "(rho, phi)")
     
-    return (steps_rho, steps_phi), rel_error
+    return (count_rho, count_phi), rel_error
 
 def min_amplification_steps(amp_type, active_medium, xverse, pulse_train, (min_count_z, min_count_t), integrator, amp_rtol):
     compute_rdiff = lambda approx_res, exact_res: max([abs((exact - approx) / exact) for (approx, exact) in zip(approx_res, exact_res)])
@@ -267,9 +267,9 @@ def min_amplification_steps(amp_type, active_medium, xverse, pulse_train, (min_c
     else:
         rho, phi = initial_inversion.rho_ref, initial_inversion.phi_ref
     
-    (steps_z, steps_t), rel_error = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_signal, compute_rdiff, "amplification", "(z, t)")
+    (count_z, count_t), rel_error = min_steps((min_count_z, min_count_t), (True, True), amp_rtol, amplify_signal, compute_rdiff, "amplification", "(z, t)")
     
-    return (steps_z, steps_t), rel_error
+    return (count_z, count_t), rel_error
 
 def perturbed_inversion_rel_error(ref_inversion, perturb_ref_inversion, inversion_rtol):
     abs_error = abs(perturb_ref_inversion - ref_inversion) + (ref_inversion + perturb_ref_inversion) * inversion_rtol
