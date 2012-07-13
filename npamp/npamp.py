@@ -193,17 +193,18 @@ def process(extensions):
         output_path = None
         definitions = []
         
+        help_flag = False
+        version_flag = False
+        extensions_flag = False
+        
         opts, args = getopt.getopt(sys.argv[1:], "hvegD:o:")
         for opt, arg in opts:
             if opt == "-h":
-                print_help()
-                sys.exit()
+                help_flag = True
             elif opt == "-v":
-                print_info()
-                sys.exit()
+                version_flag = True
             elif opt == "-e":
-                print_extensions(extensions)
-                sys.exit()
+                extensions_flag = True
             elif opt == "-g":
                 global debug_mode
                 debug_mode = True
@@ -215,6 +216,16 @@ def process(extensions):
                 assert False, "unhandled option"
         if args:
             conf_path = args[0]
+        
+        if help_flag:
+            print_help()
+            sys.exit()
+        if version_flag:
+            print_info()
+            sys.exit()
+        if extensions_flag:
+            print_extensions(extensions)
+            sys.exit()
         
         if len(args) < 1:
             raise InvocationError("no input file")
