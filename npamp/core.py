@@ -107,7 +107,7 @@ def compute_inversion(dirname):
     
     if params.verbose:
         print "count_t:", len(inv.T)
-        print "population rate evaluation count:", rate_evals
+        print "depopulation rate evaluation count:", rate_evals
     
     if params.inversion_validate:
         print "validating uniform ASE-induced depopulation rate approximation"
