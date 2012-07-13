@@ -244,14 +244,14 @@ In cases when examination of the temporal or spatial evolution of the computed q
 
 Extensions
 ==========
-NPAmp is extensible by means of Python modules. To install an extension module:
+NPAmp is extensible by means of Python modules. To install an extension:
 
 1. Create the <home>/.npamp/extensions directory (if it doesn't exist), where <home> denotes the path to the user's home directory.
 2. Copy the extension module to the above directory.
-3. Restart any running instances of NPAmp or GNPAmp.
+
+The extension will be loaded the next time NPAmp is run. To view the list of currently installed extensions from the graphical interface, use "About NPAmp" from the Help menu.
 
 For an example of an extension and a configuration which uses it, see examples/sawtooth_pulse.py and examples/extensions.npc, respectively, in the installation directory.
-To view the list of currently installed extensions from the graphical interface, use "About NPAmp" from the Help menu.
 
 
 Common Problems
