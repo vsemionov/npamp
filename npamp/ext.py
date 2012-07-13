@@ -748,17 +748,6 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
         labels = (output.lower_lifetime_legend % "0", output.lower_lifetime_legend % lsl_graph_label_fmt, output.lower_lifetime_legend % "\\infty")
         plot.plot_data(filename("lsl_effects"), "Effects of Lower State Lifetime", (Ts, None, tlim, out_t_label), (densities, None, None, output.density_rel_label), labels)
 
-def _min_integration_steps_geom(min_integration_steps, integrator, *args, **kwargs):
-    active_medium_orig = integrator.active_medium
-    max_medium_radius = params.ext_opt_geom_mediumradius[1]
-    active_medium_geom = model.medium.ActiveMedium(active_medium_orig.initial_inversion, active_medium_orig.doping_agent, max_medium_radius, active_medium_orig.length, active_medium_orig.refr_idx)
-    try:
-        integrator.active_medium = active_medium_geom
-        steps = min_integration_steps(integrator, *args, **kwargs)
-    finally:
-        integrator.active_medium = active_medium_orig
-    return steps
-
 def select_methods(perform_opt_pump, perform_opt_geom, (int_types, amp_types), inversions_pump, inversions_geom):
     print output.div_line
     print "determining extended mode method combinations"
@@ -772,18 +761,13 @@ def select_methods(perform_opt_pump, perform_opt_geom, (int_types, amp_types), i
     
     if perform_opt_geom:
         print "geometry"
-        min_medium_radius = params.ext_opt_geom_mediumradius[0]
+        max_medium_radius = params.ext_opt_geom_mediumradius[1]
         min_beam_radius = params.ext_opt_geom_beamradius[0]
         
-        orig_geom = _set_geom(min_medium_radius, min_beam_radius)
+        orig_geom = _set_geom(max_medium_radius, min_beam_radius)
         try:
-            min_integration_steps_orig = model.error.min_integration_steps
-            try:
-                model.error.min_integration_steps = functools.partial(_min_integration_steps_geom, min_integration_steps_orig)
-                max_inversion_geom = inversions_geom[0]
-                (num_types_geom, counts_geom), _ = core.select_methods((int_types, amp_types), max_inversion_geom, quiet=True)
-            finally:
-                model.error.min_integration_steps = min_integration_steps_orig
+            max_inversion_geom = inversions_geom[0]
+            (num_types_geom, counts_geom), _ = core.select_methods((int_types, amp_types), max_inversion_geom, quiet=True)
         finally:
             _set_geom(*orig_geom)
     
