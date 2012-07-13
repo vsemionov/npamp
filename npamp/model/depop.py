@@ -194,7 +194,7 @@ class RossNumericalASEModel(NumericalDepopulationModel):
             rate_coef = 1.0 + B
             
             rate_rel_error = B_abs_error / rate_coef
-            if rate_rel_error < self.rtol:
+            if rate_rel_error <= self.rtol:
                 break
             
             nsamples *= self.sample_count_multiplier

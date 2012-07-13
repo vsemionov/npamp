@@ -30,3 +30,6 @@ class ModelError(ValueError):
 
 class NumericalError(ModelError):
     pass
+
+class SoftLimitError(ModelError):
+    pass

@@ -152,39 +152,51 @@ def most_efficient_methods((int_types, amp_types), active_medium, input_beam, re
         print "determining most efficient method combination"
     
     min_xverse = (params.min_count_rho, params.min_count_phi)
-    min_count_z, min_count_t = (params.min_count_z, params.min_count_t)
+    min_evo = (min_count_z, min_count_t) = (params.min_count_z, params.min_count_t)
     
     pulse_train = create_train(ref_pulse)
     
-    size_exc_types = (ValueError, MemoryError)
-    
     best_method = None
+    limit = 0
     
     for int_type in int_types:
-        int_name = int_type.__name__
         if params.verbose:
-            print int_name
+            print int_type.__name__
+        
         integrator = model.integrator.DomainIntegrator(int_type, active_medium)
+        min_count_int = integrator.num_integrator.min_count
+        min_count_amp_z = model.discrete.steps(model.discrete.divs(max(min_count_z, min_count_int)))
+        min_count_amp_t = model.discrete.steps(model.discrete.divs(max(min_count_t, min_count_int)))
+        min_count_amp = min_count_amp_z * min_count_amp_t
+        int_limit = limit // min_count_amp
         try:
-            (count_rho, count_phi), int_rel_error = model.error.min_integration_steps(integrator, input_beam, params.int_rtol, min_xverse)
-        except size_exc_types:
-            output.print_exception()
-            print "attempting to recover"
+            (count_rho, count_phi), int_rel_error = model.error.min_integration_steps(integrator, min_xverse, params.int_rtol, int_limit, active_medium, input_beam)
+        except model.exc.SoftLimitError:
             sys.exc_clear()
             continue
+        except (ValueError, MemoryError):
+            output.print_exception()
+            print >>sys.stderr, "attempting to recover"
+            sys.exc_clear()
+            continue
+        
         for amp_type in amp_types:
-            amp_name = amp_type.__name__
             if params.verbose:
-                print amp_name
-            test_min_count_z = max(min_count_z, amp_type.min_steps_z(active_medium))
-            test_min_count_t = max(min_count_t, amp_type(active_medium, test_min_count_z).min_steps_t(ref_pulse))
+                print amp_type.__name__
+            
+            count_xverse = count_rho * count_phi
+            amp_limit = limit // count_xverse
             try:
-                (count_z, count_t), amp_rel_error = model.error.min_amplification_steps(amp_type, active_medium, None, pulse_train, (test_min_count_z, test_min_count_t), integrator, params.amp_rtol)
-            except size_exc_types:
-                output.print_exception()
-                print "attempting to recover"
+                (count_z, count_t), amp_rel_error = model.error.min_amplification_steps(amp_type, min_evo, params.amp_rtol, amp_limit, active_medium, pulse_train, None, integrator)
+            except model.exc.SoftLimitError:
                 sys.exc_clear()
                 continue
+            except (ValueError, MemoryError):
+                output.print_exception()
+                print >>sys.stderr, "attempting to recover"
+                sys.exc_clear()
+                continue
+            
             count = count_rho * count_phi * count_z * count_t
             is_best = False
             if best_method is None:
@@ -194,10 +206,11 @@ def most_efficient_methods((int_types, amp_types), active_medium, input_beam, re
                 if count < best_count:
                     is_best = True
                 elif count == best_count:
-                    if amp_rel_error + int_rel_error < best_amp_rel_error + best_int_rel_error:
+                    if (amp_rel_error + int_rel_error) < (best_amp_rel_error + best_int_rel_error):
                         is_best = True
             if is_best:
-                best_method = ((int_type, amp_type), (count_rho, count_phi, count_z, count_t), count, (amp_rel_error, int_rel_error))
+                best_method = (int_type, amp_type), (count_rho, count_phi, count_z, count_t), count, (amp_rel_error, int_rel_error)
+                limit = count
     
     if best_method is None:
         raise ComputationError("no suitable numerical method combination found")
@@ -219,8 +232,8 @@ def select_methods((int_types, amp_types), ref_inversion, quiet=False):
         print "count_z: %d; count_t: %d" % (count_z, count_t)
     
     numerics = (int_type, amp_type), (count_rho, count_phi, count_z, count_t)
-    rel_errors = (time_trunc_rel_error, amp_rel_error, int_rel_error)
-    return (numerics, rel_errors)
+    rel_errors = time_trunc_rel_error, amp_rel_error, int_rel_error
+    return numerics, rel_errors
 
 def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
     print output.div_line
@@ -282,9 +295,11 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     max_fluences = np.empty(params.train_pulse_count)
     output_photon_counts = np.empty(params.train_pulse_count)
     
-    empty_mdlist = [[None for n in range(count_phi)] for m in range(count_rho)]
+    empty_mdlist = [[None] * count_phi for _ in range(count_rho)]
     populations = copy.deepcopy(empty_mdlist)
     input_pulses = copy.deepcopy(empty_mdlist)
+    del empty_mdlist
+    
     for m, rho in enumerate(Rho):
         for n, phi in enumerate(Phi):
             upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)

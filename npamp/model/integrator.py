@@ -32,18 +32,20 @@ import scipy.integrate
 
 
 class NumericalIntegrator(object):
+    min_count = 2
     method = None
     
     def __call__(self, Y, dx):
         return self.method(Y, dx=dx)
 
-class SimpsonIntegrator(NumericalIntegrator):
-    method = staticmethod(scipy.integrate.simps)
-
 class TrapezoidIntegrator(NumericalIntegrator):
     method = staticmethod(scipy.integrate.trapz)
 
+class SimpsonIntegrator(NumericalIntegrator):
+    method = staticmethod(scipy.integrate.simps)
+
 class RombergIntegrator(NumericalIntegrator):
+    min_count = 3 # scipy.integrate.romb() seems to require 3 or more samples
     method = staticmethod(scipy.integrate.romb)
 
 
@@ -51,19 +53,19 @@ class DomainIntegrator(object):
     
     def __init__(self, int_type, active_medium):
         self.active_medium = active_medium
-        self.integrator = int_type()
+        self.num_integrator = int_type()
     
     def integrate(self, X, Y):
         assert X.ndim == Y.ndim == 1
         assert X.shape == Y.shape
-        assert len(X) > 2 # scipy.integrate.romb() seems to require 3 or more samples
+        assert len(X) >= self.num_integrator.min_count
         
         divs_f = math.log(len(X) - 1, 2.0)
         divs = int(divs_f)
         assert divs == divs_f
         
         dx = (X[-1] - X[0]) / (len(X) - 1)
-        I = self.integrator(Y, dx)
+        I = self.num_integrator(Y, dx)
         return I
     
     def integrate_base(self, Rho, Phi, fluence):
