@@ -359,6 +359,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     def onCloseFile(self):
         if self.working_path is not None:
             if self.confirmProceed():
+                self.working_conf = self.gui2conf()
                 self.working_path = None
                 self.output_path = None
         self.updateUI()
