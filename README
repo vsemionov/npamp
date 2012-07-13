@@ -228,7 +228,7 @@ Of all implemented depopulation models, the Ross ASE model accounts for the effe
 
 Numerical Methods
 -----------------
-The numerical methods for pumping-stage computations are selected manually. The method of computing the depopulation rate depends on the selected ASE model(s).
+The numerical methods for pumping-stage computations are selected manually. The method of computing the depopulation rate depends on the selected ASE model.
 
 Amplification-stage computations utilize a combination of methods (an integration method and an "amplification" method). More than one method can be selected for each of the two types. In that case, NPAmp will probe all possible combinations of the selected methods from the two types and will use the most efficient one (requiring the least total number of discretization steps, depending on physical parameters, initial conditions, error tolerances, and other numerical parameters).
 
