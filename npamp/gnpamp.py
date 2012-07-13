@@ -262,6 +262,13 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         self.actionQuit.triggered.connect(self.onQuit)
         self.actionAbout.triggered.connect(self.onAbout)
     
+    def default_directory(self):
+        if os.name == "nt":
+            import winshell
+            return winshell.desktop()
+        else:
+            return self.home_dir
+    
     def checkSave(self):
         if self.gui2conf() != self.working_conf:
             choice = QtGui.QMessageBox.question(self, "Changes Made", "Do you want to save changes to %s?" % self.shortFilename(), QtGui.QMessageBox.Save|QtGui.QMessageBox.Discard|QtGui.QMessageBox.Cancel)
@@ -294,7 +301,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             return self.saveAs()
     
     def saveAs(self):
-        default = self.working_path or os.path.join(self.home_dir, self.untitled_name)
+        default = self.working_path or os.path.join(self.default_directory(), self.untitled_name)
         path, _ = QtGui.QFileDialog.getSaveFileName(self, "Save As", default, self.file_filter)
         if not path:
             return False
@@ -329,7 +336,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     
     def onOpen(self):
         if self.confirmProceed():
-            default = os.path.dirname(self.working_path) if self.working_path else self.home_dir
+            default = os.path.dirname(self.working_path) if self.working_path else self.default_directory()
             path, _ = QtGui.QFileDialog.getOpenFileName(self, "Open", default, self.file_filter)
             if not path:
                 return
@@ -355,7 +362,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
             if self.output_path is not None:
                 output_path = self.output_path
             else:
-                default = os.path.dirname(self.working_path) if self.working_path else self.home_dir
+                default = os.path.dirname(self.working_path) if self.working_path else self.default_directory()
                 output_path = QtGui.QFileDialog.getExistingDirectory(self, "Output Directory", default)
                 if not output_path:
                     return

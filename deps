@@ -11,4 +11,5 @@ scipy 0.10.1
 matplotlib 1.1.1
 py2exe 0.6.9
 pywin32 build 217
+winshell 0.6
 PySide 1.1.1
