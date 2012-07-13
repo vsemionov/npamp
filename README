@@ -8,9 +8,9 @@ Numerical model of a laser amplifier for pulse trains, accounting for amplified 
 NPAmp is an implementation of a numerical model of a laser amplifier. It is designed for practical and educational purposes.
 
 
-Example Results
-===============
-The following are example results from research, conducted with NPAmp.
+Examples of Results
+===================
+The following are examples of results from research, conducted with NPAmp.
 
 Effects of ASE
 --------------
