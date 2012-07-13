@@ -82,7 +82,9 @@ def print_help():
 
 def print_info():
     print meta.app_name, meta.app_version
+    print
     print meta.app_copyright
+    print meta.app_rights
     print
     print meta.app_description
     print

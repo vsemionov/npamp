@@ -35,6 +35,7 @@ app_url = "http://www.vsemionov.org/npamp/"
 app_description = "Numerical model of a laser amplifier for pulse trains, accounting for amplified spontaneous emission and finite lower state lifetime"
 copyright_period = "2012"
 app_copyright = "Copyright (C) %s %s" % (copyright_period, app_author_name)
+app_rights = "All rights reserved."
 app_author_msg = "Developed and maintained by %s." % app_author
 app_coauthors_msg = "Studied under the guidance of Assoc. Prof. Ivan Buchvarov and Assistant Prof. Alexander Gaydardzhiev at the Faculty of Physics, Sofia University."
 app_website_msg = "Website: %s" % app_url
