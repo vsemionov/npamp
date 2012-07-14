@@ -95,7 +95,7 @@ def conf2file(conf, path):
 class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     
     untitled_name = "untitled.%s" % meta.file_extension
-    file_filter = "%s Files (*.%s)" % (meta.app_name, meta.file_extension)
+    file_filters = "%s Files (*.%s);;All Files (*)" % (meta.app_name, meta.file_extension)
     
     def __init__(self, extensions):
         QtGui.QMainWindow.__init__(self)
@@ -311,7 +311,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     
     def saveAs(self):
         default = self.working_path or os.path.join(self.default_directory, self.untitled_name)
-        path, _ = QtGui.QFileDialog.getSaveFileName(self, "Save As", default, self.file_filter)
+        path, _ = QtGui.QFileDialog.getSaveFileName(self, "Save As", default, self.file_filters)
         if not path:
             return False
         conf = self.gui2conf()
@@ -342,7 +342,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     def onOpen(self):
         if self.confirmProceed():
             default = os.path.dirname(self.working_path) if self.working_path else self.default_directory
-            path, _ = QtGui.QFileDialog.getOpenFileName(self, "Open", default, self.file_filter)
+            path, _ = QtGui.QFileDialog.getOpenFileName(self, "Open", default, self.file_filters)
             if not path:
                 return
             self.openFile(path)
