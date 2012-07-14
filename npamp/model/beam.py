@@ -29,6 +29,7 @@ class BeamProfile(object):
     
     xcoords = False, False
     rho_ref, phi_ref = 0.0, 0.0
+    rho_trunc = float("inf")
     
     def __init__(self, radius, ref_fluence):
         self.radius = radius
@@ -54,6 +55,7 @@ class TophatBeam(BeamProfile):
     
     def __init__(self, *args, **kwargs):
         super(TophatBeam, self).__init__(*args, **kwargs)
+        self.rho_trunc = self.radius
     
     def fluence(self, rho, phi):
         return self.ref_fluence if rho <= self.radius else 0.0

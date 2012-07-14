@@ -294,7 +294,7 @@ def _fluence_pump_dependence_task((i, j), (tau, pwr), inversion, active_medium, 
     initial_inversion = model.inversion.UniformInversion(inversion)
     active_medium.initial_inversion = initial_inversion
     
-    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
+    integrator = model.integrator.DomainIntegrator(int_type)
     amp = amp_type(active_medium, count_z)
     
     fluence_out = _ref_signal_fluence(active_medium, (rho, phi), (integrator, amp), count_t, ref_pulse, lower_decay)
@@ -353,7 +353,7 @@ def _fluence_geom_dependence_task((i, j), (rm, rb), inversion, (int_type, amp_ty
         
         lower_decay = model.amplifier.lower_state_decay(active_medium, pulse_train)
         
-        integrator = model.integrator.DomainIntegrator(int_type, active_medium)
+        integrator = model.integrator.DomainIntegrator(int_type)
         amp = amp_type(active_medium, count_z)
         
         fluence_out = _ref_signal_fluence(active_medium, (rho, phi), (integrator, amp), count_t, ref_pulse, lower_decay)
@@ -693,7 +693,7 @@ def compare_lower_lifetimes(dirname, ref_inversion, (int_types, amp_types), nume
     
     (int_type, amp_type), (_, _, count_z, count_t) = num_types, counts
     
-    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
+    integrator = model.integrator.DomainIntegrator(int_type)
     
     amp = amp_type(active_medium, count_z)
     amp_3 = model.amplifier.ExactOutputAmplifier(active_medium_3, count_z)

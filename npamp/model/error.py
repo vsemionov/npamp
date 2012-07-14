@@ -161,14 +161,15 @@ def min_integration_steps(integrator, (min_count_rho, min_count_phi), int_rtol, 
             lambda rho, phi: beam_fluence(rho, phi) + inversion_fluence(rho, phi),
         )
         
-        Rho = np.linspace(0.0, active_medium.radius, count_rho)
+        radius = min(active_medium.radius, input_beam.rho_trunc)
+        Rho = np.linspace(0.0, radius, count_rho)
         Phi = np.linspace(0.0, 2.0*math.pi, count_phi)
         
         num_results = []
         for output_fluence in output_fluences:
             vfluence = np.vectorize(output_fluence)
             discrete_fluence = vfluence(*np.meshgrid(Rho, Phi)).T
-            num_result = integrator.integrate_base(Rho, Phi, discrete_fluence)
+            num_result = integrator.integrate_base(active_medium, input_beam, Rho, Phi, discrete_fluence)
             num_results.append(num_result)
             del discrete_fluence
         

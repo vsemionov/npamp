@@ -42,14 +42,13 @@ class SimpsonIntegrator(NumericalIntegrator):
     method = staticmethod(scipy.integrate.simps)
 
 class RombergIntegrator(NumericalIntegrator):
-    min_count = 3 # scipy.integrate.romb() seems to require 3 or more samples
+    min_count = 3
     method = staticmethod(scipy.integrate.romb)
 
 
 class DomainIntegrator(object):
     
-    def __init__(self, int_type, active_medium):
-        self.active_medium = active_medium
+    def __init__(self, int_type):
         self.num_integrator = int_type()
     
     def integrate(self, X, Y):
@@ -65,15 +64,18 @@ class DomainIntegrator(object):
         I = self.num_integrator(Y, dx)
         return I
     
-    def integrate_base(self, Rho, Phi, fluence):
+    def integrate_base(self, active_medium, input_beam, Rho, Phi, fluence):
         assert Rho.ndim == Phi.ndim == 1
         assert fluence.shape == (Rho.shape + Phi.shape)
         
-        integrate = lambda Y, X, xmax: self.integrate(X, Y) if len(X) > 1 else xmax*Y[0]
+        integrate = lambda Y, X, xmax: self.integrate(X, Y) if len(X) > 1 else xmax * Y[0]
+        
+        radius = active_medium.radius
+        if input_beam is not None:
+            radius = min(radius, input_beam.rho_trunc)
         
         phi_integrals = np.apply_along_axis(integrate, 1, fluence, Phi, 2.0*math.pi)
-        radius = self.active_medium.radius
         phi_integrals *= Rho if len(Rho) > 1 else radius/2.0
-        rho_integral = integrate(phi_integrals, Rho, radius)
+        rho_phi_integral = integrate(phi_integrals, Rho, radius)
         
-        return rho_integral
+        return rho_phi_integral

@@ -158,7 +158,7 @@ def most_efficient_methods((int_types, amp_types), active_medium, input_beam, re
         if params.verbose:
             print int_type.__name__
         
-        integrator = model.integrator.DomainIntegrator(int_type, active_medium)
+        integrator = model.integrator.DomainIntegrator(int_type)
         min_count_int = integrator.num_integrator.min_count
         min_count_amp_z = model.discrete.steps(model.discrete.divs(max(min_count_z, min_count_int)))
         min_count_amp_t = model.discrete.steps(model.discrete.divs(max(min_count_t, min_count_int)))
@@ -243,7 +243,7 @@ def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
     rho, phi = input_beam.rho_ref, input_beam.phi_ref
     ref_pulse = create_pulse(active_medium, input_beam, rho, phi)
     
-    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
+    integrator = model.integrator.DomainIntegrator(int_type)
     amp = amp_type(active_medium, count_z)
     
     num_density_out, _ = amp.amplify(rho, phi, ref_pulse, count_t)
@@ -259,7 +259,6 @@ def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
     unitconv.print_result("fluence gain: {}", (), (fluence_gain,))
     
     if params.graphs:
-        integrator = model.integrator.DomainIntegrator(int_type, active_medium)
         fluences = np.empty(amp.count_z)
         for l in range(amp.count_z):
             fluences[l] = integrator.integrate(amp.T, amp.density[l]) * active_medium.light_speed
@@ -280,10 +279,11 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     
     int_type, amp_type = num_types
     count_rho, count_phi, count_z, count_t = counts
-    integrator = model.integrator.DomainIntegrator(int_type, active_medium)
+    integrator = model.integrator.DomainIntegrator(int_type)
     amp = amp_type(active_medium, count_z)
     
-    Rho = np.linspace(0.0, active_medium.radius, count_rho)
+    radius = min(active_medium.radius, input_beam.rho_trunc)
+    Rho = np.linspace(0.0, radius, count_rho)
     Phi = np.linspace(0.0, 2.0*math.pi, count_phi)
     
     populations = [[None] * count_phi for _ in range(count_rho)]
@@ -325,7 +325,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
             ref_idx = np.unravel_index(output_fluence.argmax(), output_fluence.shape)
             ref_output_fluence = np.copy(output_fluence)
         max_fluences[pnum] = output_fluence[ref_idx]
-        output_photon_counts[pnum] = integrator.integrate_base(Rho, Phi, output_fluence)
+        output_photon_counts[pnum] = integrator.integrate_base(active_medium, input_beam, Rho, Phi, output_fluence)
     
     del amp, output_fluence, populations, input_pulses
     
