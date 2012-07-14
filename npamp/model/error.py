@@ -163,15 +163,14 @@ def min_integration_steps(integrator, (min_count_rho, min_count_phi), int_rtol, 
         
         Rho = np.linspace(0.0, active_medium.radius, count_rho)
         Phi = np.linspace(0.0, 2.0*math.pi, count_phi)
-        discrete_fluence = np.empty((count_rho, count_phi))
         
         num_results = []
         for output_fluence in output_fluences:
-            for m, rho in enumerate(Rho):
-                for n, phi in enumerate(Phi):
-                    discrete_fluence[m, n] = output_fluence(rho, phi)
+            vfluence = np.vectorize(output_fluence)
+            discrete_fluence = vfluence(*np.meshgrid(Rho, Phi)).T
             num_result = integrator.integrate_base(Rho, Phi, discrete_fluence)
             num_results.append(num_result)
+            del discrete_fluence
         
         rel_error = _compute_seq_rdiff(num_results, exact_results)
         return num_results, rel_error
