@@ -1,7 +1,7 @@
 win32:
 Visual C++ 2008 Express SP1
 Visual C++ 2008 SP1 Redistributable Package
-Inno Setup 5.5.0
+Inno Setup 5.5.1
 MinGW 2012-04-26
 python 2.7.3
 setuptools 0.6c11
