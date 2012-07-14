@@ -210,10 +210,10 @@ def plot_beam(dirname, input_beam, Rho, Phi, ref_output_fluence):
     
     vfluence = np.vectorize(input_beam.fluence)
     ref_input_fluence = vfluence(*np.meshgrid(Rho, Phi)).T
-    FR, RF = np.meshgrid(Phi, Rho)
-    XY, YX = RF * np.cos(FR), RF * np.sin(FR)
     norm_input_fluence = ref_input_fluence / input_beam.ref_fluence
     norm_output_fluence = ref_output_fluence / input_beam.ref_fluence
+    FR, RF = np.meshgrid(Phi, Rho)
+    XY, YX = RF * np.cos(FR), RF * np.sin(FR)
     scale = np.amax(norm_output_fluence)
     stride_rho = max(len(Rho) // params.out_count_rho, 1)
     stride_phi = max(len(Phi) // params.out_count_phi, 1)
