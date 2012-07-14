@@ -57,7 +57,7 @@ defaults = npamp.cfg.load_conf(npamp.params.__dict__, None)
 
 
 def boot_excepthook(exc_type, value, traceback):
-    if old_excepthook:
+    if debug_mode and old_excepthook:
         old_excepthook(exc_type, value, traceback)
     QtGui.QMessageBox.critical(None, "%s Error" % meta.app_name, str(value))
 
@@ -119,7 +119,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
         sys.excepthook = self.gui_excepthook
     
     def gui_excepthook(self, exc_type, value, traceback):
-        if self.old_excepthook:
+        if debug_mode and self.old_excepthook:
             self.old_excepthook(exc_type, value, traceback)
         QtGui.QMessageBox.critical(self, "Error", str(value))
     
