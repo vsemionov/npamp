@@ -509,20 +509,22 @@ def main():
     
     init_app_dir()
     
-    extensions = npamp.load_extensions()
-    
-    win = AppWindow(extensions)
-    
     opts, args = getopt.getopt(sys.argv[1:], "g")
     for opt, _ in opts:
         if opt == "-g":
             global debug_mode
             debug_mode = True
+            npamp.debug_mode = True
         else:
             assert False, "unhandled option"
     
     if len(args) > 1:
         raise npamp.InvocationError("too many arguments")
+    
+    extensions = npamp.load_extensions()
+    
+    win = AppWindow(extensions)
+    
     if args:
         win.openFile(args[0])
     
