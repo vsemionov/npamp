@@ -27,7 +27,7 @@ import math
 
 class BeamProfile(object):
     
-    xcoords = True, True
+    xcoords = False, False
     rho_ref, phi_ref = 0.0, 0.0
     
     def __init__(self, radius, ref_fluence):

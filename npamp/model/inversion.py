@@ -27,7 +27,7 @@ import math
 
 class InitialInversion(object):
     
-    xcoords = True, True, True
+    xcoords = False, False, False
     rho_ref, phi_ref = 0.0, 0.0
     
     def __init__(self, ref_inversion):
