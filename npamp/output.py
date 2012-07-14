@@ -214,7 +214,7 @@ def plot_beam(dirname, input_beam, Rho, Phi, ref_output_fluence):
     norm_output_fluence = ref_output_fluence / input_beam.ref_fluence
     max_output_fluence = np.amax(norm_output_fluence)
     
-    if Rho and Phi:
+    if len(Rho) > 1 and len(Phi) > 1:
         FR, RF = np.meshgrid(Phi, Rho)
         XY, YX = RF * np.cos(FR), RF * np.sin(FR)
         stride_rho = max(len(Rho) // params.out_count_rho, 1)
@@ -222,7 +222,7 @@ def plot_beam(dirname, input_beam, Rho, Phi, ref_output_fluence):
         plot.plot_projection(filename("fluence_in"), "Input Fluence", (XY, None, x_label), (YX, None, y_label), (norm_input_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
         plot.plot_projection(filename("fluence_out"), "Output Fluence", (XY, None, x_label), (YX, None, y_label), (norm_output_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
     
-    if Rho:
+    if len(Rho) > 1:
         n_ref = -1
         for n, phi in enumerate(Phi):
             if n_ref < 0 or abs(phi - input_beam.phi_ref) < abs(Phi[n_ref] - input_beam.phi_ref):
