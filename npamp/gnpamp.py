@@ -94,8 +94,8 @@ def conf2file(conf, path):
 
 class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     
-    untitled_name = "untitled.%s" % meta.file_extension
-    file_filters = "%s Files (*.%s);;All Files (*)" % (meta.app_name, meta.file_extension)
+    untitled_name = "Untitled.%s" % meta.file_extension
+    file_filters = "%s Files (*.%s);;All Files (*.*)" % (meta.app_name, meta.file_extension)
     
     def __init__(self, extensions):
         QtGui.QMainWindow.__init__(self)
@@ -179,7 +179,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     
     def updateUI(self):
         filename = self.shortFilename()
-        self.setWindowTitle("%s - %s" % (meta.gui_app_name, filename))
+        self.setWindowTitle("%s - %s" % (filename, meta.gui_app_name))
         self.actionClose.setEnabled(self.working_path is not None)
     
     def conf2gui(self, conf):
