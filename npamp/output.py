@@ -208,7 +208,8 @@ def plot_train(dirname, input_beam, active_medium, output_photon_counts):
 def plot_beam(dirname, input_beam, Rho, Phi, ref_output_fluence):
     filename = lambda name: os.path.join(dirname, name)
     
-    ref_input_fluence = np.vectorize(input_beam.fluence)(*np.meshgrid(Rho, Phi)).T
+    vfluence = np.vectorize(input_beam.fluence)
+    ref_input_fluence = vfluence(*np.meshgrid(Rho, Phi)).T
     FR, RF = np.meshgrid(Phi, Rho)
     XY, YX = RF * np.cos(FR), RF * np.sin(FR)
     norm_input_fluence = ref_input_fluence / input_beam.ref_fluence
