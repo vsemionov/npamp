@@ -86,7 +86,7 @@ def min_steps(min_counts, varspace, rtol, limit, compute_result, compute_rdiff, 
     max_divs_sum = max_divs_sums[nvars]
     
     if limit and (count_x * count_y) > limit:
-        raise exc.SoftLimitError()
+        raise exc.SoftLimitError("soft discretization limit reached")
     
     if (divs_x + divs_y) > max_divs_sum:
         raise exc.NumericalError("min. %s %s step counts (%s, %s) and corresponding min. divs (%s, %s) too large; max. divs sum: %s" % (opname, varnames, count_x, count_y, divs_x, divs_y, max_divs_sum))
