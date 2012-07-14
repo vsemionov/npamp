@@ -212,18 +212,21 @@ def plot_beam(dirname, input_beam, Rho, Phi, ref_output_fluence):
     ref_input_fluence = vfluence(*np.meshgrid(Rho, Phi)).T
     norm_input_fluence = ref_input_fluence / input_beam.ref_fluence
     norm_output_fluence = ref_output_fluence / input_beam.ref_fluence
-    FR, RF = np.meshgrid(Phi, Rho)
-    XY, YX = RF * np.cos(FR), RF * np.sin(FR)
-    scale = np.amax(norm_output_fluence)
-    stride_rho = max(len(Rho) // params.out_count_rho, 1)
-    stride_phi = max(len(Phi) // params.out_count_phi, 1)
-    plot.plot_projection(filename("fluence_in"), "Input Fluence", (XY, None, x_label), (YX, None, y_label), (norm_input_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
-    plot.plot_projection(filename("fluence_out"), "Output Fluence", (XY, None, x_label), (YX, None, y_label), (norm_output_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
+    max_output_fluence = np.amax(norm_output_fluence)
     
-    n_ref = -1
-    for n, phi in enumerate(Phi):
-        if n_ref < 0 or abs(phi - input_beam.phi_ref) < abs(Phi[n_ref] - input_beam.phi_ref):
-            n_ref = n
-    rholim = (Rho[0], Rho[-1])
-    plot.plot_data(filename("fluences"), "Input and Output Fluence", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref]), None, None, fluence_rel_label), ("input beam", "output beam"))
-    plot.plot_data(filename("fluences_norm"), "Normalized Input and Output Fluence", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref] / scale), None, None, fluence_norm_rel_label), ("input beam", "output beam"))
+    if Rho and Phi:
+        FR, RF = np.meshgrid(Phi, Rho)
+        XY, YX = RF * np.cos(FR), RF * np.sin(FR)
+        stride_rho = max(len(Rho) // params.out_count_rho, 1)
+        stride_phi = max(len(Phi) // params.out_count_phi, 1)
+        plot.plot_projection(filename("fluence_in"), "Input Fluence", (XY, None, x_label), (YX, None, y_label), (norm_input_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
+        plot.plot_projection(filename("fluence_out"), "Output Fluence", (XY, None, x_label), (YX, None, y_label), (norm_output_fluence, None, fluence_rel_label), (30, -60), (stride_rho, stride_phi))
+    
+    if Rho:
+        n_ref = -1
+        for n, phi in enumerate(Phi):
+            if n_ref < 0 or abs(phi - input_beam.phi_ref) < abs(Phi[n_ref] - input_beam.phi_ref):
+                n_ref = n
+        rholim = (Rho[0], Rho[-1])
+        plot.plot_data(filename("fluences"), "Input and Output Fluence", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref]), None, None, fluence_rel_label), ("input beam", "output beam"))
+        plot.plot_data(filename("fluences_norm"), "Normalized Input and Output Fluence", ((Rho,)*2, None, rholim, rho_label), ((norm_input_fluence[:, n_ref], norm_output_fluence[:, n_ref] / max_output_fluence), None, None, fluence_norm_rel_label), ("input beam", "output beam"))
