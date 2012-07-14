@@ -27,8 +27,6 @@ import os
 
 import math
 
-import copy
-
 import numpy as np
 
 import model
@@ -288,14 +286,13 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     Rho = np.linspace(0.0, active_medium.radius, count_rho)
     Phi = np.linspace(0.0, 2.0*math.pi, count_phi)
     
+    populations = [[None] * count_phi for _ in range(count_rho)]
+    input_pulses = [[None] * count_phi for _ in range(count_rho)]
+    
     output_fluence = np.empty((count_rho, count_phi))
+    
     max_fluences = np.empty(params.train_pulse_count)
     output_photon_counts = np.empty(params.train_pulse_count)
-    
-    empty_mdlist = [[None] * count_phi for _ in range(count_rho)]
-    populations = copy.deepcopy(empty_mdlist)
-    input_pulses = copy.deepcopy(empty_mdlist)
-    del empty_mdlist
     
     for m, rho in enumerate(Rho):
         for n, phi in enumerate(Phi):
@@ -329,6 +326,8 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
             ref_output_fluence = np.copy(output_fluence)
         max_fluences[pnum] = output_fluence[ref_idx]
         output_photon_counts[pnum] = integrator.integrate_base(Rho, Phi, output_fluence)
+    
+    del amp, output_fluence, populations, input_pulses
     
     if not quiet or params.verbose:
         output.show_status((pnum+1, None), (pulse_num_stride, None), True)
