@@ -373,7 +373,7 @@ class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
                 if not output_path:
                     return
                 if os.listdir(output_path):
-                    choice = QtGui.QMessageBox.warning(self, "Directory Not Empty", "The selected directory is not empty. Do you want to continue?", QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
+                    choice = QtGui.QMessageBox.warning(self, "Directory Not Empty", "The selected directory is not empty.\nDo you want to continue?", QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
                     if choice is not QtGui.QMessageBox.Yes:
                         return
                 self.output_path = output_path
