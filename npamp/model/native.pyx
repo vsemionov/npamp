@@ -41,12 +41,9 @@ ctypedef np.double_t DTYPE_t
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
-def _hybrid_amplifier_solve(self):
+def _hybrid_amplifier_solve(self, rho, phi):
     active_medium = self.active_medium
     input_pulse = self.input_pulse
-    
-    cdef DTYPE_t rho = self.rho
-    cdef DTYPE_t phi = self.phi
     
     cdef np.ndarray[DTYPE_t, ndim=1] Z = self.Z
     cdef np.ndarray[DTYPE_t, ndim=1] T = self.T
@@ -121,13 +118,10 @@ def _hybrid_amplifier_solve(self):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
-def _nsfd_amplifier_solve(self):
+def _nsfd_amplifier_solve(self, rho, phi):
     # for the analytical solution of the rate equations, see http://eqworld.ipmnet.ru/en/solutions/sysode/sode0101.pdf
     active_medium = self.active_medium
     input_pulse = self.input_pulse
-    
-    cdef DTYPE_t rho = self.rho
-    cdef DTYPE_t phi = self.phi
     
     cdef np.ndarray[DTYPE_t, ndim=1] Z = self.Z
     cdef np.ndarray[DTYPE_t, ndim=1] T = self.T
