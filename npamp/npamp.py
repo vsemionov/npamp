@@ -181,7 +181,7 @@ def run(conf_path, output_path, definitions):
             if params.verbose:
                 print "finished in %.2f s" % elapsed_time
     except (cfg.ConfigurationError, core.ComputationError, model.exc.ModelError) as exc:
-        output.print_error(exc.message)
+        output.print_error(str(exc))
     except MemoryError:
         output.print_error("out of memory")
     except:
@@ -239,8 +239,8 @@ def process():
             raise InvocationError("too many arguments")
         
         run(conf_path, output_path, definitions)
-    except InvocationError as ie:
-        output.print_error(ie.message, help_hint)
+    except (getopt.GetoptError, InvocationError) as ie:
+        output.print_error(str(ie), help_hint)
 
 def main():
     multiprocessing.freeze_support()
