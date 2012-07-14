@@ -95,7 +95,7 @@ def conf2file(conf, path):
 class AppWindow(QtGui.QMainWindow, mainwin.Ui_MainWindow):
     
     untitled_name = "Untitled.%s" % meta.file_extension
-    file_filters = "%s Files (*.%s);;All Files (*.*)" % (meta.app_name, meta.file_extension)
+    file_filters = "%s Files (*.%s);;All Files (%s)" % (meta.app_name, meta.file_extension, "*.*" if os.name == "nt" else "*")
     
     def __init__(self, extensions):
         QtGui.QMainWindow.__init__(self)
