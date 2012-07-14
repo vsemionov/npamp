@@ -60,9 +60,8 @@ def min_steps(min_counts, varspace, rtol, limit, compute_result, compute_rdiff, 
     min_count_x, min_count_y = min_counts
     var_x, var_y = varspace
     
-    nvars = sum(varspace)
-    max_divs_sums = [12 - 1, 16 - 1, 24 - 1]
-    max_divs_sum = max_divs_sums[nvars]
+    max_divs_sums = [0, 16 - 1, 24 - 1]
+    nvars = 0
     
     min_count_int = integrator.num_integrator.min_count
     
@@ -70,6 +69,7 @@ def min_steps(min_counts, varspace, rtol, limit, compute_result, compute_rdiff, 
         divs_x = 0
         count_x = 1
     else:
+        nvars += 1
         min_count_x = max(min_count_x, min_count_int)
         divs_x = discrete.divs(min_count_x)
         count_x = discrete.steps(divs_x)
@@ -78,9 +78,12 @@ def min_steps(min_counts, varspace, rtol, limit, compute_result, compute_rdiff, 
         divs_y = 0
         count_y = 1
     else:
+        nvars += 1
         min_count_y = max(min_count_y, min_count_int)
         divs_y = discrete.divs(min_count_y)
         count_y = discrete.steps(divs_y)
+    
+    max_divs_sum = max_divs_sums[nvars]
     
     if limit and (count_x * count_y) > limit:
         raise exc.SoftLimitError()
