@@ -46,7 +46,7 @@ class BeamProfile(object):
 
 class TopHatBeam(BeamProfile):
     
-    xcoords = True, False
+    xcoords = False, False
     
     def __init__(self, *args, **kwargs):
         super(TopHatBeam, self).__init__(*args, **kwargs)
