@@ -34,9 +34,13 @@ class BeamProfile(object):
         self.radius = radius
         self.ref_fluence = ref_fluence
     
-    @staticmethod
-    def ref_fluence(radius, photon_count):
-        raise NotImplementedError()
+    @classmethod
+    def ref_fluence(cls, radius, photon_count):
+        ref_fluence = 1.0
+        test_beam = cls(radius, ref_fluence)
+        test_photon_count = test_beam.fluence_integral(float("inf"))
+        ref_fluence *= photon_count / test_photon_count
+        return ref_fluence
     
     def fluence(self, rho, phi):
         raise NotImplementedError()
@@ -44,22 +48,18 @@ class BeamProfile(object):
     def fluence_integral(self, rho):
         raise NotImplementedError()
 
-class TopHatBeam(BeamProfile):
+class TophatBeam(BeamProfile):
     
     xcoords = False, False
     
     def __init__(self, *args, **kwargs):
-        super(TopHatBeam, self).__init__(*args, **kwargs)
-    
-    @staticmethod
-    def ref_fluence(radius, photon_count):
-        ref_fluence = photon_count / (math.pi * radius**2.0)
-        return ref_fluence
+        super(TophatBeam, self).__init__(*args, **kwargs)
     
     def fluence(self, rho, phi):
         return self.ref_fluence if rho <= self.radius else 0.0
     
     def fluence_integral(self, rho):
+        rho = min(rho, self.radius)
         return self.ref_fluence * math.pi * rho**2.0
 
 class GaussianBeam(BeamProfile):
@@ -69,12 +69,6 @@ class GaussianBeam(BeamProfile):
     def __init__(self, *args, **kwargs):
         super(GaussianBeam, self).__init__(*args, **kwargs)
         self.sigma = self.radius / 2.0
-    
-    @staticmethod
-    def ref_fluence(radius, photon_count):
-        sigma = radius / 2.0
-        ref_fluence = photon_count / (2.0 * math.pi * sigma**2.0)
-        return ref_fluence
     
     def fluence(self, rho, phi):
         return self.ref_fluence * math.exp(- rho**2.0 / (2.0 * self.sigma**2.0))
