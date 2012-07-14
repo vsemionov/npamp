@@ -70,7 +70,7 @@ class GaussianBeam(BeamProfile):
     
     def __init__(self, *args, **kwargs):
         super(GaussianBeam, self).__init__(*args, **kwargs)
-        self.sigma = self.radius / 2.0
+        self.sigma = self.radius/2.0
     
     def fluence(self, rho, phi):
         return self.ref_fluence * math.exp(- rho**2.0 / (2.0 * self.sigma**2.0))
