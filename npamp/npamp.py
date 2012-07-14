@@ -107,7 +107,8 @@ def load_extensions():
     for pathname in extension_pathnames:
         _, name = os.path.split(pathname)
         name, _ = os.path.splitext(name)
-        print "loading extension \"%s\"" % name
+        if debug_mode:
+            print "loading extension \"%s\"" % name
         extension = __import__(name)
         extensions.append(extension)
     return extensions
@@ -189,7 +190,7 @@ def run(conf_path, output_path, definitions):
         else:
             raise
 
-def process(extensions):
+def process():
     try:
         conf_path = None
         output_path = None
@@ -225,13 +226,16 @@ def process(extensions):
         if version_flag:
             print_info()
             sys.exit()
+        
+        extensions = load_extensions()
+        
         if extensions_flag:
             print_extensions(extensions)
             sys.exit()
         
-        if len(args) < 1:
+        if conf_path is None:
             raise InvocationError("no input file")
-        elif len(args) > 1:
+        if len(args) > 1:
             raise InvocationError("too many arguments")
         
         run(conf_path, output_path, definitions)
@@ -243,8 +247,7 @@ def main():
     
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     
-    extensions = load_extensions()
-    process(extensions)
+    process()
 
 
 if __name__ == "__main__":
