@@ -91,10 +91,11 @@ def min_steps(min_counts, varspace, rtol, limit, compute_result, compute_rdiff, 
     if (divs_x + divs_y) > max_divs_sum:
         raise exc.NumericalError("min. %s %s step counts (%s, %s) and corresponding min. divs (%s, %s) too large; max. divs sum: %s" % (opname, varnames, count_x, count_y, divs_x, divs_y, max_divs_sum))
     
-    if not var_x and not var_y:
-        return (count_x, count_y), 0.0
-    
     result, rel_error = compute_result(count_x, count_y)
+    
+    if not var_x and not var_y:
+        return (count_x, count_y), rel_error
+    
     rdiff = float("inf")
     
     while True:
