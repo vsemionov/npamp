@@ -61,7 +61,7 @@ def min_steps(min_counts, varspace, rtol, limit, compute_result, compute_rdiff, 
     var_x, var_y = varspace
     
     nvars = sum(varspace)
-    max_divs_sums = [0, 15, 24 - 1]
+    max_divs_sums = [12 - 1, 16 - 1, 24 - 1]
     max_divs_sum = max_divs_sums[nvars]
     
     min_count_int = integrator.num_integrator.min_count
@@ -73,6 +73,7 @@ def min_steps(min_counts, varspace, rtol, limit, compute_result, compute_rdiff, 
         min_count_x = max(min_count_x, min_count_int)
         divs_x = discrete.divs(min_count_x)
         count_x = discrete.steps(divs_x)
+    
     if not var_y and min_count_y <= 1:
         divs_y = 0
         count_y = 1
@@ -86,6 +87,9 @@ def min_steps(min_counts, varspace, rtol, limit, compute_result, compute_rdiff, 
     
     if (divs_x + divs_y) > max_divs_sum:
         raise exc.NumericalError("min. %s %s step counts (%s, %s) and corresponding min. divs (%s, %s) too large; max. divs sum: %s" % (opname, varnames, count_x, count_y, divs_x, divs_y, max_divs_sum))
+    
+    if not var_x and not var_y:
+        return (count_x, count_y), 0.0
     
     result, rel_error = compute_result(count_x, count_y)
     rdiff = float("inf")
@@ -114,6 +118,8 @@ def min_steps(min_counts, varspace, rtol, limit, compute_result, compute_rdiff, 
             count_x, count_y = counts_y
             result, rel_error = result_y, rel_error_y
             rdiff = rdiff_y
+        else:
+            assert False, "unhandled case"
         
         rdiff *= 2.0
         max_rel_error = max(last_rel_error, rdiff)
@@ -169,12 +175,7 @@ def min_integration_steps(integrator, (min_count_rho, min_count_phi), int_rtol, 
     
     gain = math.exp(active_medium.doping_agent.xsection * active_medium.initial_inversion.ref_inversion * active_medium.length)
     
-    beam_rho, beam_phi = input_beam.xcoords
-    if not beam_rho and not beam_phi:
-        count_rho, count_phi = 1, 1
-        rel_error = 0.0
-    else:
-        (count_rho, count_phi), rel_error = min_steps((min_count_rho, min_count_phi), (beam_rho, beam_phi), int_rtol, limit, fluence_integrals, _compute_seq_rdiff, integrator, "integration", "(rho, phi)")
+    (count_rho, count_phi), rel_error = min_steps((min_count_rho, min_count_phi), input_beam.xcoords, int_rtol, limit, fluence_integrals, _compute_seq_rdiff, integrator, "integration", "(rho, phi)")
     
     return (count_rho, count_phi), rel_error
 
