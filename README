@@ -251,7 +251,7 @@ For an example of an extension and a configuration which uses it, see examples/s
 Common Problems
 ===============
 * Warning messages in the output. NPAmp could issue warnings about exceeding discretization limits while trying to ensure the required accuracy. This could occur during pumping-stage computations (depopulation rate and population inversion) or during the process of probing different combinations of amplification-stage methods. In the former case, select a different inversion method or reduce the corresponding error tolerance (depopulation rate or inversion). In the latter case, the warnings could be unrelated to the method combination that will be used, and therefore computations could still be performed with the required accuracy. To verify this, enable verbose output to find out which method combination causes the warnings and which one is actually used, or select different (sets of) integration and amplification methods. In cases of extreme values of the physical or numerical parameters, all method combinations could require unreasonably large numbers of discretization steps. In that case, the only solution is to reduce the corresponding error tolerance (amplification or integration).
-* Unordered progress indication numbers in the output. When computations are performed in parallel, the progress indication numbers could be unordered. This is normal and does not affect the results.
+* Unordered task progress indication numbers in the output. When computations are performed in parallel, the numbers, indicating the progress of the current task, could be unordered. This is normal and does not affect the results.
 
 
 Contacts and Support
