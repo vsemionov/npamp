@@ -182,11 +182,14 @@ def run(conf_path, output_path, definitions):
                 print "finished in %.2f s" % elapsed_time
     except (cfg.ConfigurationError, core.ComputationError, model.exc.ModelError) as exc:
         output.print_error(str(exc))
+        sys.exit(1)
     except MemoryError:
         output.print_error("out of memory")
+        sys.exit(1)
     except:
         if not debug_mode:
             output.print_exception()
+            sys.exit(1)
         else:
             raise
 
@@ -241,6 +244,7 @@ def process():
         run(conf_path, output_path, definitions)
     except (getopt.GetoptError, InvocationError) as ie:
         output.print_error(str(ie), help_hint)
+        sys.exit(2)
 
 def main():
     multiprocessing.freeze_support()
