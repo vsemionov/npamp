@@ -230,7 +230,7 @@ Numerical Methods
 -----------------
 The numerical methods for pumping-stage computations are selected manually. The method of computing the depopulation rate depends on the selected ASE model.
 
-Amplification-stage computations utilize a combination of methods (an integration method and an "amplification" method). More than one method can be selected for each of the two types. In that case, NPAmp will probe all possible combinations of the selected methods from the two types and will use the most efficient one (requiring the least total number of discretization steps, depending on physical parameters, initial conditions, error tolerances, and other numerical parameters).
+Amplification-stage computations utilize a combination of methods (an integration method and an "amplification" method). More than one method can be selected for each of the two types. In that case, NPAmp will probe all possible combinations of the selected methods from the two types and will use the most efficient one (requiring the least total number of discretization steps, depending on physical and numerical parameters).
 
 Generally, it is advisable to select both available amplification methods, since each one has advantages and disadvantages over the other one and is more efficient in different cases. HybridAmplifier is first-order accurate in time and second-order accurate in space, but the physical consistency of its results is conditional and depends on the physical parameters and initial conditions. NSFDAmplifier is first-order accurate, but its results are unconditionally physically consistent. Both methods have a computational complexity of O(MxN), but HybridAmplifier generally executes faster.
 
@@ -239,7 +239,7 @@ Numerical Parameters
 --------------------
 In most cases, the default values of the numerical parameters (in the Numerics tab of the graphical interface) are an acceptable compromise between accuracy and efficiency. In the absence of specific requirements, these parameters do not need to be modified.
 
-In cases when examination of the temporal or spatial evolution of the computed quantities is required, the minimum numbers of discretization steps may need adjustment in order to increase the smoothness of the generated graphs.
+In cases when examination of the temporal or spatial evolution of the computed quantities is required, the minimum numbers of discretization steps could need adjustment in order to increase the smoothness of the generated graphs.
 
 
 Extensions
@@ -256,7 +256,7 @@ For an example of an extension and a configuration which uses it, see examples/s
 
 Common Problems
 ===============
-* Warning messages in the output. NPAmp may issue warnings about exceeding the maximum numbers of discretization steps while trying to ensure the required accuracy. If this occurs during pumping-stage computations, a possible solution is to select a different inversion method. For amplification-stage computations, NPAmp probes all combinations of the selected integration and amplification methods and chooses the most efficient combination. That is why the warnings may be related to a method combination which will not actually be used, and therefore computations may still be performed with the required accuracy. To verify this, enable verbose output to check which method combination causes the warnings, and/or select different (sets of) integration and amplification methods. In cases of extreme values of physical or numerical parameters, all method combinations may require unreasonably large numbers of discretization steps. In that case, the only solution is to reduce the required accuracy.
+* Warning messages in the output. NPAmp could issue warnings about exceeding discretization limits while trying to ensure the required accuracy. This could occur during pumping-stage computations (depopulation rate and population inversion) or during the process of probing different combinations of amplification-stage methods. In the former case, select a different inversion method and/or decrease the corresponding error tolerance (depopulation rate or inversion). In the latter case, the warnings could be unrelated to the method combination that will be used, and therefore computations could still be performed with the required accuracy. To verify this, enable verbose output to find out which method combination causes the warnings and which one is actually used, and/or select different (sets of) integration and amplification methods. In cases of extreme values of physical or numerical parameters, all method combinations may require unreasonably large numbers of discretization steps. In that case, the only solution is to reduce the corresponding error tolerance (amplification or integration).
 * Unordered progress status numbers in the output. When computations are performed in parallel, the reported status may be unordered. This is normal and does not affect the results.
 
 
