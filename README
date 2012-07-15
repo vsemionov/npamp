@@ -106,7 +106,7 @@ On Unix, NPAmp needs to be built from source. First, the required build and runt
 * make (3.81)
 * C compiler (gcc 4.6.3)
 
-Next, download and extract the source archive into the target directory, and execute ``make`` inside that directory. The executable files are <target>/npamp/npamp.py and <target>/npamp/gnpamp.py, where <target> denotes the path to the target directory.
+Next, download the source archive, extract it into the target directory, and execute ``make`` inside that directory. The executable files are <target>/npamp/npamp.py and <target>/npamp/gnpamp.py, where <target> denotes the path to the target directory.
 
 
 Operation
@@ -115,8 +115,7 @@ NPAmp has a graphical interface (GNPAmp) and a command-line interface (NPAmp).
 
 The model accepts a set of physical, numerical, operational, and output parameters. All of these parameters can be adjusted from the graphical interface. The parameters can optionally be written to and loaded from configuration files. 
 
-There are two different modes of operation -- basic mode and extended mode. In basic mode, the results are computed only for fixed values of the input parameters. In extended mode, the results are computed for varying values of some parameters and/or for different models of some processes. This facilitates the studying of the effects of various physical parameters on the results, as well as the effects of different factors, taken into account by different models.
-
+There are two different modes of operation -- basic mode and extended mode. In basic mode, the results are computed only for fixed values of the input parameters. In extended mode, the results are computed for varying values of some parameters and/or for different models of some processes. This facilitates the studying of the effects of the various physical parameters on the results, as well as the effects of the different factors, taken into account by the different models.
 
 Execution
 ---------
@@ -126,7 +125,6 @@ The most important parameters, affecting the execution of the model, are:
 * initial inversion: specifies the initial population inversion for the amplification stage; if non-zero, pumping-stage computations will not be performed
 * perform amplification: specifies whether amplification-stage computations will be performed
 * generate graphs: enables the generation of result graphs
-
 
 Basic Mode
 ----------
@@ -165,7 +163,6 @@ The most important results, currently computed in basic mode, are:
   - longitudinal evolution of the signal's fluence
   - radial shape of the input and output fluence
   - transverse shape of the input and output fluence
-
 
 Extended Mode
 -------------
@@ -222,8 +219,7 @@ Practical Use
 
 ASE Models
 ----------
-Of all implemented depopulation models, the Ross ASE model accounts for the effects of the highest number of contributing factors, and is expected to yield the most accurate results. In the graphical interface, this model is labeled as "RossApproximateASEModel", and is selected by default.
-
+Of all implemented depopulation models, the Ross ASE model accounts for the highest number of contributing factors, and is expected to yield the most accurate results. In the graphical interface, this model is labeled as "RossApproximateASEModel", and is selected by default.
 
 Numerical Methods
 -----------------
@@ -232,7 +228,6 @@ The method for computing the depopulation rate depends on the selected ASE model
 Amplification-stage computations utilize a combination of methods (an integration method and an "amplification" method). More than one method can be selected for each of the two types. In that case, NPAmp will probe all possible combinations of the selected methods of the two types and will use the most efficient one (requiring the least total number of discretization steps, depending on physical and numerical parameters).
 
 Generally, it is advisable to select both implemented amplification methods, since each one has advantages and disadvantages over the other one, and is more efficient in different cases. HybridAmplifier is first-order accurate in time and second-order accurate in space, but the physical consistency of its results is conditional and depends on the physical parameters and initial conditions. NSFDAmplifier is first-order accurate, but its results are unconditionally physically consistent. Both methods have a computational complexity of O(MxN), but HybridAmplifier generally executes faster for the same discretization parameters.
-
 
 Numerical Parameters
 --------------------
@@ -255,10 +250,8 @@ For an example of an extension and a configuration which uses it, see examples/s
 
 Common Problems
 ===============
-* Warning messages in the output. NPAmp could issue warnings about exceeding discretization limits while trying to ensure the required accuracy. This could occur during pumping-stage computations (depopulation rate and population inversion) or during the process of probing different combinations of amplification-stage methods. In the former case, select a different inversion method and/or decrease the corresponding error tolerance (depopulation rate or inversion). In the latter case, the warnings could be unrelated to the method combination that will be used, and therefore computations could still be performed with the required accuracy. To verify this, enable verbose output to find out which method combination causes the warnings and which one is actually used, and/or select different (sets of) integration and amplification methods. In cases of extreme values of the physical or numerical parameters, all method combinations could require unreasonably large numbers of discretization steps. In that case, the only solution is to reduce the corresponding error tolerance (amplification or integration).
-* Unordered progress status numbers in the output. When computations are performed in parallel, the reported status could be unordered. This is normal and does not affect the results.
-
-
+* Warning messages in the output. NPAmp could issue warnings about exceeding discretization limits while trying to ensure the required accuracy. This could occur during pumping-stage computations (depopulation rate and population inversion) or during the process of probing different combinations of amplification-stage methods. In the former case, select a different inversion method or reduce the corresponding error tolerance (depopulation rate or inversion). In the latter case, the warnings could be unrelated to the method combination that will be used, and therefore computations could still be performed with the required accuracy. To verify this, enable verbose output to find out which method combination causes the warnings and which one is actually used, or select different (sets of) integration and amplification methods. In cases of extreme values of the physical or numerical parameters, all method combinations could require unreasonably large numbers of discretization steps. In that case, the only solution is to reduce the corresponding error tolerance (amplification or integration).
+* Unordered progress indication numbers in the output. When computations are performed in parallel, the progress indication numbers could be unordered. This is normal and does not affect the results.
 
 
 Contacts and Support
