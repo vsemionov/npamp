@@ -25,7 +25,7 @@
 #define MyAppName "NPAmp"
 #define MyGUIAppName "GNPAmp"
 ; the version is also specified below for VersionInfoVersion
-#define MyAppVersion "1.2.16"
+#define MyAppVersion "1.2.18"
 #define MyAppPublisher "Victor Semionov"
 #define MyPublisherURL "http://www.vsemionov.org/"
 #define MyAppURL "http://www.vsemionov.org/npamp/"
@@ -53,7 +53,7 @@ SolidCompression=yes
 
 ChangesAssociations=yes
 
-VersionInfoVersion=1.2.16.0
+VersionInfoVersion=1.2.18.0
 VersionInfoCopyright=Copyright (C) {#MyCopyrightPeriod} {#MyCopyrightHolder}
 
 SetupIconFile=setup.ico

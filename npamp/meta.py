@@ -24,7 +24,7 @@
 
 app_name = "NPAmp"
 gui_app_name = "G" + app_name
-app_version = "1.2.16"
+app_version = "1.2.18"
 app_author_name = "Victor Semionov"
 app_author_email = "vsemionov@gmail.com"
 app_author = "%s <%s>" % (app_author_name, app_author_email)
