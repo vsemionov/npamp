@@ -77,6 +77,12 @@ class PulseAmplifier(object):
                 self.population[0][l, k], self.population[1][l, k] = self._calc_population(rho, phi, l, k)
                 self.density[l, k] = self._calc_density(rho, phi, l, k)
     
+    def _init_time(self, input_pulse, count_t):
+        T = self.T
+        if T is None or len(T) != count_t or T[0] != input_pulse.t0 or self._duration != input_pulse.duration:
+            self.T = np.linspace(input_pulse.t0, input_pulse.t0 + input_pulse.duration, count_t)
+            self._duration = input_pulse.duration
+    
     def _init_arrays(self):
         new_array = lambda old, shape: np.empty(shape) if old is None or old.shape != shape else old
         shape = (self.Z.shape + self.T.shape)
@@ -90,18 +96,17 @@ class PulseAmplifier(object):
         
         density_out = self.density[-1]
         population_final = tuple(state.T[-1] for state in self.population)
+        
         return density_out, population_final
     
     def amplify(self, rho, phi, input_pulse, count_t):
         self._input_pulse = input_pulse
         
-        T = self.T
-        if T is None or len(T) != count_t or T[0] != input_pulse.t0 or self._duration != input_pulse.duration:
-            self.T = np.linspace(input_pulse.t0, input_pulse.t0 + input_pulse.duration, count_t)
-            self._duration = input_pulse.duration
+        self._init_time(input_pulse, count_t)
         
-        data_out = self._compute(rho, phi)
-        return data_out
+        results = self._compute(rho, phi)
+        
+        return results
 
 class ExactAmplifier(PulseAmplifier):
     
@@ -171,7 +176,6 @@ class ExactOutputAmplifier(ExactAmplifier):
         Z, T = self.Z, self.T
         density_out = np.vectorize(self._exact_density)(rho, phi, Z[-1], T)
         population_final = np.vectorize(self._exact_population)(rho, phi, Z, T[-1])
-        
         return density_out, population_final
 
 class NumericalAmplifier(PulseAmplifier):
@@ -196,14 +200,26 @@ class NumericalAmplifier(PulseAmplifier):
     def _solve(self, rho, phi):
         raise NotImplementedError()
     
-    def amplify(self, rho, phi, input_pulse, count_t, initial_population=None, input_density=None):
+    def amplify(self, rho, phi, input_pulse, count_t, Time=None, initial_population=None, input_density=None):
         assert initial_population is None or (len(initial_population) == 2 and [state.shape == self.Z.shape for state in initial_population] == [True] * 2)
-        assert input_density is None or input_density.shape == (count_t,)
+        
+        if input_density is None:
+            assert input_pulse is not None and count_t
+            self._input_pulse = input_pulse
+            self._init_time(input_pulse, count_t)
+        else:
+            assert Time is not None
+            count_t = len(Time)
+            assert input_density.shape == (count_t,)
+            self.T = Time
+            self._duration = Time[-1] - Time[0]
         
         self._initial_population = initial_population
         self._input_density = input_density
         
-        return super(NumericalAmplifier, self).amplify(rho, phi, input_pulse, count_t)
+        results = self._compute(rho, phi)
+        
+        return results
 
 class HybridAmplifier(NumericalAmplifier):
     
