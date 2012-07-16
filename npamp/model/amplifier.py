@@ -49,18 +49,14 @@ class PulseAmplifier(object):
     def __init__(self, active_medium, count_z):
         self.active_medium = active_medium
         
-        self.count_z = count_z
-        self.Z, self.dz = np.linspace(0.0, active_medium.length, self.count_z, retstep=True)
-        
-        self.input_pulse = None
-        
-        self._tdur = None
-        self.count_t = None
+        self.Z = np.linspace(0.0, active_medium.length, count_z)
         self.T = None
-        self.dt = None
         
         self.density = None
         self.population = None
+        
+        self._input_pulse = None
+        self._duration = None
     
     @staticmethod
     def min_steps_z(active_medium):
@@ -75,19 +71,18 @@ class PulseAmplifier(object):
     def _calc_density(self, rho, phi, l, k):
         raise NotImplementedError()
     
+    def _solve(self, rho, phi):
+        for l in range(len(self.Z)):
+            for k in range(len(self.T)):
+                self.population[0][l, k], self.population[1][l, k] = self._calc_population(rho, phi, l, k)
+                self.density[l, k] = self._calc_density(rho, phi, l, k)
+    
     def _init_arrays(self):
         new_array = lambda old, shape: np.empty(shape) if old is None or old.shape != shape else old
         shape = (self.Z.shape + self.T.shape)
         self.density = new_array(self.density, shape)
         self.population = self.population or (None, None)
         self.population = tuple(new_array(state, shape) for state in self.population)
-    
-    def _solve(self, rho, phi):
-        for l in range(self.count_z):
-            for k in range(self.count_t):
-                idxs = (l, k)
-                self.population[0][idxs], self.population[1][idxs] = self._calc_population(rho, phi, *idxs)
-                self.density[idxs] = self._calc_density(rho, phi, *idxs)
     
     def _compute(self, rho, phi):
         self._init_arrays()
@@ -98,12 +93,12 @@ class PulseAmplifier(object):
         return density_out, population_final
     
     def amplify(self, rho, phi, input_pulse, count_t):
-        self.input_pulse = input_pulse
+        self._input_pulse = input_pulse
         
-        if self._tdur != input_pulse.duration or self.count_t != count_t or self.T is None or self.T[0] != input_pulse.t0:
-            self._tdur = input_pulse.duration
-            self.count_t = count_t
-            self.T, self.dt = np.linspace(input_pulse.t0, input_pulse.t0 + input_pulse.duration, count_t, retstep=True)
+        T = self.T
+        if T is None or len(T) != count_t or T[0] != input_pulse.t0 or self._duration != input_pulse.duration:
+            self.T = np.linspace(input_pulse.t0, input_pulse.t0 + input_pulse.duration, count_t)
+            self._duration = input_pulse.duration
         
         data_out = self._compute(rho, phi)
         return data_out
@@ -132,14 +127,12 @@ class ExactAmplifier(PulseAmplifier):
         return 2
     
     def _calc_population(self, rho, phi, l, k):
-        z = self.Z[l]
-        t = self.T[k]
+        z, t = self.Z[l], self.T[k]
         population = self._exact_population(rho, phi, z, t)
         return population
     
     def _calc_density(self, rho, phi, l, k):
-        z = self.Z[l]
-        t = self.T[k]
+        z, t = self.Z[l], self.T[k]
         density = self._exact_density(rho, phi, z, t)
         return density
     
@@ -149,7 +142,7 @@ class ExactAmplifier(PulseAmplifier):
         xsection = active_medium.doping_agent.xsection
         four_level = self.four_level
         inversion_integral = active_medium.initial_inversion.inversion_integral(rho, phi, z)
-        density_integral = self.input_pulse.density_integral(t)
+        density_integral = self._input_pulse.density_integral(t)
         inversion_exp = math.exp(- xsection * inversion_integral)
         inversion_coef = 2.0 if not four_level else 1.0
         density_exp_reciproc = math.exp(- inversion_coef * xsection * light_speed * density_integral)
@@ -161,7 +154,7 @@ class ExactAmplifier(PulseAmplifier):
     
     def _exact_density(self, rho, phi, z, t):
         active_medium = self.active_medium
-        input_pulse = self.input_pulse
+        input_pulse = self._input_pulse
         light_speed = active_medium.light_speed
         xsection = active_medium.doping_agent.xsection
         inversion_integral = active_medium.initial_inversion.inversion_integral(rho, phi, z)
@@ -175,8 +168,9 @@ class ExactAmplifier(PulseAmplifier):
 class ExactOutputAmplifier(ExactAmplifier):
     
     def _compute(self, rho, phi):
-        density_out = np.vectorize(self._exact_density)(rho, phi, self.Z[-1], self.T)
-        population_final = np.vectorize(self._exact_population)(rho, phi, self.Z, self.T[-1])
+        Z, T = self.Z, self.T
+        density_out = np.vectorize(self._exact_density)(rho, phi, Z[-1], T)
+        population_final = np.vectorize(self._exact_population)(rho, phi, Z, T[-1])
         
         return density_out, population_final
 
@@ -203,7 +197,7 @@ class NumericalAmplifier(PulseAmplifier):
         raise NotImplementedError()
     
     def amplify(self, rho, phi, input_pulse, count_t, initial_population=None, input_density=None):
-        assert initial_population is None or (len(initial_population) == 2 and [state.shape == (self.count_z,) for state in initial_population] == [True] * 2)
+        assert initial_population is None or (len(initial_population) == 2 and [state.shape == self.Z.shape for state in initial_population] == [True] * 2)
         assert input_density is None or input_density.shape == (count_t,)
         
         self._initial_population = initial_population
@@ -219,15 +213,19 @@ class HybridAmplifier(NumericalAmplifier):
         # stability condition: unconditionally unstable for the solved equation
         # positiveness condition: 1.0 - xsection * max_inversion * (step/2.0) > 0
         # monotonically increasing condition: always true when the positiveness condition is true
+        
+        xsection = active_medium.doping_agent.xsection
+        length = active_medium.length
+        
         if initial_population is None:
             max_inversion = active_medium.initial_inversion.ref_inversion
         else:
             max_inversion = np.amax(initial_population[0])
-        xsection = active_medium.doping_agent.xsection
-        length = active_medium.length
+        
         dz_sing = 2.0 / (xsection * max_inversion) if max_inversion != 0.0 else float("inf")
         dz_max = dz_sing / 2.0
         min_count_z = NumericalAmplifier._min_steps(length, dz_max)
+        
         return min_count_z
     
     def min_steps_t(self, input_pulse, initial_population=None):
@@ -239,14 +237,20 @@ class HybridAmplifier(NumericalAmplifier):
         
         active_medium = self.active_medium
         doping_agent = active_medium.doping_agent
+        light_speed = active_medium.light_speed
+        xsection = doping_agent.xsection
+        duration = input_pulse.duration
+        
+        Z = self.Z
+        count_z = len(Z)
+        dz = (Z[-1] - Z[0]) / (count_z - 1)
+        
         if initial_population is None:
             max_inversion = active_medium.initial_inversion.ref_inversion
         else:
             max_inversion = np.amax(initial_population[0])
-        light_speed = active_medium.light_speed
-        xsection = doping_agent.xsection
-        duration = input_pulse.duration
-        max_density = input_pulse.ref_density * ((1.0 + xsection*max_inversion*self.dz/2.0) / (1.0 - xsection*max_inversion*self.dz/2.0))**(self.count_z-1)
+        
+        max_density = input_pulse.ref_density * ((1.0 + xsection*max_inversion*dz/2.0) / (1.0 - xsection*max_inversion*dz/2.0))**(count_z-1)
         
         # n2 positiveness
         dt_neg_n2 = 1.0 / (xsection * light_speed * max_density) if max_density != 0.0 else float("inf")
@@ -260,6 +264,7 @@ class HybridAmplifier(NumericalAmplifier):
         
         dt_max = min(dt_neg_n2, dt_neg_n1, dt_neg_n) / 2.0
         min_count_t = NumericalAmplifier._min_steps(duration, dt_max)
+        
         return min_count_t
     
     def _solve(self, rho, phi):

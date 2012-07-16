@@ -43,7 +43,7 @@ ctypedef np.double_t DTYPE_t
 @cython.nonecheck(False)
 def _hybrid_amplifier_solve(self, rho, phi):
     active_medium = self.active_medium
-    input_pulse = self.input_pulse
+    input_pulse = self._input_pulse
     
     cdef np.ndarray[DTYPE_t, ndim=1] Z = self.Z
     cdef np.ndarray[DTYPE_t, ndim=1] T = self.T
@@ -57,11 +57,11 @@ def _hybrid_amplifier_solve(self, rho, phi):
     cdef np.ndarray[DTYPE_t, ndim=1] initial_lower = self._initial_population[1] if have_initial_population else None
     cdef np.ndarray[DTYPE_t, ndim=1] input_density = self._input_density
     
-    cdef unsigned int count_z = self.count_z
-    cdef unsigned int count_t = self.count_t
+    cdef unsigned int count_z = len(Z)
+    cdef unsigned int count_t = len(T)
     
-    cdef DTYPE_t dz = self.dz
-    cdef DTYPE_t dt = self.dt
+    cdef DTYPE_t dz = (Z[count_z-1] - Z[0]) / (count_z - 1)
+    cdef DTYPE_t dt = (T[count_t-1] - T[0]) / (count_t - 1)
     
     cdef DTYPE_t light_speed = active_medium.light_speed
     cdef DTYPE_t xsection = active_medium.doping_agent.xsection
@@ -121,7 +121,7 @@ def _hybrid_amplifier_solve(self, rho, phi):
 def _nsfd_amplifier_solve(self, rho, phi):
     # for the analytical solution of the rate equations, see http://eqworld.ipmnet.ru/en/solutions/sysode/sode0101.pdf
     active_medium = self.active_medium
-    input_pulse = self.input_pulse
+    input_pulse = self._input_pulse
     
     cdef np.ndarray[DTYPE_t, ndim=1] Z = self.Z
     cdef np.ndarray[DTYPE_t, ndim=1] T = self.T
@@ -135,11 +135,11 @@ def _nsfd_amplifier_solve(self, rho, phi):
     cdef np.ndarray[DTYPE_t, ndim=1] initial_lower = self._initial_population[1] if have_initial_population else None
     cdef np.ndarray[DTYPE_t, ndim=1] input_density = self._input_density
     
-    cdef unsigned int count_z = self.count_z
-    cdef unsigned int count_t = self.count_t
+    cdef unsigned int count_z = len(Z)
+    cdef unsigned int count_t = len(T)
     
-    cdef DTYPE_t dz = self.dz
-    cdef DTYPE_t dt = self.dt
+    cdef DTYPE_t dz = (Z[count_z-1] - Z[0]) / (count_z - 1)
+    cdef DTYPE_t dt = (T[count_t-1] - T[0]) / (count_t - 1)
     
     cdef DTYPE_t light_speed = active_medium.light_speed
     cdef DTYPE_t xsection = active_medium.doping_agent.xsection
