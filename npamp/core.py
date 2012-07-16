@@ -278,8 +278,6 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     ref_pulse = create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref)
     pulse_train = create_train(ref_pulse)
     
-    lower_decay = model.amplifier.lower_state_decay(active_medium, pulse_train)
-    
     int_type, amp_type = num_types
     count_rho, count_phi, count_z, count_t = counts
     integrator = model.integrator.DomainIntegrator(int_type)
@@ -288,6 +286,11 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     radius = min(active_medium.radius, input_beam.rho_trunc)
     Rho = np.linspace(0.0, radius, count_rho)
     Phi = np.linspace(0.0, 2.0*math.pi, count_phi)
+    
+    output_fluence = np.empty((count_rho, count_phi))
+    
+    max_fluences = np.empty(params.train_pulse_count)
+    output_photon_counts = np.empty(params.train_pulse_count)
     
     populations = [[None] * count_phi for _ in range(count_rho)]
     for m, rho in enumerate(Rho):
@@ -301,10 +304,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     amp._init_time(norm_pulse, count_t)
     norm_input_density = np.vectorize(norm_pulse.density)(amp.T)
     
-    output_fluence = np.empty((count_rho, count_phi))
-    
-    max_fluences = np.empty(params.train_pulse_count)
-    output_photon_counts = np.empty(params.train_pulse_count)
+    lower_decay = model.amplifier.lower_state_decay(active_medium, pulse_train)
     
     pulse_num_stride = params.pulse_num_stride
     for pnum in range(params.train_pulse_count):
@@ -314,6 +314,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
         for m, rho in enumerate(Rho):
             for n, phi in enumerate(Phi):
                 input_density = norm_input_density * input_beam.fluence(rho, phi)
+                
                 density_out, population_final = amp.amplify(rho, phi, None, None, T=amp.T, initial_population=populations[m][n], input_density=input_density)
                 
                 upper = np.copy(population_final[0])
@@ -330,7 +331,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
         output_photon_counts[pnum] = integrator.integrate_base(active_medium, input_beam, Rho, Phi, output_fluence)
     
     del input_density, density_out, population_final, upper, lower
-    del amp, populations, norm_input_density, output_fluence
+    del amp, output_fluence, populations, norm_input_density
     
     if not quiet or params.verbose:
         output.show_status((pnum+1, None), (pulse_num_stride, None), True)
