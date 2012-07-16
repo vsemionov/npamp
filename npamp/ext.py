@@ -53,7 +53,7 @@ def _ref_signal_fluence(active_medium, (rho, phi), (integrator, amp), count_t, r
     input_density = np.vectorize(ref_pulse.density)(amp.T)
     
     upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
-    lower = np.zeros(amp.count_z)
+    lower = np.zeros(len(amp.Z))
     population = (upper, lower)
     
     pulse_fluences = np.empty(params.train_pulse_count)

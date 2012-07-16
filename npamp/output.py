@@ -164,8 +164,8 @@ def plot_output(dirname, input_beam, input_pulse, fwhm, amp, fluences, exact_den
     
     out_t_label = norm_t_label if params.output_rel_time else t_amp_label
     
-    stride_z = max(amp.count_z // params.out_count_z, 1)
-    stride_t = max(amp.count_t // params.out_count_t, 1)
+    stride_z = max(len(amp.Z) // params.out_count_z, 1)
+    stride_t = max(len(amp.T) // params.out_count_t, 1)
     
     plot.plot_data(filename("density_in"), "Input Photon Density", (T, None, tlim, out_t_label), (density[0]/ref_density, None, None, density_rel_label))
     plot.plot_data(filename("density_out"), "Output Photon Density", (T, None, tlim, out_t_label), (density[-1]/ref_density, None, None, density_rel_label))

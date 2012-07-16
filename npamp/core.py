@@ -259,8 +259,9 @@ def amplify_ref_pulse(dirname, num_types, counts, ref_inversion):
     unitconv.print_result("fluence gain: {}", (), (fluence_gain,))
     
     if params.graphs:
-        fluences = np.empty(amp.count_z)
-        for l in range(amp.count_z):
+        count_z = len(amp.Z)
+        fluences = np.empty(count_z)
+        for l in range(count_z):
             fluences[l] = integrator.integrate(amp.T, amp.density[l]) * active_medium.light_speed
         print output.status_writing
         dirname = output.init_dir(dirname)
