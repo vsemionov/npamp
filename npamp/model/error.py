@@ -214,10 +214,13 @@ def min_amplification_steps(amp_type, (min_count_z, min_count_t), amp_rtol, limi
         lower = np.zeros(count_z)
         population = (upper, lower)
         
+        amp._init_time(ref_pulse, count_t)
+        input_density = np.vectorize(ref_pulse.density)(amp.T)
+        
         pulse_fluences = np.empty(pulse_count)
         
         for pnum in range(pulse_count):
-            density_out, population_final = amp.amplify(rho, phi, ref_pulse, count_t, initial_population=population)
+            density_out, population_final = amp.amplify(rho, phi, None, None, T=amp.T, initial_population=population, input_density=input_density)
             
             upper = np.copy(population_final[0])
             lower = population_final[1] * lower_decay

@@ -200,7 +200,7 @@ class NumericalAmplifier(PulseAmplifier):
     def _solve(self, rho, phi):
         raise NotImplementedError()
     
-    def amplify(self, rho, phi, input_pulse, count_t, Time=None, initial_population=None, input_density=None):
+    def amplify(self, rho, phi, input_pulse, count_t, T=None, initial_population=None, input_density=None):
         assert initial_population is None or (len(initial_population) == 2 and [state.shape == self.Z.shape for state in initial_population] == [True] * 2)
         
         if input_density is None:
@@ -208,11 +208,11 @@ class NumericalAmplifier(PulseAmplifier):
             self._input_pulse = input_pulse
             self._init_time(input_pulse, count_t)
         else:
-            assert Time is not None
-            count_t = len(Time)
+            assert T is not None
+            count_t = len(T)
             assert input_density.shape == (count_t,)
-            self.T = Time
-            self._duration = Time[-1] - Time[0]
+            self.T = T
+            self._duration = T[-1] - T[0]
         
         self._initial_population = initial_population
         self._input_density = input_density

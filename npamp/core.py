@@ -287,7 +287,11 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     Phi = np.linspace(0.0, 2.0*math.pi, count_phi)
     
     populations = [[None] * count_phi for _ in range(count_rho)]
-    input_pulses = [[None] * count_phi for _ in range(count_rho)]
+    
+    norm_beam = params.beam_class(params.beam_radius, 1.0)
+    norm_pulse = create_pulse(active_medium, norm_beam, norm_beam.rho_ref, norm_beam.phi_ref)
+    amp._init_time(norm_pulse, count_t)
+    norm_input_density = np.vectorize(norm_pulse.density)(amp.T)
     
     output_fluence = np.empty((count_rho, count_phi))
     
@@ -299,8 +303,6 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
             upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
             lower = np.zeros(count_z)
             populations[m][n] = (upper, lower)
-            input_pulse = create_pulse(active_medium, input_beam, rho, phi)
-            input_pulses[m][n] = input_pulse
     
     lower_decay = model.amplifier.lower_state_decay(active_medium, pulse_train)
     
@@ -311,8 +313,8 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
         
         for m, rho in enumerate(Rho):
             for n, phi in enumerate(Phi):
-                input_pulse = input_pulses[m][n]
-                density_out, population_final = amp.amplify(rho, phi, input_pulse, count_t, initial_population=populations[m][n])
+                input_density = norm_input_density * input_beam.fluence(rho, phi)
+                density_out, population_final = amp.amplify(rho, phi, None, None, T=amp.T, initial_population=populations[m][n], input_density=input_density)
                 
                 upper = np.copy(population_final[0])
                 lower = population_final[1] * lower_decay
@@ -327,7 +329,8 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
         max_fluences[pnum] = output_fluence[ref_idx]
         output_photon_counts[pnum] = integrator.integrate_base(active_medium, input_beam, Rho, Phi, output_fluence)
     
-    del amp, output_fluence, populations, input_pulses
+    del input_density, density_out, population_final, upper, lower
+    del amp, output_fluence, populations, norm_input_density
     
     if not quiet or params.verbose:
         output.show_status((pnum+1, None), (pulse_num_stride, None), True)
