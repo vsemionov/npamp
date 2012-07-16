@@ -49,6 +49,8 @@ def _set_geom(rm, rb):
         raise
 
 def _ref_signal_fluence(active_medium, (rho, phi), (integrator, amp), count_t, ref_pulse, lower_decay):
+    pulse_count = params.train_pulse_count
+    
     upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
     lower = np.zeros(len(amp.Z))
     population = (upper, lower)
@@ -56,9 +58,9 @@ def _ref_signal_fluence(active_medium, (rho, phi), (integrator, amp), count_t, r
     amp._init_time(ref_pulse, count_t)
     input_density = np.vectorize(ref_pulse.density)(amp.T)
     
-    pulse_fluences = np.empty(params.train_pulse_count)
+    pulse_fluences = np.empty(pulse_count)
     
-    for pnum in range(params.train_pulse_count):
+    for pnum in range(pulse_count):
         density_out, population_final = amp.amplify(rho, phi, None, None, T=amp.T, initial_population=population, input_density=input_density)
         
         upper = np.copy(population_final[0])
