@@ -387,7 +387,7 @@ def report_results(ref_inversion, max_output_fluence, output_photon_counts, outp
     extraction_eff_abs_error = (added_energy + output_energy_abs_error) / max(stored_energy - stored_energy_abs_error, 0.0) - extraction_eff
     total_eff_abs_error = output_energy_abs_error / pump_energy
     
-    max_output_fluence_abs_error = max_output_fluence * energy_rel_error # rtol is specified for the energy, not density/fluence, but use it nevertheless
+    max_output_fluence_abs_error = max_output_fluence * energy_rel_error
     
     photon_count_first, photon_count_last = output_photon_counts[0], output_photon_counts[-1]
     photon_count_first_abs_error, photon_count_last_abs_error = photon_count_first * energy_rel_error, photon_count_last * energy_rel_error
