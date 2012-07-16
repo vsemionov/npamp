@@ -146,15 +146,19 @@ class ExactAmplifier(PulseAmplifier):
         light_speed = active_medium.light_speed
         xsection = active_medium.doping_agent.xsection
         four_level = self.four_level
+        
+        initial_inversion = active_medium.initial_inversion.inversion(rho, phi, z)
         inversion_integral = active_medium.initial_inversion.inversion_integral(rho, phi, z)
         density_integral = self._input_pulse.density_integral(t)
-        inversion_exp = math.exp(- xsection * inversion_integral)
+        
         inversion_coef = 2.0 if not four_level else 1.0
+        inversion_exp = math.exp(- xsection * inversion_integral)
         density_exp_reciproc = math.exp(- inversion_coef * xsection * light_speed * density_integral)
-        initial_inversion = active_medium.initial_inversion.inversion(rho, phi, z)
         inversion = initial_inversion * inversion_exp * density_exp_reciproc / (1.0 + density_exp_reciproc * (inversion_exp - 1.0))
+        
         upper = (initial_inversion + inversion) / 2.0 if not four_level else inversion
         lower = (initial_inversion - inversion) / 2.0 if not four_level else 0.0
+        
         return (upper, lower)
     
     def _exact_density(self, rho, phi, z, t):
@@ -162,20 +166,25 @@ class ExactAmplifier(PulseAmplifier):
         input_pulse = self._input_pulse
         light_speed = active_medium.light_speed
         xsection = active_medium.doping_agent.xsection
+        
+        input_density = input_pulse.density(t)
         inversion_integral = active_medium.initial_inversion.inversion_integral(rho, phi, z)
         density_integral = input_pulse.density_integral(t)
-        input_density = input_pulse.density(t)
+        
         inversion_coef = 2.0 if not self.four_level else 1.0
         density_exp = math.exp(- inversion_coef * xsection * light_speed * density_integral)
         density = input_density / (1.0 - (1.0 - math.exp(- xsection * inversion_integral)) * density_exp)
+        
         return density
 
 class ExactOutputAmplifier(ExactAmplifier):
     
     def _compute(self, rho, phi):
         Z, T = self.Z, self.T
+        
         density_out = np.vectorize(self._exact_density)(rho, phi, Z[-1], T)
         population_final = np.vectorize(self._exact_population)(rho, phi, Z, T[-1])
+        
         return density_out, population_final
 
 class NumericalAmplifier(PulseAmplifier):
@@ -210,7 +219,7 @@ class NumericalAmplifier(PulseAmplifier):
         else:
             assert T is not None
             count_t = len(T)
-            assert input_density.shape == (count_t,)
+            assert input_density.shape == T.shape
             self.T = T
             self._duration = T[-1] - T[0]
         
