@@ -278,6 +278,8 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     ref_pulse = create_pulse(active_medium, input_beam, input_beam.rho_ref, input_beam.phi_ref)
     pulse_train = create_train(ref_pulse)
     
+    lower_decay = model.amplifier.lower_state_decay(active_medium, pulse_train)
+    
     int_type, amp_type = num_types
     count_rho, count_phi, count_z, count_t = counts
     integrator = model.integrator.DomainIntegrator(int_type)
@@ -288,6 +290,11 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     Phi = np.linspace(0.0, 2.0*math.pi, count_phi)
     
     populations = [[None] * count_phi for _ in range(count_rho)]
+    for m, rho in enumerate(Rho):
+        for n, phi in enumerate(Phi):
+            upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
+            lower = np.zeros(count_z)
+            populations[m][n] = (upper, lower)
     
     norm_beam = params.beam_class(params.beam_radius, 1.0)
     norm_pulse = create_pulse(active_medium, norm_beam, norm_beam.rho_ref, norm_beam.phi_ref)
@@ -298,14 +305,6 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     
     max_fluences = np.empty(params.train_pulse_count)
     output_photon_counts = np.empty(params.train_pulse_count)
-    
-    for m, rho in enumerate(Rho):
-        for n, phi in enumerate(Phi):
-            upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
-            lower = np.zeros(count_z)
-            populations[m][n] = (upper, lower)
-    
-    lower_decay = model.amplifier.lower_state_decay(active_medium, pulse_train)
     
     pulse_num_stride = params.pulse_num_stride
     for pnum in range(params.train_pulse_count):
@@ -331,7 +330,7 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
         output_photon_counts[pnum] = integrator.integrate_base(active_medium, input_beam, Rho, Phi, output_fluence)
     
     del input_density, density_out, population_final, upper, lower
-    del amp, output_fluence, populations, norm_input_density
+    del amp, populations, norm_input_density, output_fluence
     
     if not quiet or params.verbose:
         output.show_status((pnum+1, None), (pulse_num_stride, None), True)
@@ -341,8 +340,11 @@ def amplify_train(dirname, num_types, counts, ref_inversion, quiet=False):
     
     max_output_fluence = max_fluences[::-1].sum()
     max_output_fluence = model.energy.energy(params.lasing_wavelen, max_output_fluence)
+    del max_fluences
+    
     train_output_photon_count = output_photon_counts[::-1].sum()
     train_output_energy = model.energy.energy(params.lasing_wavelen, train_output_photon_count)
+    
     rel_gain_decrease = 1.0 - output_photon_counts[-1] / output_photon_counts[0]
     
     if not quiet:

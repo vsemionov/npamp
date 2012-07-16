@@ -49,12 +49,12 @@ def _set_geom(rm, rb):
         raise
 
 def _ref_signal_fluence(active_medium, (rho, phi), (integrator, amp), count_t, ref_pulse, lower_decay):
-    amp._init_time(ref_pulse, count_t)
-    input_density = np.vectorize(ref_pulse.density)(amp.T)
-    
     upper = np.vectorize(active_medium.initial_inversion.inversion)(rho, phi, amp.Z)
     lower = np.zeros(len(amp.Z))
     population = (upper, lower)
+    
+    amp._init_time(ref_pulse, count_t)
+    input_density = np.vectorize(ref_pulse.density)(amp.T)
     
     pulse_fluences = np.empty(params.train_pulse_count)
     
