@@ -69,7 +69,7 @@ Name: "fileassoc"; Description: "&Register file associations"; GroupDescription:
 [Files]
 Source: "..\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion
 Source: "..\dist\*.*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\README"; DestDir: "{app}"; DestName: "README.txt"; Flags: ignoreversion
+Source: "..\README.rst"; DestDir: "{app}"; DestName: "README.txt"; Flags: ignoreversion
 Source: "..\AUTHORS"; DestDir: "{app}"; DestName: "AUTHORS.txt"; Flags: ignoreversion
 Source: "..\LICENSE"; DestDir: "{app}"; DestName: "LICENSE.txt"; Flags: ignoreversion
 Source: "..\CHANGES"; DestDir: "{app}"; DestName: "CHANGES.txt"; Flags: ignoreversion
