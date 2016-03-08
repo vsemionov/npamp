@@ -22,11 +22,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-.PHONY: app exe installer clean
+.PHONY: ext app exe installer clean
 
-app:
+ext:
 	python setup.py build_ext
 	find build -type f -and \( -name native.so -or -name native.pyd \) -exec cp \{\} npamp/model/ \;
+
+app: ext
 	pyside-rcc -o npamp/main_rc.py res/main.qrc
 	pyside-uic -o npamp/mainwin.py npamp/mainwin.ui
 	pyside-uic -o npamp/outwin.py npamp/outwin.ui
