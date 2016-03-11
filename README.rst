@@ -5,6 +5,10 @@ NPAmp
 Numerical model of a laser amplifier for pulse trains, accounting for amplified spontaneous emission and finite lower state lifetime
 ------------------------------------------------------------------------------------------------------------------------------------
 
+.. image:: https://travis-ci.org/vsemionov/npamp.svg?branch=master
+    :target: https://travis-ci.org/vsemionov/npamp
+
+
 NPAmp is an implementation of a numerical model of a laser amplifier. It is designed for practical and educational purposes.
 
 
